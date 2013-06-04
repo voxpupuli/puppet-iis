@@ -1,0 +1,7 @@
+auth.conf
+puppet.conf
+fileserver.conf
+*.iml
+Gemfile.lock
+/.idea/*
+/manifests/*
