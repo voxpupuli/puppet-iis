@@ -2,8 +2,8 @@ define iis::manage_site($site_path, $host_header, $app_pool, $site_name = $title
   include 'param::powershell'
 
   file { "${host_header}-SitePath-${site_path}":
-    path    => $site_path,
     ensure  => directory,
+    path    => $site_path,
     require => iis::manage_app_pool[$site_name],
   }
 
