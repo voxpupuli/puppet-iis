@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-powershell = "powershell.exe -ExecutionPolicy RemoteSigned"
+powershell = 'powershell.exe -ExecutionPolicy RemoteSigned'
 
 describe 'iis::manage_site', :type => :define do
   describe 'when managing the iis site' do
