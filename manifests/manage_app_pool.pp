@@ -23,7 +23,7 @@ define iis::manage_app_pool($app_pool_name = $title, $enable_32_bit = false, $ma
     command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Set-ItemProperty \"IIS:\AppPools\\${app_pool_name}\" enable32BitAppOnWin64 ${enable_32_bit}\"",
     path      => "${iis::param::powershell::path};${::path}",
     onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean('${enable_32_bit}')) { exit 1 } else { exit 0 }\"",
-    require   => Exec["Framework-${app_pool_name}"],
+    require   => Exec["Create-${app_pool_name}"],
     logoutput => true,
   }
 }
