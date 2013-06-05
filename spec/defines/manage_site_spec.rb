@@ -13,11 +13,11 @@ describe 'iis::manage_site', :type => :define do
 
     it { should include_class('iis::param::powershell') }
 
-    it do should contain_exec('CreateSite-myWebSite').with(
+    it { should contain_exec('CreateSite-myWebSite').with({
       'command' => "#{powershell} -Command \"Import-Module WebAdministration; New-WebSite -Name myWebSite -Port 80 -IP * -HostHeader myHost.example.com -PhysicalPath C:\\inetpub\\wwwroot\\myWebSite -ApplicationPool myAppPool.example.com\"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \"IIS:\\Sites\\myWebSite\")) { exit 1 } else { exit 0 }\""
-      #'require' => ['File[myHost-SitePath-C:\inetput\wwwroot\myHost]','Iis::Manage_app_pool[myAppPool.example.com]']
-    ) end
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \"IIS:\\Sites\\myWebSite\")) { exit 1 } else { exit 0 }\"",
+      #'require' => '[File[myHost-SitePath-C:\inetput\wwwroot\myHost], Iis::Manage_app_pool[myAppPool.example.com]]',
+    })}
 
     it { should contain_file('myWebSite-SitePath-C:\inetpub\wwwroot\myWebSite').with({
       'ensure' => 'directory',
