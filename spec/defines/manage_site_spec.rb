@@ -4,38 +4,43 @@ powershell = "powershell.exe -ExecutionPolicy RemoteSigned"
 
 describe 'iis::manage_site', :type => :define do
   describe 'when managing the iis site' do
-    let(:title) { 'www.internalapi.co.uk' }
+    let(:title) { 'myWebSite' }
     let(:params) { {
-        :app_pool    => 'www.internalapi.co.uk',
-        :host_header => 'www.internalapi.co.uk',
-        :site_path   => 'C:\inetpub\wwwroot\test',
+        :app_pool    => 'myAppPool.example.com',
+        :host_header => 'myHost.example.com',
+        :site_path   => 'C:\inetpub\wwwroot\myWebSite',
     } }
 
     it { should include_class('iis::param::powershell') }
 
-    it { should contain_exec('CreateSite-www.internalapi.co.uk').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; New-WebSite -Name www.internalapi.co.uk -Port 80 -IP * -HostHeader www.internalapi.co.uk -PhysicalPath C:\\inetpub\\wwwroot\\test -ApplicationPool www.internalapi.co.uk \"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \"IIS:\\Sites\\www.internalapi.co.uk\")) { exit 1 } else { exit 0 }\"",
-      #'require' => 'File[ iis::manage_app_pool[www.internalapi.co.uk]',
+    it do should contain_exec('CreateSite-myWebSite').with(
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; New-WebSite -Name myWebSite -Port 80 -IP * -HostHeader myHost.example.com -PhysicalPath C:\\inetpub\\wwwroot\\myWebSite -ApplicationPool myAppPool.example.com\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \"IIS:\\Sites\\myWebSite\")) { exit 1 } else { exit 0 }\""
+      #'require' => ['File[myHost-SitePath-C:\inetput\wwwroot\myHost]','Iis::Manage_app_pool[myAppPool.example.com]']
+    ) end
+
+    it { should contain_file('myWebSite-SitePath-C:\inetpub\wwwroot\myWebSite').with({
+      'ensure' => 'directory',
+      'path'   => 'C:\inetpub\wwwroot\myWebSite',
     })}
   end
 
   describe 'when managing the iis site passing in all parameters' do
-    let(:title) { 'www.internalapi.co.uk' }
+    let(:title) { 'myWebSite' }
     let(:params) {{
-        :app_pool    => 'internalapi_application_pool',
-        :host_header => 'internalapi_header',
-        :site_path   => 'C:\inetput\internalapi\path',
+        :app_pool    => 'myAppPool.example.com',
+        :host_header => 'myHost.example.com',
+        :site_path   => 'C:\inetpub\wwwroot\path',
         :port        => '1080',
         :ip_address  => '127.0.0.1',
     }}
 
     it { should include_class('iis::param::powershell') }
 
-    it { should contain_exec('CreateSite-www.internalapi.co.uk').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; New-WebSite -Name www.internalapi.co.uk -Port 1080 -IP 127.0.0.1 -HostHeader internalapi_header -PhysicalPath C:\\inetput\\internalapi\\path -ApplicationPool internalapi_application_pool \"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \"IIS:\\Sites\\www.internalapi.co.uk\")) { exit 1 } else { exit 0 }\"",
-      #'require' => 'Iis::manage_app_pool[www.internalapi.co.uk]',
+    it { should contain_exec('CreateSite-myWebSite').with({
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; New-WebSite -Name myWebSite -Port 1080 -IP 127.0.0.1 -HostHeader myHost.example.com -PhysicalPath C:\\inetpub\\wwwroot\\path -ApplicationPool myAppPool.example.com \"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \"IIS:\\Sites\\myWebSite\")) { exit 1 } else { exit 0 }\"",
+      #'require' => 'Iis::Manage_app_pool[myAppPool.example.com]',
     })}
   end
 end
