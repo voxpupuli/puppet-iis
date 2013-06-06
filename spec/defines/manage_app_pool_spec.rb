@@ -50,15 +50,36 @@ describe 'iis::manage_app_pool', :type => :define do
     })}
   end
 
+  describe 'when managing tyhe iis application with a manaed_runtime_version of v2.0' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) { { :managed_runtime_version => 'v2.0' } }
+
+    it { expect { should contain_exec('Create-myAppPool.example.com') }.to_not raise_error()}
+  end
+
+  describe 'when managing tyhe iis application with a manaed_runtime_version of v4.0' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) { { :managed_runtime_version => 'v4.0' } }
+
+    it { expect { should contain_exec('Create-myAppPool.example.com') }.to_not raise_error()}
+  end
+
   describe 'when managing the iis application with invalid managed_runtime_version parameter' do
     let(:title) { 'myAppPool.example.com' }
     let(:params) { { :managed_runtime_version => 'v9.0' } }
 
-    it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /"v9.0" does not match \["\^\(v2\.0\|v4\.0\)\$"\]/) }
+    it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /"v9.0" does not match [^(v2\\.0\|v4\\.0)$]"/) }
+  end
+
+  describe 'when managing the iis application with invalid managed_runtime_version parameter' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) { { :managed_runtime_version => 'v400' } }
+
+    it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /"v400" does not match [^(v2\\.0\|v4\\.0)$]"/) }
   end
 
   describe 'when managing the iis application and enable_32_bit is not a boolean value' do
-    let(:title) { 'www.internalapi.co.uk' }
+    let(:title) { 'myAppPool.example.com' }
     let(:params) {{ :enable_32_bit => 'false' }}
 
     it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /"false" is not a boolean\./) }

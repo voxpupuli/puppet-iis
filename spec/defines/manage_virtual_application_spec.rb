@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-powershell = "powershell.exe -ExecutionPolicy RemoteSigned"
+powershell = 'powershell.exe -ExecutionPolicy RemoteSigned'
 
 describe 'iis::manage_virtual_application', :type => :define do
   describe 'when I create a virtual application in IIS' do
