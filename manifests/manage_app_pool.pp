@@ -1,6 +1,6 @@
 define iis::manage_app_pool($app_pool_name = $title, $enable_32_bit = false, $managed_runtime_version = 'v4.0') {
   validate_bool($enable_32_bit)
-  validate_re($managed_runtime_version, ['^(v2.0|v4.0)$'])
+  validate_re($managed_runtime_version, ["^(v2\.0|v4\.0)$"])
 
   include 'param::powershell'
 

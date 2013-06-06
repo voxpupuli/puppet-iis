@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-powershell = "powershell.exe -ExecutionPolicy RemoteSigned"
+powershell = 'powershell.exe -ExecutionPolicy RemoteSigned'
 
 describe 'iis::manage_site', :type => :define do
   describe 'when managing the iis site' do
@@ -16,12 +16,11 @@ describe 'iis::manage_site', :type => :define do
     it { should contain_exec('CreateSite-myWebSite').with({
       'command' => "#{powershell} -Command \"Import-Module WebAdministration; New-WebSite -Name myWebSite -Port 80 -IP * -HostHeader myHost.example.com -PhysicalPath C:\\inetpub\\wwwroot\\myWebSite -ApplicationPool myAppPool.example.com\"",
       'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \"IIS:\\Sites\\myWebSite\")) { exit 1 } else { exit 0 }\"",
-      #'require' => '[File[myHost-SitePath-C:\inetput\wwwroot\myHost], Iis::Manage_app_pool[myAppPool.example.com]]',
     })}
 
-    it { should contain_file('myWebSite-SitePath-C:\inetpub\wwwroot\myWebSite').with({
-      'ensure' => 'directory',
-      'path'   => 'C:\inetpub\wwwroot\myWebSite',
+    it { should contain_exec('CreateSitePath-C:\inetpub\wwwroot\myWebSite').with({
+      'command' => "#{powershell} -Command \"New-Item -path \\\"C:\\inetpub\\wwwroot\\myWebSite\\\" -type directory\"",
+      'onlyif'  => "#{powershell} -Command \"if(Test-Path \\\"C:\\inetpub\\wwwroot\\myWebSite\\\") { exit 1 } else { exit 0}\"",
     })}
   end
 
@@ -40,7 +39,6 @@ describe 'iis::manage_site', :type => :define do
     it { should contain_exec('CreateSite-myWebSite').with({
       'command' => "#{powershell} -Command \"Import-Module WebAdministration; New-WebSite -Name myWebSite -Port 1080 -IP 127.0.0.1 -HostHeader myHost.example.com -PhysicalPath C:\\inetpub\\wwwroot\\path -ApplicationPool myAppPool.example.com\"",
       'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \"IIS:\\Sites\\myWebSite\")) { exit 1 } else { exit 0 }\"",
-      #'require' => 'Iis::Manage_app_pool[myAppPool.example.com]',
     })}
   end
 end
