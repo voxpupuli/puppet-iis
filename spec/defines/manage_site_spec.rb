@@ -19,7 +19,7 @@ describe 'iis::manage_site', :type => :define do
     })}
 
     it { should contain_exec('CreateSitePath-C:\inetpub\wwwroot\myWebSite').with({
-      'command' => "#{powershell} -Command \"New-Item-Path \\\"C:\\inetpub\\wwwroot\\myWebSite\\\" -type directory\"",
+      'command' => "#{powershell} -Command \"New-Item -path \\\"C:\\inetpub\\wwwroot\\myWebSite\\\" -type directory\"",
       'onlyif'  => "#{powershell} -Command \"if(Test-Path \\\"C:\\inetpub\\wwwroot\\myWebSite\\\") { exit 1 } else { exit 0}\"",
     })}
   end

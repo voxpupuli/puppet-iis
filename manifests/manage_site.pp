@@ -2,7 +2,7 @@ define iis::manage_site($site_path, $host_header, $app_pool, $site_name = $title
   include 'iis::param::powershell'
 
   exec { "CreateSitePath-${site_path}":
-    command   => "${iis::param::powershell::command} -Command \"New-Item-Path \\\"${site_path}\\\" -type directory\"",
+    command   => "${iis::param::powershell::command} -Command \"New-Item -path \\\"${site_path}\\\" -type directory\"",
     path      => "${iis::param::powershell::path};${::path}",
     onlyif    => "${iis::param::powershell::command} -Command \"if(Test-Path \\\"${site_path}\\\") { exit 1 } else { exit 0}\"",
     logoutput => true,
