@@ -17,11 +17,6 @@ describe 'iis::manage_site', :type => :define do
       'command' => "#{powershell} -Command \"Import-Module WebAdministration; New-WebSite -Name myWebSite -Port 80 -IP * -HostHeader myHost.example.com -PhysicalPath C:\\inetpub\\wwwroot\\myWebSite -ApplicationPool myAppPool.example.com\"",
       'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \"IIS:\\Sites\\myWebSite\")) { exit 1 } else { exit 0 }\"",
     })}
-
-    it { should contain_exec('CreateSitePath-C:\inetpub\wwwroot\myWebSite').with({
-      'command' => "#{powershell} -Command \"New-Item -path \\\"C:\\inetpub\\wwwroot\\myWebSite\\\" -type directory\"",
-      'onlyif'  => "#{powershell} -Command \"if(Test-Path \\\"C:\\inetpub\\wwwroot\\myWebSite\\\") { exit 1 } else { exit 0}\"",
-    })}
   end
 
   describe 'when managing the iis site passing in all parameters' do
