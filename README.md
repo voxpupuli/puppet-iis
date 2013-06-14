@@ -64,10 +64,10 @@ Example
 
 Additionally a host header and ip address can also be supplied.
 
-  iis::manage_binding { 'www.mysite.com-port-8080':
-    site_name   => 'www.mysite.com',
-    protocol    => 'http',
-    port        => '8080',
-    ip_address  => '192.168.0.1',
-    host_header => 'mysite.com',
-  }
+    iis::manage_binding { 'www.mysite.com-port-8080':
+      site_name   => 'www.mysite.com',
+      protocol    => 'http',
+      port        => '8080',
+      ip_address  => '192.168.0.1',
+      host_header => 'mysite.com',
+    }
