@@ -19,3 +19,4 @@ define iis::manage_binding($site_name, $protocol, $port, $host_header, $ip_addre
     logoutput => true,
   }
 }
+
