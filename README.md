@@ -50,11 +50,11 @@ This will result in an IIS Directory setup as follows:
 	
 The module knows that if requesting a virtual application, then it will have to create a site and application pool in the correct order so that it can build the correct model. Further usage would be to include the values as specified in the iis class above from hiera configuration.
 
-
+Additional Bindings
+--
 A default binding is setup using the values passed to the manage_site resource.
 Additional bindings can be added to a site using the manage_binding resource.
 
-Example
 --
     iis::manage_binding { 'www.mysite.com-port-8080':
       site_name => 'www.mysite.com',
