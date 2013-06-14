@@ -7,7 +7,7 @@ Module for puppet that can be used to create sites, application pools and virtua
 
 Usage
 --
-This module is only available to Windows Server 208 and above due to using the WebAdministration module that ships with PowerShell. To use the module, simply:
+This module is only available to Windows Server 2008 and above due to using the WebAdministration module that ships with PowerShell. To use the module, simply:
 
     node 'nodename' {
         include iis
@@ -49,3 +49,26 @@ This will result in an IIS Directory setup as follows:
 	* Application2
 	
 The module knows that if requesting a virtual application, then it will have to create a site and application pool in the correct order so that it can build the correct model. Further usage would be to include the values as specified in the iis class above from hiera configuration.
+
+Additional Bindings
+--
+A default binding is setup using the values passed to the manage_site resource.
+Additional bindings can be added to a site using the manage_binding resource.
+
+--
+    iis::manage_binding { 'www.mysite.com-port-8080':
+      site_name => 'www.mysite.com',
+      protocol  => 'http',
+      port      => '8080',
+    }
+
+Host header and ip address can also be supplied.
+
+--
+    iis::manage_binding { 'www.mysite.com-port-8080':
+      site_name   => 'www.mysite.com',
+      protocol    => 'http',
+      port        => '8080',
+      ip_address  => '192.168.0.1',
+      host_header => 'mysite.com',
+    }
