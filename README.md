@@ -56,7 +56,6 @@ Additional bindings can be added to a site using the manage_binding resource.
 
 Example
 --
-
   iis::manage_binding { 'www.mysite.com-port-8080':
     site_name => 'www.mysite.com',
     protocol  => 'http',
