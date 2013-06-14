@@ -62,7 +62,7 @@ Additional bindings can be added to a site using the manage_binding resource.
       port      => '8080',
     }
 
-Additionally a host header and ip address can also be supplied.
+Host header and ip address can also be supplied.
 
 --
     iis::manage_binding { 'www.mysite.com-port-8080':
