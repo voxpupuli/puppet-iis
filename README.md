@@ -64,6 +64,7 @@ Example
 
 Additionally a host header and ip address can also be supplied.
 
+--
     iis::manage_binding { 'www.mysite.com-port-8080':
       site_name   => 'www.mysite.com',
       protocol    => 'http',
