@@ -7,10 +7,10 @@ Module for puppet that can be used to create sites, application pools and virtua
 
 Usage
 --
-This module is only available to Windows Server 2008 and above due to using the WebAdministration module that ships with PowerShell. To use the module, simply:
+This module is only available to Windows Server 2008 and above due to using the WebAdministration module that ships with PowerShell. To use the module, use git clone to a directory in your modules folder on your puppetmaster. Then create a module manifest for the site you wish to maintain configuration for. Then you need to include this new module manifest in your nodes.pp file as follows: 
 
     node 'nodename' {
-        include iis
+        include 
     }
 
 Examples
