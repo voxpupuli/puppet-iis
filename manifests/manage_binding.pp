@@ -1,4 +1,4 @@
-define iis::manage_binding($site_name, $protocol, $port, $host_header, $ip_address = '*', $certificate_name = '') {
+define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_address = '*', $certificate_name = '') {
   include 'iis::param::powershell'
 
   if ! ($protocol in [ 'http', 'https', 'net.tcp', 'net.pipe', 'netmsmq', 'msmq.formatname' ]) {
@@ -28,7 +28,7 @@ define iis::manage_binding($site_name, $protocol, $port, $host_header, $ip_addre
 
     exec { "Attach-Certificate-${title}":
       path      => "${iis::param::powershell::path};${::path}",
-      command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; New-Item IIS:\\SslBindings\\$ip_address!$port (Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.FriendlyName -match ${certificate_name} } | Select-Object -First 1)\"",
+      command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; New-Item \\\"IIS:\\SslBindings\\${ip_address}!${port}\\\" (Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.FriendlyName -match ${certificate_name} } | Select-Object -First 1)\"",
       onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if(Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.FriendlyName -match ${certificate_name} } | Select-Object -First 1) { exit 1 } else { exit 0 }\"",
       require   => Exec["ManageBinding-${title}"],
       logoutput => true,

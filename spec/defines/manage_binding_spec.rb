@@ -72,4 +72,58 @@ describe 'iis::manage_binding', :type => :define do
 
     it { expect { should contain_exec('ManageBinding-myWebSite-port-80') }.to raise_error(Puppet::Error, /valid protocols 'http', 'https', 'net.tcp', 'net.pipe', 'netmsmq', 'msmq.formatname'/) }
   end
+
+  describe 'when protocol is https' do
+    let(:title) { 'myWebSite-port-443' }
+    let(:params) { {
+        :site_name  => 'myWebSite',
+        :protocol   => 'https',
+        :port       => '443',
+        :ip_address => '127.0.0.1',
+    } }
+
+    it { expect { should contain_exec('Attach-Certificate-myWebSite-port-443')}.to raise_error(Puppet::Error, /certificate_name required for https bindings/) }
+  end
+
+  describe 'when protocol is https and ip address *' do
+    let(:title) { 'myWebSite-port-443' }
+    let(:params) { {
+        :site_name        => 'myWebSite',
+        :certificate_name => 'myCertificate',
+        :protocol         => 'https',
+        :port             => '443',
+        :ip_address       => '*',
+    } }
+
+    it { expect { should contain_exec('Attach-Certificate-myWebSite-port-443')}.to raise_error(Puppet::Error, /https bindings require a valid ip_address/) }
+  end
+
+  describe 'when protocol is https and ip address 0.0.0.0' do
+    let(:title) { 'myWebSite-port-443' }
+    let(:params) { {
+        :site_name        => 'myWebSite',
+        :certificate_name => 'myCertificate',
+        :protocol         => 'https',
+        :port             => '443',
+        :ip_address       => '0.0.0.0',
+    } }
+
+    it { expect { should contain_exec('Attach-Certificate-myWebSite-port-443')}.to raise_error(Puppet::Error, /https bindings require a valid ip_address/) }
+  end
+
+  describe 'when protocol is https and all required parameters exist' do
+    let(:title) { 'myWebSite-port-443' }
+    let(:params) { {
+        :site_name        => 'myWebSite',
+        :certificate_name => 'myCertificate',
+        :protocol         => 'https',
+        :port             => '443',
+        :ip_address       => '127.0.0.1',
+    } }
+
+    it { should contain_exec('Attach-Certificate-myWebSite-port-443').with({
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; New-Item \\\"IIS:\\SslBindings\\127.0.0.1!443\\\" (Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.FriendlyName -match myCertificate } | Select-Object -First 1)\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if(Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.FriendlyName -match myCertificate } | Select-Object -First 1) { exit 1 } else { exit 0 }\"",
+    })}
+  end
 end
