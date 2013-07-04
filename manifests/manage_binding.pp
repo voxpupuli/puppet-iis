@@ -29,7 +29,7 @@ define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_
     exec { "Attach-Certificate-${title}":
       path      => "${iis::param::powershell::path};${::path}",
       command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; New-Item \\\"IIS:\\SslBindings\\${ip_address}!${port}\\\" -Value (Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.FriendlyName -match \\\"${certificate_name}\\\" } | Select-Object -First 1)\"",
-      onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.FriendlyName -match \\\"${certificate_name}\\\" } | Select-Object -First 1) -and ((Test-Path \\\"IIS:\\SslBindings\\${ip_address}!${port}\\\") -eq $false)) { exit 0 } else { exit 1 }\"",
+      onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.FriendlyName -match \\\"${certificate_name}\\\" } | Select-Object -First 1) -and ((Test-Path \\\"IIS:\\SslBindings\\${ip_address}!${port}\\\") -eq \$false)) { exit 0 } else { exit 1 }\"",
       require   => Exec["ManageBinding-${title}"],
       logoutput => true,
     }
