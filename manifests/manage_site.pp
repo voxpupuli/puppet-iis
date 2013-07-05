@@ -5,9 +5,11 @@ define iis::manage_site($site_path, $host_header = '', $app_pool, $site_name = $
     site_path => $site_path
   }
   
-  $host_header_string = ''
   if $host_header != '' {
     $host_header_string = "-HostHeader ${host_header}"
+  }
+  else {
+    $host_header_string = ''
   }
 
   exec { "CreateSite-${site_name}" :
