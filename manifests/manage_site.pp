@@ -1,4 +1,4 @@
-define iis::manage_site($site_path, $host_header = '', $app_pool, $site_name = $title, $port = '80', $ip_address = '*') {
+define iis::manage_site($site_path, $app_pool, $host_header = '', $site_name = $title, $port = '80', $ip_address = '*') {
   include 'iis::param::powershell'
 
   iis::createpath { "${site_name}-${site_path}":
