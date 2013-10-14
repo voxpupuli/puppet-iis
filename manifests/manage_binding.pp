@@ -23,7 +23,7 @@ define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_
   if ($protocol == 'https') {
     validate_re($certificate_name, ['^(.)+$'], 'certificate_name required for https bindings')
     if ($ip_address == '*' or $ip_address == '0.0.0.0') {
-      fail("https bindings require a valid ip_address")
+      fail('https bindings require a valid ip_address')
     }
 
     exec { "Attach-Certificate-${title}":
