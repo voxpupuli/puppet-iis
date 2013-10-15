@@ -25,7 +25,7 @@ describe 'iis::manage_virtual_application', :type => :define do
         :site_name => 'myWebSite',
         :site_path => 'C:\inetpub\wwwroot\myHost',
         :app_pool => 'myAppPool.example.com',
-        :ensure => 'present'
+        :ensure => 'present',
     }}
 
     it { should contain_exec('CreateVirtualApplication-myWebSite-mySite').with({
@@ -40,7 +40,7 @@ describe 'iis::manage_virtual_application', :type => :define do
         :site_name => 'myWebSite',
         :site_path => 'C:\inetpub\wwwroot\myHost',
         :app_pool => 'myAppPool.example.com',
-        :ensure => 'installed'
+        :ensure => 'installed',
     }}
 
     it { should contain_exec('CreateVirtualApplication-myWebSite-mySite').with({
@@ -55,7 +55,7 @@ describe 'iis::manage_virtual_application', :type => :define do
         :site_name => 'myWebSite',
         :site_path => 'C:\inetpub\wwwroot\myHost',
         :app_pool => 'myAppPool.example.com',
-        :ensure => 'purged'
+        :ensure => 'purged',
     }}
 
     it { should contain_exec('DeleteVirtualApplication-myWebSite-mySite').with({
@@ -70,7 +70,7 @@ describe 'iis::manage_virtual_application', :type => :define do
         :site_name => 'myWebSite',
         :site_path => 'C:\inetpub\wwwroot\myHost',
         :app_pool => 'myAppPool.example.com',
-        :ensure => 'absent'
+        :ensure => 'absent',
     }}
 
     it { should contain_exec('DeleteVirtualApplication-myWebSite-mySite').with({
