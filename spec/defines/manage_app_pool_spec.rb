@@ -138,9 +138,9 @@ describe 'iis::manage_app_pool', :type => :define do
       :onlyif  => "#{powershell} -Command \"Import-Module WebAdministration; if(!(Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else {exit 0}\"",
     }) }
 
-    it { should not contain_exec('Framework-myAppPool.example.com') }
+    it { should_not contain_exec('Framework-myAppPool.example.com') }
 
-    it { should not contain_exec('32bit-myAppPool.example.com') }
+    it { should_not contain_exec('32bit-myAppPool.example.com') }
   end
 
   describe 'when managing the iis application pool and setting ensure to purged' do
@@ -152,8 +152,8 @@ describe 'iis::manage_app_pool', :type => :define do
       :onlyif  => "#{powershell} -Command \"Import-Module WebAdministration; if(!(Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else {exit 0}\"",
     }) }
 
-    it { should not contain_exec('Framework-myAppPool.example.com') }
+    it { should_not contain_exec('Framework-myAppPool.example.com') }
 
-    it { should not contain_exec('32bit-myAppPool.example.com') }
+    it { should_not contain_exec('32bit-myAppPool.example.com') }
   end
 end
