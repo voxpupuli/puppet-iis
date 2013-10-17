@@ -40,7 +40,7 @@ define iis::manage_app_pool($app_pool_name = $title, $enable_32_bit = false, $ma
     }
   } else {
     exec { "Delete-${app_pool_name}" :
-      command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Remove-Item \"IIS:\\AppPools\\${app_pool_name}\"\"",
+      command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Remove-Item \"IIS:\\AppPools\\${app_pool_name}\" -Confirm:\$false\"",
       path      => "${iis::param::powershell::path};${::path}",
       onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if(!(Test-Path \"IIS:\\AppPools\\${app_pool_name}\")) { exit 1 } else {exit 0}\"",
       logoutput => true,

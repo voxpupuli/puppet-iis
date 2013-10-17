@@ -59,7 +59,7 @@ describe 'iis::manage_virtual_application', :type => :define do
     }}
 
     it { should contain_exec('DeleteVirtualApplication-myWebSite-mySite').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Remove-WebApplication -Name mySite -Site myWebSite\"",
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Remove-WebApplication -Name mySite -Site myWebSite -Confirm:$false\"",
       'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if(!(Test-Path \"IIS:\\Sites\\myWebSite\\mySite\")) { exit 1 } else { exit 0 }\"",
     })}
   end
@@ -74,7 +74,7 @@ describe 'iis::manage_virtual_application', :type => :define do
     }}
 
     it { should contain_exec('DeleteVirtualApplication-myWebSite-mySite').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Remove-WebApplication -Name mySite -Site myWebSite\"",
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Remove-WebApplication -Name mySite -Site myWebSite -Confirm:$false\"",
       'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if(!(Test-Path \"IIS:\\Sites\\myWebSite\\mySite\")) { exit 1 } else { exit 0 }\"",
     })}
   end
