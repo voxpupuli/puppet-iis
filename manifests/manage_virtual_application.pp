@@ -17,7 +17,7 @@ define iis::manage_virtual_application($site_name, $site_path, $app_pool, $virtu
     }
   } else {
     exec { "DeleteVirtualApplication-${site_name}-${virtual_application_name}" :
-      command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Remove-WebApplication -Name ${virtual_application_name} -Site ${site_name}\"",
+      command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Remove-WebApplication -Name ${virtual_application_name} -Site ${site_name} -Confirm:\$false\"",
       path      => "${iis::param::powershell::path};${::path}",
       onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if(!(Test-Path \"IIS:\\Sites\\${site_name}\\${virtual_application_name}\")) { exit 1 } else { exit 0 }\"",
       logoutput => true,
