@@ -134,7 +134,7 @@ describe 'iis::manage_app_pool', :type => :define do
     let(:params) {{ :ensure => 'absent' }}
 
     it { should contain_exec('Delete-myAppPool.example.com').with( {
-      :command => "#{powershell} -Command \"Import-Module WebAdministration; Remove-Item \"IIS:\\AppPools\\myAppPool.example.com\" -Confirm:$false\"",
+      :command => "#{powershell} -Command \"Import-Module WebAdministration; Remove-Item \"IIS:\\AppPools\\myAppPool.example.com\" -Recurse\"",
       :onlyif  => "#{powershell} -Command \"Import-Module WebAdministration; if(!(Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else {exit 0}\"",
     }) }
 
@@ -148,7 +148,7 @@ describe 'iis::manage_app_pool', :type => :define do
     let(:params) {{ :ensure => 'purged' }}
 
     it { should contain_exec('Delete-myAppPool.example.com').with( {
-      :command => "#{powershell} -Command \"Import-Module WebAdministration; Remove-Item \"IIS:\\AppPools\\myAppPool.example.com\" -Confirm:$false\"",
+      :command => "#{powershell} -Command \"Import-Module WebAdministration; Remove-Item \"IIS:\\AppPools\\myAppPool.example.com\" -Recurse\"",
       :onlyif  => "#{powershell} -Command \"Import-Module WebAdministration; if(!(Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else {exit 0}\"",
     }) }
 
