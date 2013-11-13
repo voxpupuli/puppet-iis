@@ -10,19 +10,19 @@ describe 'iis::manage_app_pool', :type => :define do
     it { should include_class('iis::param::powershell') }
 
     it { should contain_exec('Create-myAppPool.example.com').with( {
-        :command => "#{powershell} -Command \"Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"\"",
-        :onlyif  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else {exit 0}\"",
+        :command => "#{powershell} -Command \"Import-Module WebAdministration; New-Item \\\"IIS:\\AppPools\\myAppPool.example.com\\\"\"",
+        :onlyif  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \\\"IIS:\\AppPools\\myAppPool.example.com\\\")) { exit 1 } else {exit 0}\"",
     }) }
 
     it { should contain_exec('Framework-myAppPool.example.com').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v4.0\"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }\"",
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" managedRuntimeVersion v4.0\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }\"",
       'require' => 'Exec[Create-myAppPool.example.com]',
     })}
 
     it { should contain_exec('32bit-myAppPool.example.com').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 true\"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'true\')) { exit 1 } else { exit 0 }\"",
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" enable32BitAppOnWin64 true\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'true\')) { exit 1 } else { exit 0 }\"",
       'require' => 'Exec[Create-myAppPool.example.com]',
     })}
   end
@@ -33,19 +33,19 @@ describe 'iis::manage_app_pool', :type => :define do
     it { should include_class('iis::param::powershell') }
 
     it { should contain_exec('Create-myAppPool.example.com').with( {
-      :command => "#{powershell} -Command \"Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"\"",
-      :onlyif  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else {exit 0}\"",
+      :command => "#{powershell} -Command \"Import-Module WebAdministration; New-Item \\\"IIS:\\AppPools\\myAppPool.example.com\\\"\"",
+      :onlyif  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \\\"IIS:\\AppPools\\myAppPool.example.com\\\")) { exit 1 } else {exit 0}\"",
     }) }
 
     it { should contain_exec('Framework-myAppPool.example.com').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v4.0\"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }\"",
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" managedRuntimeVersion v4.0\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }\"",
       'require' => 'Exec[Create-myAppPool.example.com]',
     })}
 
     it { should contain_exec('32bit-myAppPool.example.com').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 false\"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'false\')) { exit 1 } else { exit 0 }\"",
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" enable32BitAppOnWin64 false\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'false\')) { exit 1 } else { exit 0 }\"",
       'require' => 'Exec[Create-myAppPool.example.com]',
     })}
   end
@@ -90,19 +90,19 @@ describe 'iis::manage_app_pool', :type => :define do
     let(:params) {{ :ensure => 'present' }}
 
     it { should contain_exec('Create-myAppPool.example.com').with( {
-      :command => "#{powershell} -Command \"Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"\"",
-      :onlyif  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else {exit 0}\"",
+      :command => "#{powershell} -Command \"Import-Module WebAdministration; New-Item \\\"IIS:\\AppPools\\myAppPool.example.com\\\"\"",
+      :onlyif  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \\\"IIS:\\AppPools\\myAppPool.example.com\\\")) { exit 1 } else {exit 0}\"",
     }) }
 
     it { should contain_exec('Framework-myAppPool.example.com').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v4.0\"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }\"",
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" managedRuntimeVersion v4.0\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }\"",
       'require' => 'Exec[Create-myAppPool.example.com]',
     })}
 
     it { should contain_exec('32bit-myAppPool.example.com').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 false\"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'false\')) { exit 1 } else { exit 0 }\"",
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" enable32BitAppOnWin64 false\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'false\')) { exit 1 } else { exit 0 }\"",
       'require' => 'Exec[Create-myAppPool.example.com]',
     })}
   end
@@ -112,19 +112,19 @@ describe 'iis::manage_app_pool', :type => :define do
     let(:params) {{ :ensure => 'installed' }}
 
     it { should contain_exec('Create-myAppPool.example.com').with( {
-      :command => "#{powershell} -Command \"Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"\"",
-      :onlyif  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else {exit 0}\"",
+      :command => "#{powershell} -Command \"Import-Module WebAdministration; New-Item \\\"IIS:\\AppPools\\myAppPool.example.com\\\"\"",
+      :onlyif  => "#{powershell} -Command \"Import-Module WebAdministration; if((Test-Path \\\"IIS:\\AppPools\\myAppPool.example.com\\\")) { exit 1 } else {exit 0}\"",
     }) }
 
     it { should contain_exec('Framework-myAppPool.example.com').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v4.0\"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }\"",
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" managedRuntimeVersion v4.0\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }\"",
       'require' => 'Exec[Create-myAppPool.example.com]',
     })}
 
     it { should contain_exec('32bit-myAppPool.example.com').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 false\"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'false\')) { exit 1 } else { exit 0 }\"",
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" enable32BitAppOnWin64 false\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'false\')) { exit 1 } else { exit 0 }\"",
       'require' => 'Exec[Create-myAppPool.example.com]',
     })}
   end
@@ -134,8 +134,8 @@ describe 'iis::manage_app_pool', :type => :define do
     let(:params) {{ :ensure => 'absent' }}
 
     it { should contain_exec('Delete-myAppPool.example.com').with( {
-      :command => "#{powershell} -Command \"Import-Module WebAdministration; Remove-Item \"IIS:\\AppPools\\myAppPool.example.com\" -Recurse\"",
-      :onlyif  => "#{powershell} -Command \"Import-Module WebAdministration; if(!(Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else {exit 0}\"",
+      :command => "#{powershell} -Command \"Import-Module WebAdministration; Remove-Item \\\"IIS:\\AppPools\\myAppPool.example.com\\\" -Recurse\"",
+      :onlyif  => "#{powershell} -Command \"Import-Module WebAdministration; if(!(Test-Path \\\"IIS:\\AppPools\\myAppPool.example.com\\\")) { exit 1 } else {exit 0}\"",
     }) }
 
     it { should_not contain_exec('Framework-myAppPool.example.com') }
@@ -148,8 +148,8 @@ describe 'iis::manage_app_pool', :type => :define do
     let(:params) {{ :ensure => 'purged' }}
 
     it { should contain_exec('Delete-myAppPool.example.com').with( {
-      :command => "#{powershell} -Command \"Import-Module WebAdministration; Remove-Item \"IIS:\\AppPools\\myAppPool.example.com\" -Recurse\"",
-      :onlyif  => "#{powershell} -Command \"Import-Module WebAdministration; if(!(Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else {exit 0}\"",
+      :command => "#{powershell} -Command \"Import-Module WebAdministration; Remove-Item \\\"IIS:\\AppPools\\myAppPool.example.com\\\" -Recurse\"",
+      :onlyif  => "#{powershell} -Command \"Import-Module WebAdministration; if(!(Test-Path \\\"IIS:\\AppPools\\myAppPool.example.com\\\")) { exit 1 } else {exit 0}\"",
     }) }
 
     it { should_not contain_exec('Framework-myAppPool.example.com') }
