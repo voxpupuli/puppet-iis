@@ -95,7 +95,7 @@ describe 'iis::manage_binding', :type => :define do
         :ip_address       => '*',
     } }
 
-    it { expect { should contain_exec('Attach-Certificate-myWebSite-port-443')}.to raise_error(Puppet::Error, /https bindings require a valid ip_address/) }
+    it { should contain_exec('Attach-Certificate-myWebSite-port-443')}
   end
 
   describe 'when protocol is https and ip address 0.0.0.0' do
