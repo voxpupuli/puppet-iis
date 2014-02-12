@@ -20,7 +20,7 @@ define iis::manage_site($site_path, $app_pool, $host_header = '', $site_name = $
 
     $switches = join($createSwitches,' ')
     exec { "CreateSite-${site_name}" :
-      command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; New-WebSite ${switches} \"",
+      command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; \$id = (Get-WebSite | foreach {\$_.id} | sort -Descending | select -first 1) + 1; New-WebSite ${switches} -ID \$id \"",
       path      => "${iis::param::powershell::path};${::path}",
       onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((${$cmdSiteExists})) { exit 1 } else { exit 0 }\"",
       logoutput => true,
