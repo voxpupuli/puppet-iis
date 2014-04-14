@@ -82,14 +82,14 @@ describe 'iis::manage_binding', :type => :define do
         :ip_address => '127.0.0.1',
     } }
 
-    it { expect { should contain_exec('Attach-Certificate-myWebSite-port-443')}.to raise_error(Puppet::Error, /certificate_name required for https bindings/) }
+    it { expect { should contain_exec('Attach-Certificate-myWebSite-port-443')}.to raise_error(Puppet::Error, /certificate_thumbprint required for https bindings/) }
   end
 
   describe 'when protocol is https and ip address *' do
     let(:title) { 'myWebSite-port-443' }
     let(:params) { {
         :site_name        => 'myWebSite',
-        :certificate_name => 'myCertificate',
+        :certificate_thumbprint => 'myCertificate',
         :protocol         => 'https',
         :port             => '443',
         :ip_address       => '*',
@@ -102,7 +102,7 @@ describe 'iis::manage_binding', :type => :define do
     let(:title) { 'myWebSite-port-443' }
     let(:params) { {
         :site_name        => 'myWebSite',
-        :certificate_name => 'myCertificate',
+        :certificate_thumbprint => 'myCertificate',
         :protocol         => 'https',
         :port             => '443',
         :ip_address       => '0.0.0.0',
@@ -115,15 +115,15 @@ describe 'iis::manage_binding', :type => :define do
     let(:title) { 'myWebSite-port-443' }
     let(:params) { {
         :site_name        => 'myWebSite',
-        :certificate_name => 'myCertificate',
+        :certificate_thumbprint => 'myCertificate',
         :protocol         => 'https',
         :port             => '443',
         :ip_address       => '127.0.0.1',
     } }
 
     it { should contain_exec('Attach-Certificate-myWebSite-port-443').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; New-Item \\\"IIS:\\SslBindings\\127.0.0.1!443\\\" -Value (Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.FriendlyName.Equals(\\\"myCertificate\\\")} | Select-Object -First 1)\"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.FriendlyName.Equals(\\\"myCertificate\\\")} | Select-Object -First 1) -and ((Test-Path \\\"IIS:\\SslBindings\\127.0.0.1!443\\\") -eq \$false)) { exit 0 } else { exit 1 }\"",
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; New-Item \\\"IIS:\\SslBindings\\127.0.0.1!443\\\" -Value (Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.Thumbprint.Equals(\\\"myCertificate\\\")} | Select-Object -First 1)\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.Thumbprint.Equals(\\\"myCertificate\\\")} | Select-Object -First 1) -and ((Test-Path \\\"IIS:\\SslBindings\\127.0.0.1!443\\\") -eq \$false)) { exit 0 } else { exit 1 }\"",
     })}
   end
 
