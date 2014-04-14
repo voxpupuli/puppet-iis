@@ -1,5 +1,5 @@
 name 'opentable/iis'
-version '0.0.2'
+version '1.0.0'
 author 'opentable'
 license 'MIT'
 summary 'Module that will manage IIS for windows server 2008 and above. It will help maintain application pools, sites and virtual applications'
