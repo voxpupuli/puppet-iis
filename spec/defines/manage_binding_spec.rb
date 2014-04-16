@@ -88,11 +88,11 @@ describe 'iis::manage_binding', :type => :define do
   describe 'when protocol is https and ip address *' do
     let(:title) { 'myWebSite-port-443' }
     let(:params) { {
-        :site_name        => 'myWebSite',
+        :site_name              => 'myWebSite',
         :certificate_thumbprint => 'myCertificate',
-        :protocol         => 'https',
-        :port             => '443',
-        :ip_address       => '*',
+        :protocol               => 'https',
+        :port                   => '443',
+        :ip_address             => '*',
     } }
 
     it { expect { should contain_exec('Attach-Certificate-myWebSite-port-443')}.to raise_error(Puppet::Error, /https bindings require a valid ip_address/) }
@@ -114,11 +114,11 @@ describe 'iis::manage_binding', :type => :define do
   describe 'when protocol is https and all required parameters exist' do
     let(:title) { 'myWebSite-port-443' }
     let(:params) { {
-        :site_name        => 'myWebSite',
+        :site_name              => 'myWebSite',
         :certificate_thumbprint => 'myCertificate',
-        :protocol         => 'https',
-        :port             => '443',
-        :ip_address       => '127.0.0.1',
+        :protocol               => 'https',
+        :port                   => '443',
+        :ip_address             => '127.0.0.1',
     } }
 
     it { should contain_exec('Attach-Certificate-myWebSite-port-443').with({
