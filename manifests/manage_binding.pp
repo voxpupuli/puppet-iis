@@ -1,4 +1,4 @@
-define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_address = '*', $certificate_name = '', $ensure = 'present') {
+define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_address = '*', $certificate_thumbprint = '', $ensure = 'present') {
   include 'iis::param::powershell'
 
   if ! ($protocol in [ 'http', 'https', 'net.tcp', 'net.pipe', 'netmsmq', 'msmq.formatname' ]) {
@@ -23,15 +23,15 @@ define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_
     }
 
     if ($protocol == 'https') {
-      validate_re($certificate_name, ['^(.)+$'], 'certificate_name required for https bindings')
+      validate_re($certificate_thumbprint, ['^(.)+$'], 'certificate_thumbprint required for https bindings')
       if ($ip_address == '*' or $ip_address == '0.0.0.0') {
         fail('https bindings require a valid ip_address')
       }
 
       exec { "Attach-Certificate-${title}":
         path      => "${iis::param::powershell::path};${::path}",
-        command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; New-Item \\\"IIS:\\SslBindings\\${ip_address}!${port}\\\" -Value (Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.FriendlyName.Equals(\\\"${certificate_name}\\\")} | Select-Object -First 1)\"",
-        onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.FriendlyName.Equals(\\\"${certificate_name}\\\")} | Select-Object -First 1) -and ((Test-Path \\\"IIS:\\SslBindings\\${ip_address}!${port}\\\") -eq \$false)) { exit 0 } else { exit 1 }\"",
+        command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; New-Item \\\"IIS:\\SslBindings\\${ip_address}!${port}\\\" -Value (Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.Thumbprint.Equals(\\\"${certificate_thumbprint}\\\")} | Select-Object -First 1)\"",
+        onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.Thumbprint.Equals(\\\"${certificate_thumbprint}\\\")} | Select-Object -First 1) -and ((Test-Path \\\"IIS:\\SslBindings\\${ip_address}!${port}\\\") -eq \$false)) { exit 0 } else { exit 1 }\"",
         require   => Exec["CreateBinding-${title}"],
         logoutput => true,
       }
