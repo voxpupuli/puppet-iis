@@ -1,0 +1,15 @@
+Import-Module WebAdministration
+
+$site = Get-Website | Where-Object { $_.Name -eq "<%= site_name %>" }
+$certsAttachedToSite = Get-ChildItem IIS:\SSLBindings | ? { $site | Select-Object { $_ -contains $_.Sites.Value }} | % { $_.Thumbprint }
+$certificate = Get-ChildItem CERT:\LocalMachine\My | ? { $certsAttachedToSite -contains $_.Thumbprint} | Where-Object { $_.Thumbprint -eq "<%= certificate_thumbprint %>" }
+
+if((Test-Path IIS:\SslBindings\$ip!$port) -eq $false) {
+    Get-Item Cert:\LocalMachine\My\<%= certificate_thumbprint %> | New-Item <%= ip_address %>!443
+}
+elseif (($certificate -ne $null) -and ($certificate.Thumbprint -ne "") {
+    Get-Item Cert:\LocalMachine\My\<%= certificate_thumbprint %> | Set-Item <%= ip_address %>!<%= port %>
+}
+else {
+    exit 0
+}
