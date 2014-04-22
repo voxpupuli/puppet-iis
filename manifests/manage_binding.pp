@@ -28,11 +28,23 @@ define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_
         fail('https bindings require a valid ip_address')
       }
 
+      file { "inspect-${title}-certificate.ps1":
+        ensure  => present,
+        path    => "C:\\temp\\inspect-${name}.ps1",
+        content => template('iis/inspect-certificate-binding.ps1.erb'),
+      }
+
+      file { "create-${title}-certificate.ps1":
+        ensure  => present,
+        path    => "C:\\temp\\create-${name}.ps1",
+        content => template('iis/create-certificate-binding.ps1.erb'),
+      }
+
       exec { "Attach-Certificate-${title}":
-        path      => "${iis::param::powershell::path};${::path}",
-        command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; New-Item \\\"IIS:\\SslBindings\\${ip_address}!${port}\\\" -Value (Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.Thumbprint.Equals(\\\"${certificate_thumbprint}\\\")} | Select-Object -First 1)\"",
-        onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.Thumbprint.Equals(\\\"${certificate_thumbprint}\\\")} | Select-Object -First 1) -and ((Test-Path \\\"IIS:\\SslBindings\\${ip_address}!${port}\\\") -eq \$false)) { exit 0 } else { exit 1 }\"",
-        require   => Exec["CreateBinding-${title}"],
+        command   => "C:\\temp\\create-${name}.ps1",
+        onlyif    => "C:\\temp\\inspect-${name}.ps1",
+        require   => [File["inspect-${title}-certificate.ps1"], File["create-${title}-certificate.ps1"]],
+        provider  => powershell,
         logoutput => true,
       }
     }

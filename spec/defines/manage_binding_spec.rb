@@ -122,9 +122,10 @@ describe 'iis::manage_binding', :type => :define do
     } }
 
     it { should contain_exec('Attach-Certificate-myWebSite-port-443').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; New-Item \\\"IIS:\\SslBindings\\127.0.0.1!443\\\" -Value (Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.Thumbprint.Equals(\\\"myCertificate\\\")} | Select-Object -First 1)\"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ChildItem cert:\\ -Recurse | Where-Object {\$_.Thumbprint.Equals(\\\"myCertificate\\\")} | Select-Object -First 1) -and ((Test-Path \\\"IIS:\\SslBindings\\127.0.0.1!443\\\") -eq \$false)) { exit 0 } else { exit 1 }\"",
-    })}
+      'command'  => "C:\\temp\\create-myWebSite-port-443.ps1",
+      'onlyif'   => "C:\\temp\\inspect-myWebSite-port-443.ps1",
+      'provider' => "powershell"
+     })}
   end
 
   describe 'when managing an iis site binding and setting ensure to present' do
