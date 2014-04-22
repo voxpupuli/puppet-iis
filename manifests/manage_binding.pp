@@ -42,7 +42,7 @@ define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_
 
       exec { "Attach-Certificate-${title}":
         command   => "C:\\temp\\create-${name}.ps1",
-        onlfif    => "C:\\temp\\inspect-${name}.ps1",
+        onlyif    => "C:\\temp\\inspect-${name}.ps1",
         require   => [File["inspect-${title}-certificate.ps1"], File["create-${title}-certificate.ps1"]],
         provider  => powershell,
         logoutput => true,
