@@ -37,7 +37,7 @@ define iis::manage_app_pool($app_pool_name = $title, $enable_32_bit = false, $ma
     exec { "ManagedPipelineMode-${app_pool_name}" :
       path      => "${iis::param::powershell::path};${::path}",
       command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" managedPipelineMode ${managed_pipeline_mode}\"",
-      onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" managedPipelineMode).Value.CompareTo('${managed_pipeline_mode}') -eq 0) { exit 1 } else { exit 0 }\"",
+      onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" managedPipelineMode).Value.CompareTo(${managed_pipeline_mode}) -eq 0) { exit 1 } else { exit 0 }\"",
       require   => Exec["Create-${app_pool_name}"],
       logoutput => true,
     }
@@ -45,7 +45,7 @@ define iis::manage_app_pool($app_pool_name = $title, $enable_32_bit = false, $ma
 	exec { "Identity-${app_pool_name}" :
       path      => "${iis::param::powershell::path};${::path}",
       command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" ProcessModel.identityType ${identity_type}\"",
-      onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" ProcessModel.identityType).Value.CompareTo('${identity_type}') -eq 0) { exit 1 } else { exit 0 }\"",
+      onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" ProcessModel.identityType).Value.CompareTo(${identity_type}) -eq 0) { exit 1 } else { exit 0 }\"",
       require   => Exec["Create-${app_pool_name}"],
       logoutput => true,
     }
