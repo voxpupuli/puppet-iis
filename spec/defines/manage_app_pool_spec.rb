@@ -32,6 +32,37 @@ describe 'iis::manage_app_pool', :type => :define do
     })}
   end
 
+  describe 'when managing the iis application pool - v2.0 Classic' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) {{
+      :enable_32_bit           => true,
+      :managed_runtime_version => 'v2.0',
+      :managed_pipeline_mode   => 'Classic'
+    }}
+
+    it { should contain_exec('Create-myAppPool.example.com').with({
+        :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
+        :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",
+    })}
+
+    it { should contain_exec('Framework-myAppPool.example.com').with({
+      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v2.0",
+      :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v2.0\') -eq 0) { exit 1 } else { exit 0 }",
+      :require => 'Exec[Create-myAppPool.example.com]',
+    })}
+
+    it { should contain_exec('32bit-myAppPool.example.com').with({
+      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 true",
+      :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'true\')) { exit 1 } else { exit 0 }",
+      :require => 'Exec[Create-myAppPool.example.com]',
+    })}
+
+    it { should contain_exec('ManagedPipelineMode-myAppPool.example.com').with({
+      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 1",
+      :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Classic') -eq 0) { exit 1 } else { exit 0 }",
+    })}
+  end
+
   describe 'when managing the iis application pool without passing parameters' do
     let(:title) { 'myAppPool.example.com' }
 
