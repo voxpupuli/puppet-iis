@@ -10,8 +10,8 @@ describe 'iis::manage_app_pool', :type => :define do
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with({
-        :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
-        :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",
+      :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
+      :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",
     })}
 
     it { should contain_exec('Framework-myAppPool.example.com').with({
@@ -41,8 +41,8 @@ describe 'iis::manage_app_pool', :type => :define do
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with({
-        :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
-        :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",
+      :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
+      :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",
     })}
 
     it { should contain_exec('Framework-myAppPool.example.com').with({
