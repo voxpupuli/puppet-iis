@@ -137,4 +137,16 @@ describe 'iis::manage_site', :type => :define do
       'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if(!(Test-Path \\\"IIS:\\Sites\\myWebSite\\\")) { exit 1 } else { exit 0 }\"",
     })}
   end
+
+  describe 'when managing the iis site and setting ensure to installed' do
+    let(:title) { 'myWebSite' }
+    let(:params) { {
+        :app_pool    => 'myAppPool.example.com',
+        :host_header => 'myHost.example.com',
+        :site_path   => 'C:\inetpub\wwwroot\myWebSite',
+        :ssl         => 'nope',
+    } }
+
+    it { expect { should contain_exec('CreateSite-myWebSite') }.to raise_error(Puppet::Error, /ssl must be one of \'true\' or \'false\'/) }
+  end
 end

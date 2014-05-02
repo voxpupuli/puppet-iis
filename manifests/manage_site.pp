@@ -3,7 +3,7 @@ define iis::manage_site($site_path, $app_pool, $host_header = '', $site_name = $
   include 'iis::param::powershell'
 
   validate_re($ensure, '^(present|installed|absent|purged)$', 'ensure must be one of \'present\', \'installed\', \'absent\', \'purged\'')
-  validate_re($ssl, '^(false|true)$', 'sll must be one of \'true\' or \'false\'')
+  validate_re($ssl, '^(false|true)$', 'ssl must be one of \'true\' or \'false\'')
 
   if ($ensure in ['present','installed']) {
     iis::createpath { "${site_name}-${site_path}":
