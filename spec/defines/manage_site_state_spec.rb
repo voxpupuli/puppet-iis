@@ -10,7 +10,7 @@ describe 'iis::manage_site_state', :type => :define do
         :ensure    => 'running',
     } }
 
-    it { should include_class('iis::param::powershell') }
+    it { should contain_class('iis::param::powershell') }
 
     it { should contain_exec('StartSite-DefaultWebsite').with({
       'command' => "#{powershell} -Command \"Import-Module WebAdministration; Start-Website -Name \\\"DefaultWebsite\\\"\"",
@@ -25,7 +25,7 @@ describe 'iis::manage_site_state', :type => :define do
         :ensure    => 'true',
     } }
 
-    it { should include_class('iis::param::powershell') }
+    it { should contain_class('iis::param::powershell') }
 
     it { should contain_exec('StartSite-DefaultWebsite').with({
       'command' => "#{powershell} -Command \"Import-Module WebAdministration; Start-Website -Name \\\"DefaultWebsite\\\"\"",
@@ -40,7 +40,7 @@ describe 'iis::manage_site_state', :type => :define do
         :ensure    => 'stopped',
     } }
 
-    it { should include_class('iis::param::powershell') }
+    it { should contain_class('iis::param::powershell') }
 
     it { should contain_exec('StopSite-DefaultWebsite').with({
       'command' => "#{powershell} -Command \"Import-Module WebAdministration; Stop-Website -Name \\\"DefaultWebsite\\\"\"",
@@ -55,7 +55,7 @@ describe 'iis::manage_site_state', :type => :define do
         :ensure    => 'false',
     } }
 
-    it { should include_class('iis::param::powershell') }
+    it { should contain_class('iis::param::powershell') }
 
     it { should contain_exec('StopSite-DefaultWebsite').with({
       'command' => "#{powershell} -Command \"Import-Module WebAdministration; Stop-Website -Name \\\"DefaultWebsite\\\"\"",

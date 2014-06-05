@@ -1,3 +1,4 @@
+#
 define iis::manage_virtual_application($site_name, $site_path, $app_pool, $virtual_application_name = $title, $ensure = 'present') {
   include 'iis::param::powershell'
 

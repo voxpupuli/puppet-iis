@@ -11,7 +11,7 @@ describe 'iis::manage_virtual_application', :type => :define do
         :app_pool => 'myAppPool.example.com',
     }}
 
-    it { should include_class('iis::param::powershell') }
+    it { should contain_class('iis::param::powershell') }
 
     it { should contain_exec('CreateVirtualApplication-myWebSite-mySite').with({
       'command' => "#{powershell} -Command \"Import-Module WebAdministration; New-WebApplication -Name mySite -Site myWebSite -PhysicalPath C:\\inetpub\\wwwroot\\myHost -ApplicationPool myAppPool.example.com\"",

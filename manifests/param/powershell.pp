@@ -1,3 +1,4 @@
+#
 class iis::param::powershell {
   $executable = 'powershell.exe'
   $exec_policy = '-ExecutionPolicy RemoteSigned'

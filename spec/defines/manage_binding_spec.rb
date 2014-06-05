@@ -12,7 +12,7 @@ describe 'iis::manage_binding', :type => :define do
         :port        => '80',
     } }
 
-    it { should include_class('iis::param::powershell') }
+    it { should contain_class('iis::param::powershell') }
 
     it { should contain_exec('CreateBinding-myWebSite-port-80').with({
       'command' => "#{powershell} -Command \"Import-Module WebAdministration; New-WebBinding -Name \\\"myWebSite\\\" -Port 80 -Protocol \\\"http\\\" -HostHeader \\\"myHost.example.com\\\" -IPAddress \\\"*\\\"\"",
