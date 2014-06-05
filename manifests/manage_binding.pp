@@ -1,3 +1,4 @@
+#
 define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_address = '*', $certificate_thumbprint = '', $ensure = 'present') {
   include 'iis::param::powershell'
 

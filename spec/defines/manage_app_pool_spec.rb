@@ -7,7 +7,7 @@ describe 'iis::manage_app_pool', :type => :define do
     let(:title) { 'myAppPool.example.com' }
     let(:params) { { :enable_32_bit => true, :managed_runtime_version => 'v4.0' } }
 
-    it { should include_class('iis::param::powershell') }
+    it { should contain_class('iis::param::powershell') }
 
     it { should contain_exec('Create-myAppPool.example.com').with( {
         :command => "#{powershell} -Command \"Import-Module WebAdministration; New-Item \\\"IIS:\\AppPools\\myAppPool.example.com\\\"\"",
@@ -30,7 +30,7 @@ describe 'iis::manage_app_pool', :type => :define do
   describe 'when managing the iis application pool without passing parameters' do
     let(:title) { 'myAppPool.example.com' }
 
-    it { should include_class('iis::param::powershell') }
+    it { should contain_class('iis::param::powershell') }
 
     it { should contain_exec('Create-myAppPool.example.com').with( {
       :command => "#{powershell} -Command \"Import-Module WebAdministration; New-Item \\\"IIS:\\AppPools\\myAppPool.example.com\\\"\"",

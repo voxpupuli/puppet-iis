@@ -11,7 +11,7 @@ describe 'iis::manage_site', :type => :define do
         :site_path   => 'C:\inetpub\wwwroot\myWebSite',
     } }
 
-    it { should include_class('iis::param::powershell') }
+    it { should contain_class('iis::param::powershell') }
 
     it { should contain_exec('CreateSite-myWebSite').with({
       'command' => "#{powershell} -Command \"Import-Module WebAdministration; $id = (Get-WebSite | foreach {$_.id} | sort -Descending | select -first 1) + 1; New-WebSite -Name \\\"myWebSite\\\" -Port 80 -IP * -HostHeader \\\"myHost.example.com\\\" -PhysicalPath \\\"C:\\inetpub\\wwwroot\\myWebSite\\\" -ApplicationPool \\\"myAppPool.example.com\\\" -Ssl:$false -ID $id \"",
@@ -40,7 +40,7 @@ describe 'iis::manage_site', :type => :define do
         :ensure      => 'present',
     }}
 
-    it { should include_class('iis::param::powershell') }
+    it { should contain_class('iis::param::powershell') }
 
     it { should contain_exec('CreateSite-myWebSite').with({
       'command' => "#{powershell} -Command \"Import-Module WebAdministration; $id = (Get-WebSite | foreach {$_.id} | sort -Descending | select -first 1) + 1; New-WebSite -Name \\\"myWebSite\\\" -Port 1080 -IP 127.0.0.1 -HostHeader \\\"myHost.example.com\\\" -PhysicalPath \\\"C:\\inetpub\\wwwroot\\path\\\" -ApplicationPool \\\"myAppPool.example.com\\\" -Ssl:$false -ID $id \"",
