@@ -16,6 +16,14 @@ define iis::manage_virtual_application($site_name, $site_path, $app_pool, $virtu
       require   => [ Iis::Createpath["${site_name}-${virtual_application_name}-${site_path}"], Iis::Manage_site[$site_name] ],
       logoutput => true,
     }
+	 #custom code                                                                                                                                                                 
+     exec { "ConvertTo-WebApplication-${site_name}-${virtual_application_name}" :
+      command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; ConvertTo-WebApplication \\\"IIS:\\Sites\\${site_name}\\${virtual_application_name}\\\"\"",
+      path      => "${iis::param::powershell::path};${::path}",
+      onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-WebApplication -Name \\\"${virtual_application_name}\\\") -eq \$null ) { write-host \"yes\";exit 0 } else { write-host \"no\"; exit 1 }\"",
+      require   => [ Iis::Createpath["${site_name}-${virtual_application_name}-${site_path}"], Iis::Manage_site[$site_name] ],
+      logoutput => true,
+      }	
   } else {
     exec { "DeleteVirtualApplication-${site_name}-${virtual_application_name}" :
       command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Remove-WebApplication -Name ${virtual_application_name} -Site ${site_name}\"",
