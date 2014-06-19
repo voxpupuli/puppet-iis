@@ -15,8 +15,7 @@ define iis::manage_app_pool($app_pool_name = $title, $enable_32_bit = false, $ma
       onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Test-Path \\\"IIS:\\AppPools\\${app_pool_name}\\\")) { exit 1 } else {exit 0}\"",
       logoutput => true,
     }
-	
-	#custom code
+
     exec { "processmodelusername-${app_pool_name}" :
       command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" processmodel.username ${processmodelusername}\"",
       path      => "${iis::param::powershell::path};${::path}",
@@ -25,18 +24,17 @@ define iis::manage_app_pool($app_pool_name = $title, $enable_32_bit = false, $ma
       logoutput => true,
       notify => Exec ["processmodelpassword-${app_pool_name}"]
       }
-    
-  #custom code  
-     exec { "processmodelpassword-${app_pool_name}" :
+ 
+    exec { "processmodelpassword-${app_pool_name}" :
       command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" processmodel.password ${processmodelpassword}\"",
       path      => "${iis::param::powershell::path};${::path}",
-     # onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" processmodel.password).Value.CompareTo('${processmodelpassword}') -eq 0) { exit 1 } else { exit 0 }\"",
+     #onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" processmodel.password).Value.CompareTo('${processmodelpassword}') -eq 0) { exit 1 } else { exit 0 }\"",
       require   => Exec["processmodelusername-${app_pool_name}"],
       refreshonly => true,
       logoutput => true,
     }
- #custom code    
-     exec { "processmodelidentityType-${app_pool_name}" :
+   
+    exec { "processmodelidentityType-${app_pool_name}" :
       command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" processmodel.identityType ${processmodelidentityType}\"",
       path      => "${iis::param::powershell::path};${::path}",
       onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" processmodel.identityType.Value) -Match ${processmodelidentityType}) { exit 1 } else { exit 0 }\"",

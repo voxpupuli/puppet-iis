@@ -13,9 +13,8 @@ define iis::manage_virtual_directory($site_name, $site_path, $dir_account, $dir_
       require   => [ Iis::Manage_site[$site_name] ],
       notify => Exec ["processmodelusername-${dir_account}"],
       logoutput => true,
-    }
-                                                                                                            
-      exec { "processmodelusername-${dir_account}" :
+    }                                                                                                    
+    exec { "processmodelusername-${dir_account}" :
       command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\Sites\\${site_name}\\${virtual_directory_name}\\\" username ${$dir_account}\"",
       path      => "${iis::param::powershell::path};${::path}",
       onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\Sites\\${site_name}\\${virtual_directory_name}\\\" username).Value.CompareTo('${$dir_account}') -eq 0) { exit 1 } else { exit 0 }\"",
@@ -23,15 +22,13 @@ define iis::manage_virtual_directory($site_name, $site_path, $dir_account, $dir_
       logoutput => true,
       notify => Exec ["processmodelpassword-${dir_password}"]
       }
-    
-     exec { "processmodelpassword-${dir_password}" :
+    exec { "processmodelpassword-${dir_password}" :
       command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\Sites\\${site_name}\\${virtual_directory_name}\\\" password ${dir_password}\"",
       path      => "${iis::param::powershell::path};${::path}",
       require   => Exec["processmodelusername-${dir_account}"],
       refreshonly => true,
       logoutput => true,
     }
-    
   } else {
     exec { "DeleteVirtualDirectory-${site_name}-${virtual_directory_name}" :
       command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Remove-WebVirtualDirectory -Site ${site_name}\"",
