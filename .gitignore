@@ -1,3 +1,8 @@
+.*.sw?
+pkg
+spec/fixtures
+.rspec_system
+.vagrant
 *.iml
-Gemfile.lock
-/.idea/*
+.idea/
+.bundle/

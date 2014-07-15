@@ -1,3 +1,4 @@
+#
 define iis::manage_site_state($site_name, $ensure = 'running') {
   include 'iis::param::powershell'
 

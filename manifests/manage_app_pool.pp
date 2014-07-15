@@ -1,3 +1,4 @@
+#
 define iis::manage_app_pool($app_pool_name = $title, $enable_32_bit = false, $managed_runtime_version = 'v4.0', $managed_pipeline_mode = 'Integrated', $ensure = 'present') {
 
   validate_bool($enable_32_bit)

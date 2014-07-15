@@ -1,0 +1,22 @@
+Import-Module WebAdministration
+
+$site = Get-Website | Where-Object { $_.Name -eq "<%= site_name %>" }
+$certsAttachedToSite = Get-ChildItem IIS:\SSLBindings | ? { $site | Select-Object { $_ -contains $_.Sites.Value }} | % { $_.Thumbprint }
+$certificate = Get-ChildItem CERT:\LocalMachine\My | ? { $certsAttachedToSite -contains $_.Thumbprint} | Where-Object { $_.Thumbprint -eq "<%= certificate_thumbprint %>" }
+
+if((Test-Path IIS:\SslBindings\<%= ip_address %>!<%= port %>) -eq $false) {
+    push-location IIS:\SslBindings
+    Get-Item Cert:\LocalMachine\My\<%= certificate_thumbprint %> | New-Item <%= ip_address %>!<%= port %>
+}
+elseif (((Test-Path IIS:\SslBindings\<%= ip_address %>!<%= port %>) -eq $true) -and (($certificate -ne $null) -or ($certificate.Thumbprint -ne "<%= certificate_thumbprint %>"))) {
+    push-location IIS:\SslBindings
+    Get-Item Cert:\LocalMachine\My\<%= certificate_thumbprint %> | Set-Item <%= ip_address %>!<%= port %>
+    foreach ($cert in $certificates) {
+        if(($cert -ne $null) -and ($cert.Thumbprint -ne "<%= certificate_thumbprint %>")) {
+            Get-Item Cert:\LocalMachine\My\$cert.Thumbprint | Remove-Item <%= ip_address %>!<%= port %>
+        }
+    }
+}
+else {
+    exit 0
+}

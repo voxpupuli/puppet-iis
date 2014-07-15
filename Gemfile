@@ -1,14 +1,21 @@
-# A sample Gemfile
 source "http://rubygems.org"
 
-gem 'puppet-lint'
-gem 'test-unit'
-gem 'rake'
-gem 'rspec', '2.13.0'
-gem 'rspec-core', '2.13.1'
-gem 'rspec-expectations', '2.13.0'
-gem 'rspec-mocks', '2.13.1'
-gem 'puppet', '3.2.1'
-gem 'rspec-puppet', '0.1.6'
-gem 'puppetlabs_spec_helper', '0.4.1'
+group :test do
+  gem "rake"
+  gem "puppet", ENV['PUPPET_VERSION'] || '~> 3.4.0'
+  gem "puppet-lint"
+  gem "rspec-puppet", :git => 'https://github.com/rodjek/rspec-puppet.git'
+  gem "puppet-syntax"
+  gem "puppetlabs_spec_helper", "0.4.1"
+  gem "rspec", "2.99.0"
+end
 
+group :development do
+  gem "travis"
+  gem "travis-lint"
+  gem "beaker"
+  gem "beaker-rspec"
+  gem "vagrant-wrapper"
+  gem "puppet-blacksmith"
+  gem "guard-rake"
+end
