@@ -30,7 +30,7 @@ define iis::manage_site(
 
     $switches = join($createSwitches,' ')
     exec { "CreateSite-${site_name}" :
-      command   => "Import-Module WebAdministration; \$id = (Get-WebSite | foreach {\$_.id} | sort -Descending | select -first 1) + 1; New-WebSite ${switches} -ID \$id ",
+      command   => "Import-Module WebAdministration; \$id = (Get-WebSite | foreach {\$_.id} | sort -Descending | select -first 1) + 1; New-WebSite ${switches} -ID \$id",
       onlyif    => "Import-Module WebAdministration; if((${$cmdSiteExists})) { exit 1 } else { exit 0 }",
       provider  => 'powershell',
       path      => $::path,
