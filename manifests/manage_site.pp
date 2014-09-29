@@ -1,5 +1,5 @@
 #
-define iis::manage_site($site_path, $app_pool, $host_header = '', $site_name = $title, $port = '80', $ip_address = '*', $ensure = 'present', $ssl = 'false') {
+define iis::manage_site($site_path, $app_pool, $host_header = '', $site_name = $title, $port = '80', $ip_address = '*', $ensure = 'present', $ssl = 'false', $update_path = 'true') {
   include 'iis::param::powershell'
 
   validate_re($ensure, '^(present|installed|absent|purged)$', 'ensure must be one of \'present\', \'installed\', \'absent\', \'purged\'')
@@ -28,12 +28,14 @@ define iis::manage_site($site_path, $app_pool, $host_header = '', $site_name = $
       require   => [ Iis::Createpath["${site_name}-${site_path}"], Iis::Manage_app_pool[$app_pool] ],
     }
 
-    exec { "UpdateSite-PhysicalPath-${site_name}":
-      command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\Sites\\${site_name}\\\" -Name physicalPath -Value \\\"${site_path}\\\"\"",
-      onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((${$cmdSiteExists}) -eq \$false) { exit 1 } if ((Get-ItemProperty \\\"IIS:\\Sites\\${site_name}\\\" physicalPath) -eq \\\"${site_path}\\\") { exit 1 } else { exit 0 }\"",
-      path      => "${iis::param::powershell::path};${::path}",
-      logoutput => true,
-      before    => Exec["CreateSite-${site_name}"],
+    if $update_path = true {
+      exec { "UpdateSite-PhysicalPath-${site_name}":
+        command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\Sites\\${site_name}\\\" -Name physicalPath -Value \\\"${site_path}\\\"\"",
+        onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((${$cmdSiteExists}) -eq \$false) { exit 1 } if ((Get-ItemProperty \\\"IIS:\\Sites\\${site_name}\\\" physicalPath) -eq \\\"${site_path}\\\") { exit 1 } else { exit 0 }\"",
+        path      => "${iis::param::powershell::path};${::path}",
+        logoutput => true,
+        before    => Exec["CreateSite-${site_name}"],
+      }
     }
 
     exec { "UpdateSite-ApplicationPool-${site_name}":
