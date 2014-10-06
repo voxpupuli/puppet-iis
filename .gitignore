@@ -1,8 +1,9 @@
-.*.sw?
-pkg
-spec/fixtures
-.rspec_system
-.vagrant
+pkg/
+Gemfile.lock
+vendor/
+spec/fixtures/
+.vagrant/
+.bundle/
+coverage/
 *.iml
 .idea/
-.bundle/
