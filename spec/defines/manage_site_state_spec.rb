@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-powershell = 'powershell.exe -ExecutionPolicy RemoteSigned'
-
 describe 'iis::manage_site_state', :type => :define do
   describe 'when ensuring an iis site is running' do
     let(:title) { 'StartSite-DefaultWebsite' }
@@ -10,11 +8,9 @@ describe 'iis::manage_site_state', :type => :define do
         :ensure    => 'running',
     } }
 
-    it { should contain_class('iis::param::powershell') }
-
     it { should contain_exec('StartSite-DefaultWebsite').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Start-Website -Name \\\"DefaultWebsite\\\"\"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-Item \\\"IIS:\\Sites\\DefaultWebsite\\\").state -eq \\\"started\\\") { exit 1 }\"",
+      'command' => "Import-Module WebAdministration; Start-Website -Name \"DefaultWebsite\"",
+      'onlyif'  => "Import-Module WebAdministration; if((Get-Item \"IIS:\\Sites\\DefaultWebsite\").state -eq \"started\") { exit 1 }",
     })}
   end
 
@@ -25,11 +21,9 @@ describe 'iis::manage_site_state', :type => :define do
         :ensure    => 'true',
     } }
 
-    it { should contain_class('iis::param::powershell') }
-
     it { should contain_exec('StartSite-DefaultWebsite').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Start-Website -Name \\\"DefaultWebsite\\\"\"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-Item \\\"IIS:\\Sites\\DefaultWebsite\\\").state -eq \\\"started\\\") { exit 1 }\"",
+      'command' => "Import-Module WebAdministration; Start-Website -Name \"DefaultWebsite\"",
+      'onlyif'  => "Import-Module WebAdministration; if((Get-Item \"IIS:\\Sites\\DefaultWebsite\").state -eq \"started\") { exit 1 }",
     })}
   end
 
@@ -40,11 +34,9 @@ describe 'iis::manage_site_state', :type => :define do
         :ensure    => 'stopped',
     } }
 
-    it { should contain_class('iis::param::powershell') }
-
     it { should contain_exec('StopSite-DefaultWebsite').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Stop-Website -Name \\\"DefaultWebsite\\\"\"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-Item \\\"IIS:\\Sites\\DefaultWebsite\\\").state -eq \\\"stopped\\\") { exit 1 }\"",
+      'command' => "Import-Module WebAdministration; Stop-Website -Name \"DefaultWebsite\"",
+      'onlyif'  => "Import-Module WebAdministration; if((Get-Item \"IIS:\\Sites\\DefaultWebsite\").state -eq \"stopped\") { exit 1 }",
     })}
   end
 
@@ -55,11 +47,9 @@ describe 'iis::manage_site_state', :type => :define do
         :ensure    => 'false',
     } }
 
-    it { should contain_class('iis::param::powershell') }
-
     it { should contain_exec('StopSite-DefaultWebsite').with({
-      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Stop-Website -Name \\\"DefaultWebsite\\\"\"",
-      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-Item \\\"IIS:\\Sites\\DefaultWebsite\\\").state -eq \\\"stopped\\\") { exit 1 }\"",
+      'command' => "Import-Module WebAdministration; Stop-Website -Name \"DefaultWebsite\"",
+      'onlyif'  => "Import-Module WebAdministration; if((Get-Item \"IIS:\\Sites\\DefaultWebsite\").state -eq \"stopped\") { exit 1 }",
     })}
   end
 end
