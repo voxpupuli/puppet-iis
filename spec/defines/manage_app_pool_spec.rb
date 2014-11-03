@@ -48,6 +48,24 @@ describe 'iis::manage_app_pool', :type => :define do
       'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'false\')) { exit 1 } else { exit 0 }\"",
       'require' => 'Exec[Create-myAppPool.example.com]',
     })}
+
+    it { should contain_exec('QueueLength-myAppPool.example.com').with({
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" queueLength 1000\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" queueLength).Value -eq 1000) { exit 1 } else { exit 0 }\"",
+      'require' => 'Exec[Create-myAppPool.example.com]',
+    })}
+
+    it { should contain_exec('MaxWorkerProcesses-myAppPool.example.com').with({
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" processModel.maxProcesses 1\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" processModel.maxProcesses).Value -eq 1) { exit 1 } else { exit 0 }\"",
+      'require' => 'Exec[Create-myAppPool.example.com]',
+    })}
+
+    it { should contain_exec('RecyclingTimeInterval-myAppPool.example.com').with({
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" recycling.periodicRestart.time (New-TimeSpan -Minutes 1740)\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" recycling.periodicRestart.time.Value).TotalMinutes -eq 1740) { exit 1 } else { exit 0 }\"",
+      'require' => 'Exec[Create-myAppPool.example.com]',
+    })}
   end
 
   describe 'when managing the iis application with a managed_runtime_version of v2.0' do
@@ -83,6 +101,60 @@ describe 'iis::manage_app_pool', :type => :define do
     let(:params) {{ :enable_32_bit => 'false' }}
 
     it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /"false" is not a boolean\./) }
+  end
+
+  describe 'when managing the iis application pool with a queue_length of 500' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) {{ :queue_length => 500 }}
+
+    it { should contain_exec('QueueLength-myAppPool.example.com').with({
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" queueLength 500\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" queueLength).Value -eq 500) { exit 1 } else { exit 0 }\"",
+      'require' => 'Exec[Create-myAppPool.example.com]',
+    })}
+  end
+
+  describe 'when managing the iis application pool with invalid queue_length parameter' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) {{ :queue_length => 'five hundred' }}
+
+    it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /queue_length must be a positive integer/) }
+  end
+
+  describe 'when managing the iis application pool with a max_worker_processes of 5' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) {{ :max_worker_processes => 5 }}
+
+    it { should contain_exec('MaxWorkerProcesses-myAppPool.example.com').with({
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" processModel.maxProcesses 5\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" processModel.maxProcesses).Value -eq 5) { exit 1 } else { exit 0 }\"",
+      'require' => 'Exec[Create-myAppPool.example.com]',
+    })}
+  end
+
+  describe 'when managing the iis application pool with invalid max_worker_processes' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) {{ :max_worker_processes => 'five' }}
+
+    it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /max_worker_processes must be a positive integer/) }
+  end
+
+  describe 'when managing the iis application pool with a recycling_time_interval of 1000' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) {{ :recycling_time_interval => 1000 }}
+
+    it { should contain_exec('RecyclingTimeInterval-myAppPool.example.com').with({
+      'command' => "#{powershell} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" recycling.periodicRestart.time (New-TimeSpan -Minutes 1000)\"",
+      'onlyif'  => "#{powershell} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\myAppPool.example.com\\\" recycling.periodicRestart.time.Value).TotalMinutes -eq 1000) { exit 1 } else { exit 0 }\"",
+      'require' => 'Exec[Create-myAppPool.example.com]',
+    })}
+  end
+
+  describe 'when managing the iis application pool with invalid recycling_time_interval' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) {{ :recycling_time_interval => 'one thousand' }}
+
+    it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /recycling_time_interval must be a positive integer/) }
   end
 
   describe 'when managing the iis application pool and setting ensure to present' do
