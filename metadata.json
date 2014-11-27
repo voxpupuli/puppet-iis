@@ -1,0 +1,26 @@
+{
+  "name":         "opentable-iis",
+  "version":      "1.3.0",
+  "author":       "opentable",
+  "license":      "MIT",
+  "summary":      "Module that will manage IIS for windows server 2008 and above. It will help maintain application pools, sites and virtual applications",
+  "source":       "https://github.com/opentable/puppet-iis.git",
+  "project_page": "https://github.com/opentable/puppet-iis",
+  "issues_url":   "https://github.com/opentable/puppet-iis/issues",
+  "operatingsystem_support": [
+      {
+        "operatingsystem": "Windows",
+        "operatingsystemrelease": [ "2008R2", "2012", "2012R2" ]
+      }
+  ],
+  "dependencies": [
+    {
+      "name": "puppetlabs/stdlib",
+      "version_requirement": ">= 3.0.0"
+    },
+    {
+      "name": "puppetlabs/powershell",
+      "version_requirement": ">= 1.0.1"
+    }
+  ]
+}
