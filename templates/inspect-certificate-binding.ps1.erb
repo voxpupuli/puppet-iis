@@ -12,6 +12,6 @@ if((Test-Path IIS:\SslBindings\<%= @ip_address %>!<%= @port %>) -eq $false) {
     }
 }
 else {
-    exit 1
+    exit 0
 }
 
