@@ -1,5 +1,5 @@
 #
-define iis::manage_app_pool($app_pool_name = $title, $enable_32_bit = false, $managed_runtime_version = 'v4.0', $managed_pipeline_mode = 'Integrated', $ensure = 'present') {
+define iis::manage_app_pool($app_pool_name = $title, $enable_32_bit = false, $managed_runtime_version = 'v4.0', $managed_pipeline_mode = 'Integrated', $processmodelidentityType = '3', $processmodelusername = 'mydomainame\username', $processmodelpassword = 'mypassword',  $ensure = 'present') {
 
   validate_bool($enable_32_bit)
   validate_re($managed_runtime_version, ['^(v2\.0|v4\.0)$'])
@@ -14,6 +14,32 @@ define iis::manage_app_pool($app_pool_name = $title, $enable_32_bit = false, $ma
       logoutput => true,
     }
 
+    exec { "processmodelusername-${app_pool_name}" :
+      command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" processmodel.username ${processmodelusername}\"",
+      path      => "${iis::param::powershell::path};${::path}",
+      onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" processmodel.username).Value.CompareTo('${processmodelusername}') -eq 0) { exit 1 } else { exit 0 }\"",
+      require   => Exec["processmodelidentityType-${app_pool_name}"],
+      logoutput => true,
+      notify => Exec ["processmodelpassword-${app_pool_name}"]
+      }
+ 
+    exec { "processmodelpassword-${app_pool_name}" :
+      command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" processmodel.password ${processmodelpassword}\"",
+      path      => "${iis::param::powershell::path};${::path}",
+     #onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" processmodel.password).Value.CompareTo('${processmodelpassword}') -eq 0) { exit 1 } else { exit 0 }\"",
+      require   => Exec["processmodelusername-${app_pool_name}"],
+      refreshonly => true,
+      logoutput => true,
+    }
+   
+    exec { "processmodelidentityType-${app_pool_name}" :
+      command   => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; Set-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" processmodel.identityType ${processmodelidentityType}\"",
+      path      => "${iis::param::powershell::path};${::path}",
+      onlyif    => "${iis::param::powershell::command} -Command \"Import-Module WebAdministration; if((Get-ItemProperty \\\"IIS:\\AppPools\\${app_pool_name}\\\" processmodel.identityType.Value) -Match ${processmodelidentityType}) { exit 1 } else { exit 0 }\"",
+      require   => Exec["Create-${app_pool_name}"],
+      logoutput => true,
+    }
+    
     exec { "Framework-${app_pool_name}" :
       command   => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" managedRuntimeVersion ${managed_runtime_version}",
       provider  => powershell,
