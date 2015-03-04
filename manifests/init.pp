@@ -1,4 +1,3 @@
-#
 class iis {
   include ::iis::features::application_deployment
   include ::iis::features::common_http
