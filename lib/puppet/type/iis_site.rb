@@ -62,12 +62,14 @@ Puppet::Type.newtype(:iis_site) do
 
   newproperty(:ip) do
     desc 'IP Address for the web site'
+
     def valid_v4?(addr)
       if /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/ =~ addr
-        return $~.captures.all? {|i| i = i.to_i; i >= 0 and i <= 255 }
+        return $~.captures.all? { |i| i = i.to_i; i >= 0 and i <= 255 }
       end
       return false
     end
+
     def valid_v6?(addr)
       # http://forums.dartware.com/viewtopic.php?t=452
       # ...and, yes, it is this hard.  Doing it programatically is harder.
@@ -75,13 +77,14 @@ Puppet::Type.newtype(:iis_site) do
 
       return false
     end
+
     validate do |value|
       fail("Invalid IP address #{value.inspect}") unless valid_v4?(value) or valid_v6?(value) or value == '*'
     end
     defaultto '*'
   end
 
- newproperty(:port) do
+  newproperty(:port) do
     desc 'Port the web site listens on'
     munge do |value|
       value.to_i
@@ -98,9 +101,9 @@ Puppet::Type.newtype(:iis_site) do
     defaultto :false
   end
 
-   autorequire(:iis_pool) do
+  autorequire(:iis_pool) do
     self[:app_pool] if @parameters.include? :app_pool
-  end 
+  end
 
   def refresh
     if self[:ensure] == :present and (provider.enabled? or self[:ensure] == 'started')

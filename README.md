@@ -5,6 +5,7 @@
 1. [Requirements] (#requirements)
 1. [Types] (#types)
   * [iis_site] (#iis_site)
+  * [iis_pool] (#iis_pool)
 
 ## Overview
 
@@ -86,7 +87,7 @@ iis_pool { 'DefaultAppPool':
 }
 ```
 
-#### iis_pool attributes
+### iis_pool attributes
 
 * `name`<br />
 (namevar) Application pool's name.
