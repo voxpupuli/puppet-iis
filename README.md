@@ -6,6 +6,7 @@
 1. [Types] (#types)
   * [iis_site] (#iis_site)
   * [iis_pool] (#iis_pool)
+  * [iis_virtualdirectory] (#iis_virtualdirectory)
 
 ## Overview
 
@@ -106,3 +107,26 @@ Whether the site should be `Started` or `Stopped`.  Default: `Started`
 
 ####Refresh event <br />
 Sending a refresh event to an iis_pool type will recycle the application pool.
+
+### iis_virtualdirectory
+
+Enumerate all IIS virtual directories:
+* `puppet resource iis_virtualdirectory`<br />
+
+Example output for `puppet resource iis_virtualdirectory 'default'`
+```
+iis_virtualdirectory { 'default':
+  ensure => 'present',
+  path   => 'C:\inetpub\wwwroot',
+  site   => 'Default Web Site',
+}
+```
+
+#### iis_virtualdirectory attributes
+
+* `path` <br />
+Target directory for the virtual directory.
+
+* `site` <br />
+(Read-only) Web site in which the virtual directory resides.<br />
+To change sites, remove and re-create virtual directory.
