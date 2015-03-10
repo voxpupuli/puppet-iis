@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 Puppet-IIS
 ============================
 
@@ -168,7 +167,6 @@ Notes on Managing App Pools
 1. [Requirements] (#requirements)
 1. [Types] (#types)
   * [iis_site] (#iis_site)
-  * [iis_pool] (#iis_pool)
 
 ## Overview
 
@@ -269,4 +267,3 @@ Whether the site should be `Started` or `Stopped`.  Default: `Started`
 
 ####Refresh event <br />
 Sending a refresh event to an iis_pool type will recycle the application pool.
->>>>>>> (maint) iis_site rewrite
