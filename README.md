@@ -37,7 +37,7 @@ iis_site { 'Default Web Site':
 }
 ```
 
-### iis_site attributes
+#### iis_site attributes
 
 * `name`<br />
 (namevar) Web site's name.
@@ -87,7 +87,7 @@ iis_pool { 'DefaultAppPool':
 }
 ```
 
-### iis_pool attributes
+#### iis_pool attributes
 
 * `name`<br />
 (namevar) Application pool's name.
