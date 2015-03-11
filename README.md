@@ -167,6 +167,9 @@ Notes on Managing App Pools
 1. [Requirements] (#requirements)
 1. [Types] (#types)
   * [iis_site] (#iis_site)
+  * [iis_pool] (#iis_pool)
+  * [iis_virtualdirectory] (#iis_virtualdirectory)
+  * [iis_application] (#iis_application)
 
 ## Overview
 
@@ -267,3 +270,56 @@ Whether the site should be `Started` or `Stopped`.  Default: `Started`
 
 ####Refresh event <br />
 Sending a refresh event to an iis_pool type will recycle the application pool.
+<<<<<<< HEAD
+=======
+
+### iis_virtualdirectory
+
+Enumerate all IIS virtual directories:
+* `puppet resource iis_virtualdirectory`<br />
+
+Example output for `puppet resource iis_virtualdirectory 'default'`
+```
+iis_virtualdirectory { 'default':
+  ensure => 'present',
+  path   => 'C:\inetpub\wwwroot',
+  site   => 'Default Web Site',
+}
+```
+
+#### iis_virtualdirectory attributes
+
+* `path` <br />
+Target directory for the virtual directory.
+
+* `site` <br />
+(Read-only) Web site in which the virtual directory resides.<br />
+To change sites, remove and re-create virtual directory.
+
+### iis_application
+
+Enumerate all IIS applications:
+* `puppet resource iis_application`<br />
+
+Example output for `puppet resource iis_site 'test_app'`
+```
+iis_application { 'test_app':
+  ensure   => 'present',
+  app_pool => 'DefaultAppPool',
+  path     => 'C:\Temp',
+  site     => 'Default Web Site',
+}
+```
+
+#### iis_application attributes
+
+* `app_pool`<br />
+The application pool which should contain the application. Default: `DefaultAppPool`
+
+* `path`<br />
+Root for the application.  This can be left blank, although IIS won't
+be able to use it.
+
+* `site` <br />
+(Read-only) Web site in which the application resides.<br />
+To change sites, remove and re-create application.
