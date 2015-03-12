@@ -23,6 +23,10 @@ group :development, :test do
   gem 'puppet-syntax',                                                           :require => false
   gem 'puppetlabs_spec_helper',                                                  :require => false
   gem 'rspec',                                                                   :require => false
+  gem 'puppet-blacksmith',                                                       :require => false
+end
+
+group :system_tests do
   gem 'beaker',                                                                  :require => false
   gem 'beaker-rspec',                                                            :require => false
   gem 'serverspec',                                                              :require => false
@@ -31,7 +35,6 @@ group :development, :test do
   gem 'travis',                                                                  :require => false
   gem 'travis-lint',                                                             :require => false
   gem 'vagrant-wrapper',                                                         :require => false
-  gem 'puppet-blacksmith',                                                       :require => false
   gem 'guard-rake',                                                              :require => false
 end
 
