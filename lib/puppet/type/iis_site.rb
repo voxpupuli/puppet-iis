@@ -49,7 +49,7 @@ Puppet::Type.newtype(:iis_site) do
   newproperty(:host_header) do
     desc 'Host header for the site'
     validate do |value|
-      fail("#{host_header} is not a valid application pool name") unless value =~ /^[a-zA-Z0-9\-\_'\s]+$/ or value == :false
+      fail("#{host_header} is not a valid application pool name") unless value =~ /^[a-zA-Z0-9\-\_'\.\s]+$/ or value == :false
     end
   end
 
