@@ -8,22 +8,20 @@ group :development, :test do
     gem 'rest-client', '1.6.8'
     gem 'gssapi', '1.2.0'
     gem 'celluloid', '0.11.1'
-  end
-
-  if ENV['PUPPET_GEM_VERSION'] =~ /3.4/ && ENV['RUBY_VERSION'] !~ /1.8/
-    gem 'puppet-doc-lint', :require => false
+  else
+    gem 'puppet-blacksmith'
   end
 
   gem 'rake',                                                                    :require => false
-  gem 'puppet-lint',                                                             :require => false
+  gem 'puppet-lint',
+    :git => 'https://github.com/rodjek/puppet-lint/',
+    :require => false
   gem 'rspec-puppet',
     :git => 'https://github.com/rodjek/rspec-puppet.git',
-    :ref => '',
     :require => false
   gem 'puppet-syntax',                                                           :require => false
   gem 'puppetlabs_spec_helper',                                                  :require => false
-  gem 'rspec',                                                                   :require => false
-  gem 'puppet-blacksmith',                                                       :require => false
+  gem 'rspec', '3.1.0',                                                          :require => false
 end
 
 group :system_tests do
