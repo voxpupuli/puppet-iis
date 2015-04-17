@@ -2,10 +2,6 @@ require 'puppetlabs_spec_helper/rake_tasks'
 require 'puppet-syntax/tasks/puppet-syntax'
 require 'puppet-lint/tasks/puppet-lint'
 
-if ENV['RUBY_VERSION'] !~ /1.8/
-  require 'puppet-doc-lint/rake_task'
-end
-
 PuppetLint.configuration.fail_on_warnings
 PuppetLint.configuration.relative = true
 
