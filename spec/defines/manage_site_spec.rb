@@ -162,6 +162,6 @@ describe 'iis::manage_site', :type => :define do
       :path        => 'C:\Windows\system32'
     }}
 
-    it { expect { should contain_exec('CreateSite-myWebSite') }.to raise_error(Puppet::Error, /ssl must be \'true\' or \'false\'/) }
+    it { expect { should contain_exec('CreateSite-myWebSite') }.to raise_error(Puppet::Error, /"nope" is not a boolean/) }
   end
 end

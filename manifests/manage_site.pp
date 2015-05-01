@@ -7,10 +7,10 @@ define iis::manage_site(
   $host_header = '',
   $ip_address  = '*',
   $port        = '80',
-  $ssl         = 'false'
+  $ssl         = false
   ) {
   validate_re($ensure, '^(present|installed|absent|purged)$', 'ensure must be one of \'present\', \'installed\', \'absent\', \'purged\'')
-  validate_re($ssl, '^(false|true)$', 'ssl must be \'true\' or \'false\'')
+  validate_bool($ssl)
 
   if $ensure in ['present','installed'] {
     validate_absolute_path($site_path)
