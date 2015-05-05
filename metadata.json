@@ -13,14 +13,24 @@
         "operatingsystemrelease": [ "2008R2", "2012", "2012R2" ]
       }
   ],
+  "requirements": [
+    {
+      "name": "pe",
+      "version_requirement": "3.x"
+    },
+    {
+		  "name": "puppet",
+			"version_requirement": "3.x"
+    }
+  ],
   "dependencies": [
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 3.0.0"
+      "version_requirement": ">= 3.0.0 < 5.0.0"
     },
     {
       "name": "puppetlabs/powershell",
-      "version_requirement": ">= 1.0.1"
+      "version_requirement": ">= 1.0.1 < 2.0.0"
     }
   ]
 }
