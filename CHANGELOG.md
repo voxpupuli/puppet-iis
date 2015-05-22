@@ -1,3 +1,13 @@
+##2015-05-22 - Release 1.4.1
+###Summary
+
+  Bugfix release do move fact into usable location
+
+###Bugfixes
+- update the `iis_version` fact to a usable location
+- add upper-bound to stdlib and powershell dependencies in metadata
+- added puppet and pe requirements to metadata
+
 ##2015-05-01 - Release 1.4.0
 ###Summary
 
