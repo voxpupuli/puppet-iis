@@ -11,7 +11,7 @@ Facter.add("iis_version") do
                 'powershell.exe'
                end
 
-      iis_ver = %x{#{psexec} -ExecutionPolicy ByPass -Command "(Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\InetStp\\ -Name VersionString).VersionString.SubString(8,3)"}
+      iis_ver = %x{#{psexec} -ExecutionPolicy ByPass -Command "(Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\InetStp -ErrorAction SilentlyContinue -Name VersionString).Versionstring -replace 'Version ',''"}
     rescue
       iis_ver = ""
     end
