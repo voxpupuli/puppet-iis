@@ -12,7 +12,7 @@ Facter.add("iis_version") do
                end
 
       iis_ver = %x{#{psexec} -ExecutionPolicy ByPass -Command "(Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\InetStp\\ -Name VersionString).VersionString.SubString(8,3)"}
-      if iis_ver !~ /\d\.\d/
+      if iis_ver !~ /\d+\.\d+/
         Facter.debug("Invalid iis_version")
         iis_ver = nil
       end
