@@ -28,18 +28,21 @@ Enumerate all IIS websites:
 Example output for `puppet resource iis_site 'Default Web Site'`
 ```
 iis_site { 'Default Web Site':
-  ensure   => 'present',
+  ensure   => 'started',
   app_pool => 'DefaultAppPool',
   ip       => '*',
   path     => 'C:\InetPub\WWWRoot',
   port     => '80',
   protocol => 'http',
   ssl      => 'false',
-  state    => 'Started',
 }
 ```
 
 #### iis_site attributes
+
+* `ensure`<br />
+Denotes the presence and state of site. `{ present, absent, started, stopped}`
+Default: `started`
 
 * `name`<br />
 (namevar) Web site's name.
@@ -81,15 +84,18 @@ Enumerate all IIS application pools:
 Example output for `puppet resource iis_site 'DefaultAppPool'`
 ```
 iis_pool { 'DefaultAppPool':
-  ensure        => 'present',
+  ensure        => 'started',
   enable_32_bit => 'false',
   pipeline      => 'Integrated',
-  runtime       => '4.0',
-  state         => 'Started',
+  runtime       => 'v4.0',
 }
 ```
 
 #### iis_pool attributes
+
+* `ensure`<br />
+Denotes the presence and state of pool. `{ present, absent, started, stopped}`
+Default: `started`
 
 * `name`<br />
 (namevar) Application pool's name.
