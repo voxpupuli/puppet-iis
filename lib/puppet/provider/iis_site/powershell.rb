@@ -22,7 +22,7 @@ Puppet::Type.type(:iis_site).provide(:powershell, :parent => Puppet::Provider::I
   def self.instances
     inst_cmd = <<-ps1
 Import-Module WebAdministration;
-gci "IIS:\\sites" | %{ Get-ItemProperty $_.PSPath  | Select name, PhysicalPath, ApplicationPool, HostHeader, State, Bindings } | ConvertTo-Json
+gci "IIS:\\sites" | %{ Get-ItemProperty $_.PSPath  | Select name, PhysicalPath, ApplicationPool, HostHeader, State, Bindings } | ConvertTo-Json -Depth 4
 ps1
     site_json = JSON.parse(run(inst_cmd))
     # The command returns a Hash if there is 1 site
@@ -33,15 +33,16 @@ ps1
       site_hash[:name]        = site['name']
       site_hash[:path]        = site['physicalPath']
       site_hash[:app_pool]    = site['applicationPool']
-      bindings                = site['bindings']['Collection'].first['bindingInformation']
+      binding_collection      = site['bindings']['Collection']
+      bindings                = binding_collection.first['bindingInformation']
       site_hash[:protocol]    = site['bindings']['Collection'].first['protocol']
       site_hash[:ip]          = bindings.split(':')[0]
       site_hash[:port]        = bindings.split(':')[1]
       site_hash[:host_header] = bindings.split(':')[2]
       if site['bindings']['Collection'].first['sslFlags'] == 0
-        site_hash[:ssl]       = :true
-      else
         site_hash[:ssl]       = :false
+      else
+        site_hash[:ssl]       = :true
       end
       new(site_hash)
     end

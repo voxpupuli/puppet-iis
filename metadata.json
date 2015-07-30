@@ -8,10 +8,14 @@
   "project_page": "https://github.com/voxpupuli/puppet-iis",
   "issues_url":   "https://github.com/voxpupuli/puppet-iis/issues",
   "operatingsystem_support": [
-      {
-        "operatingsystem": "windows",
-        "operatingsystemrelease": [ "2008R2", "2012", "2012R2" ]
-      }
+    {
+      "operatingsystem": "windows",
+      "operatingsystemrelease": [
+        "2008R2",
+        "2012",
+        "2012R2"
+      ]
+    }
   ],
   "requirements": [
     {
@@ -19,8 +23,8 @@
       "version_requirement": "3.x"
     },
     {
-		  "name": "puppet",
-			"version_requirement": "3.x"
+      "name": "puppet",
+      "version_requirement": "3.x"
     }
   ],
   "dependencies": [
@@ -31,6 +35,10 @@
     {
       "name": "puppetlabs/powershell",
       "version_requirement": ">= 1.0.1 < 2.0.0"
+    },
+    {
+      "name": "puppetlabs/dism",
+      "version_requirement": ">= 1.0.0"
     }
   ]
 }
