@@ -6,44 +6,44 @@ Puppet::Type.type(:iis_pool).provide(:powershell, :parent => Puppet::Provider::I
   def initialize(value={})
     super(value)
     @property_flush = {
-      'poolattrs' => {},
+        'poolattrs' => {},
     }
   end
 
   def self.poolattrs
     {
-      :enable_32_bit => 'enable32BitAppOnWin64',
-      :runtime => 'managedRuntimeVersion',
-      :pipeline => 'managedPipelineMode'
+        :enable_32_bit => 'enable32BitAppOnWin64',
+        :runtime => 'managedRuntimeVersion',
+        :pipeline => 'managedPipelineMode'
     }
   end
 
   def self.pipelines
     {
-      0 => 'Integrated',
-      1 => 'Classic'
+        0 => 'Integrated',
+        1 => 'Classic'
     }
   end
 
   def self.instances
-    inst_cmd = <<-ps1
-Import-Module WebAdministration;
-@{"Pools" = @(gci "IIS:\AppPools" | %{
-    Get-ItemProperty $_.PSPath | Select Name, State, enable32BitAppOnWin64, managedRuntimeVersion, managedPipelineMode
-  }
-  )
-} | ConvertTo-Json
-    ps1
-    pool_names = JSON.parse(run(inst_cmd))
-    pool_names['Pools'].collect do |pool|
-      new({
-            :ensure        => pool['state'].downcase,
-            :name          => pool['name'],
-            :enable_32_bit => ("#{pool['enable32BitAppOnWin64']}".to_sym || :false),
-            :runtime       => pool['managedRuntimeVersion'],
-            :pipeline      => pool['managedPipelineMode']
-          })
+    pools = []
+    inst_cmd = 'Import-Module WebAdministration;gci "IIS:\AppPools" | %{ Get-ItemProperty $_.PSPath | Select Name, State, enable32BitAppOnWin64, managedRuntimeVersion, managedPipelineMode  } | ConvertTo-Json -depth 4'
+    result = run(inst_cmd)
+    if !result.empty?
+      pool_names = JSON.parse(result)
+      pool_names = [pool_names] if pool_names.is_a?(Hash)
+      pool_names.each do |pool|
+        pools << new({
+                         :ensure => pool['state'].downcase,
+                         :name => pool['name'],
+                         :enable_32_bit => ("#{pool['enable32BitAppOnWin64']}".to_sym || :false),
+                         :runtime => pool['managedRuntimeVersion'],
+                         :pipeline => pool['managedPipelineMode']
+                     })
+      end
     end
+    
+    pools
   end
 
   def self.prefetch(resources)
