@@ -27,14 +27,15 @@ Puppet::Type.newtype(:iis_application) do
   newparam(:name, :namevar => true) do
     desc 'This is the name of the application'
     validate do |value|
-      fail("#{name} is not a valid application name") unless value =~ /^[a-zA-Z0-9\-\_\.'\s]+$/
+      fail("#{value} is not a valid application name") unless value =~ /^[a-zA-Z0-9\-\_\.'\s]+$/
     end
   end
 
   newproperty(:path) do
     desc 'Path to the application folder'
     validate do |value|
-      fail("File paths must be fully qualified, not '#{value}'") unless value =~ /^.:\// or value =~ /^\/\/[^\/]+\/[^\/]+/
+      #Need unified path validation
+      fail("File paths must be fully qualified, not '#{value}'") unless value =~ /^.:(\/|\\)/
     end
   end
 

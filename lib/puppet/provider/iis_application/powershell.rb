@@ -2,33 +2,43 @@ require 'puppet/provider/iispowershell'
 require 'json'
 
 Puppet::Type.type(:iis_application).provide(:powershell, :parent => Puppet::Provider::Iispowershell) do
+  mk_resource_methods
 
   def initialize(value={})
     super(value)
     @property_flush = {
-      'appattrs' => {},
+        'appattrs' => {},
     }
   end
 
   def self.instances
-    inst_cmd = 'Import-Module WebAdministration; Get-WebApplication | Select path, physicalPath, applicationPool, ItemXPath | ConvertTo-JSON'
-    app_names = JSON.parse(run(inst_cmd))
-    app_names = [app_names] if app_names.is_a?(Hash)
-    app_names.collect do |app|
-      app_hash            = {}
-      app_hash[:name]     = app['path'].gsub(/^\//, '')
-      app_hash[:path]     = app['PhysicalPath']
-      app_hash[:app_pool] = app['applicationPool']
-      app_hash[:site]     = app['ItemXPath'].match(/@name='([a-z0-9_\ ]+)'/i)[1]
-      app_hash[:ensure]   = :present
-      new(app_hash)
+    app_instances = []
+    inst_cmd = 'Import-Module WebAdministration; Get-WebApplication | Select path, physicalPath, applicationPool, ItemXPath | ConvertTo-JSON -Depth 4'
+    result = run(inst_cmd)
+    Puppet.debug("WebApplicationResult is empty? #{result.empty?}")
+    if !result.empty?
+      app_names = JSON.parse(result)
+      # Powershell returns different data structure if length >1
+      app_names = [app_names] if app_names.is_a?(Hash)
+      app_names.each do |app|
+        app_hash = {}
+        Puppet.debug("Parsing result for #{app}")
+        app_hash[:name] = app['path'].gsub(/^\//, '')
+        app_hash[:path] = app['PhysicalPath']
+        app_hash[:app_pool] = app['applicationPool']
+        app_hash[:site] = app['ItemXPath'].match(/@name='([a-z0-9_\ ]+)'/i)[1]
+        app_hash[:ensure] = :present
+        app_instances << new(app_hash)
+      end
     end
+
+    app_instances
   end
 
   def self.prefetch(resources)
     apps = instances
     resources.keys.each do |app|
-      if provider = apps.find{ |a| a.name == app }
+      if provider = apps.find { |a| a.name == app }
         resources[app].provider = provider
       end
     end
@@ -38,16 +48,15 @@ Puppet::Type.type(:iis_application).provide(:powershell, :parent => Puppet::Prov
     @property_hash[:ensure] == :present
   end
 
-  mk_resource_methods
 
   def create
     inst_cmd = [
-      'Import-Module WebAdministration; ',
-      "New-WebApplication -Name \"#{@resource[:name]}\"",
-      "-PhysicalPath \"#{@resource[:path]}\"",
-      "-Site \"#{@resource[:site]}\"",
-      "-ApplicationPool \"#{@resource[:app_pool]}\"",
-      '-Force'
+        'Import-Module WebAdministration; ',
+        "New-WebApplication -Name \"#{@resource[:name]}\"",
+        "-PhysicalPath \"#{@resource[:path]}\"",
+        "-Site \"#{@resource[:site]}\"",
+        "-ApplicationPool \"#{@resource[:app_pool]}\"",
+        '-Force'
     ]
     resp = Puppet::Type::Iis_application::ProviderPowershell.run(inst_cmd.join(' '))
     @resource.original_parameters.each_key do |k|
@@ -60,10 +69,10 @@ Puppet::Type.type(:iis_application).provide(:powershell, :parent => Puppet::Prov
 
   def destroy
     inst_cmd = [
-      'Import-Module WebAdministration; ',
-      'Remove-Item',
-      "\"IIS:\\Sites\\#{@property_hash[:site]}\\#{@property_hash[:name]}\"",
-      '-Force -Recurse'
+        'Import-Module WebAdministration; ',
+        'Remove-Item',
+        "\"IIS:\\Sites\\#{@property_hash[:site]}\\#{@property_hash[:name]}\"",
+        '-Force -Recurse'
     ]
     resp = Puppet::Type::Iis_application::ProviderPowershell.run(inst_cmd.join(' '))
     fail(resp) if resp.length > 0
@@ -89,7 +98,7 @@ Puppet::Type.type(:iis_application).provide(:powershell, :parent => Puppet::Prov
   def flush
     command_array = []
     command_array << "Import-Module WebAdministration"
-    @property_flush['appattrs'].each do |appattr,value|
+    @property_flush['appattrs'].each do |appattr, value|
       command_array << "Set-ItemProperty \"IIS:\\\\Sites\\#{@property_hash[:site]}\\#{@property_hash[:name]}\" #{appattr} #{value}"
     end
     resp = Puppet::Type::Iis_application::ProviderPowershell.run(command_array.join('; '))
