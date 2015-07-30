@@ -34,7 +34,7 @@ Puppet::Type.newtype(:iis_site) do
   newproperty(:path) do
     desc 'Path to the web site folder'
     validate do |value|
-      fail("File paths must be fully qualified, not '#{value}'") unless value =~ /^.:\// or value =~ /^\/\/[^\/]+\/[^\/]+/
+      fail("File paths must be fully qualified, not '#{value}'") unless value =~ /^.:(\/|\\)/ or value =~ /^\/\/[^\/]+\/[^\/]+/
     end
   end
 
@@ -90,7 +90,7 @@ Puppet::Type.newtype(:iis_site) do
       value.to_i
     end
     validate do |value|
-      #fail('Port must be an integer') unless value =~ /\d+/
+      # fail('Port must be an integer') unless value =~ /\d+/ || value.is_a? Numeric
     end
     defaultto 80
   end
