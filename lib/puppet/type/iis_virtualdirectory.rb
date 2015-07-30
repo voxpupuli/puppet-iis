@@ -12,7 +12,7 @@ Puppet::Type.newtype(:iis_virtualdirectory) do
   newproperty(:path) do
     desc 'Path to the web site folder'
     validate do |value|
-      fail("File paths must be fully qualified, not '#{value}'") unless value =~ /^.:\// or value =~ /^\/\/[^\/]+\/[^\/]+/
+      fail("File paths must be fully qualified, not '#{value}'") unless value =~ /^.:(\/|\\)/ or value =~ /^\/\/[^\/]+\/[^\/]+/
     end
   end
 
