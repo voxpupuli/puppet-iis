@@ -10,8 +10,7 @@ Facter.add("iis_version") do
                else
                 'powershell.exe'
                end
-
-      iis_ver = %x{#{psexec} -ExecutionPolicy ByPass -Command "(Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\InetStp\\ -Name VersionString).VersionString.SubString(8,3)"}
+      iis_ver = %x{#{psexec} -ExecutionPolicy ByPass -Command "$regkey = Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\InetStp\\ -Name VersionString -ea silentlycontinue;if ($regkey) {$regkey.VersionString.SubString(8,3)}"}
     rescue
       iis_ver = ""
     end
