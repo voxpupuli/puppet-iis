@@ -1,20 +1,15 @@
-# iis_version.rb
-Facter.add("iis_version") do
- confine :kernel => :windows
+Facter.add(:iis_version4) do
+  confine :kernel => :windows
   setcode do
-    begin
-      psexec = if File.exists?("#{ENV['SYSTEMROOT']}\\sysnative\\WindowsPowershell\\v1.0\\powershell.exe")
-                 "#{ENV['SYSTEMROOT']}\\sysnative\\WindowsPowershell\\v1.0\\powershell.exe"
-               elsif File.exists?("#{ENV['SYSTEMROOT']}\\system32\\WindowsPowershell\\v1.0\\powershell.exe")
-                "#{ENV['SYSTEMROOT']}\\system32\\WindowsPowershell\\v1.0\\powershell.exe"
-               else
-                'powershell.exe'
-               end
-      iis_ver = %x{#{psexec} -ExecutionPolicy ByPass -Command "$regkey = Get-ItemProperty HKLM:\\SOFTWARE\\Microsoft\\InetStp\\ -Name VersionString -ea silentlycontinue;if ($regkey) {$regkey.VersionString.SubString(8,3)}"}
-    rescue
-      iis_ver = ""
-    end
-
-    iis_ver
-  end
+	version = nil
+	require 'win32/registry'
+	begin
+	Win32::Registry::HKEY_LOCAL_MACHINE.open('SOFTWARE\Microsoft\InetStp') do |reg|
+	version = reg['VersionString']
+	 version = version[8..-1]
+	end
+rescue Win32::Registry::Error
+end
+version
+end
 end
