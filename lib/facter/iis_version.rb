@@ -1,4 +1,4 @@
-Facter.add(:iis_version4) do
+Facter.add(:iis_version) do
   confine :kernel => :windows
   setcode do
 	version = nil
