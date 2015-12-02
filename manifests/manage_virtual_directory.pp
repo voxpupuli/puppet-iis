@@ -1,7 +1,7 @@
 define iis::manage_virtual_directory($site_name, $directory, $path) {
 
   exec { "VirtualDirectory-create-${site_name}-${directory}" :
-    command   => "Import-Module WebAdministration; New-Item 'IIS:\\Sites\\${site_name}\\${directory}' -type VirtualDirectory -PhysicalPath ${path} ",
+    command   => "Import-Module WebAdministration; New-Item 'IIS:\\Sites\\${site_name}\\${directory}' -type VirtualDirectory -PhysicalPath '${path}' ",
     onlyif    => "Import-Module WebAdministration; if(Test-Path -Path 'IIS:\\Sites\\${site_name}\\${directory}') { exit 1 } else { exit 0 } ",
     logoutput => true,
     provider  => powershell
@@ -15,5 +15,3 @@ define iis::manage_virtual_directory($site_name, $directory, $path) {
     require   => Exec["VirtualDirectory-create-${site_name}-${directory}"]
   }
 }
-
-
