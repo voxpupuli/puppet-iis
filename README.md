@@ -21,6 +21,9 @@ Examples
         iis::manage_app_pool {'my_application_pool':
           enable_32_bit           => true,
           managed_runtime_version => 'v4.0',
+          queue_length            => 1000,
+          max_worker_processes    => 1,
+          recycling_time_interval => 1740,
         }
 
     	iis::manage_site {'www.mysite.com':
