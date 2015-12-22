@@ -1,10 +1,21 @@
 #
-define iis::manage_app_pool($app_pool_name = $title, $enable_32_bit = false, $managed_runtime_version = 'v4.0', $managed_pipeline_mode = 'Integrated', $ensure = 'present') {
+define iis::manage_app_pool(
+  $app_pool_name = $title,
+  $enable_32_bit = false,
+  $managed_runtime_version = 'v4.0',
+  $managed_pipeline_mode = 'Integrated',
+  $ensure = 'present',
+  $start_mode = 'OnDemand',
+  $rapid_fail_protection = true
+) 
+{
 
   validate_bool($enable_32_bit)
   validate_re($managed_runtime_version, ['^(v2\.0|v4\.0)$'])
   validate_re($managed_pipeline_mode, ['^(Integrated|Classic)$'])
   validate_re($ensure, '^(present|installed|absent|purged)$', 'ensure must be one of \'present\', \'installed\', \'absent\', \'purged\'')
+  validate_re($start_mode,['^(OnDemand|AlwaysRunning)$'])
+  validate_bool($rapid_fail_protection)
 
   if ($ensure in ['present','installed']) {
     exec { "Create-${app_pool_name}" :
@@ -13,7 +24,23 @@ define iis::manage_app_pool($app_pool_name = $title, $enable_32_bit = false, $ma
       onlyif    => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\${app_pool_name}\")) { exit 1 } else { exit 0 }",
       logoutput => true,
     }
+    
+    exec { "StartMode-${app_pool_name}" :
+      command   => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" startMode ${start_mode}",
+      provider  => powershell,
+      onlyif    => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" startMode).CompareTo('${start_mode}') -eq 0) { exit 1 } else { exit 0 }",
+      require   => Exec["Create-${app_pool_name}"],
+      logoutput => true,
+    }
 
+    exec { "RapidFailProtection-${app_pool_name}" :
+      command   => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" failure.rapidFailProtection ${rapid_fail_protection}",
+      provider  => powershell,
+      onlyif    => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" failure.rapidFailProtection).Value -eq [System.Convert]::ToBoolean('${rapid_fail_protection}')) { exit 1 } else { exit 0 }",
+      require   => Exec["Create-${app_pool_name}"],
+      logoutput => true,
+    }
+    
     exec { "Framework-${app_pool_name}" :
       command   => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" managedRuntimeVersion ${managed_runtime_version}",
       provider  => powershell,
