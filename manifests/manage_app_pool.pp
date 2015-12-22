@@ -7,7 +7,7 @@ define iis::manage_app_pool(
   $ensure = 'present',
   $start_mode = 'OnDemand',
   $rapid_fail_protection = true
-) 
+)
 {
 
   validate_bool($enable_32_bit)
