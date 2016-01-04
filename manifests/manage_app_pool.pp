@@ -1,20 +1,19 @@
 #
 define iis::manage_app_pool(
-  $app_pool_name = $title,
-  $enable_32_bit = false,
+  $app_pool_name           = $title,
+  $enable_32_bit           = false,
   $managed_runtime_version = 'v4.0',
-  $managed_pipeline_mode = 'Integrated',
-  $ensure = 'present',
-  $start_mode = 'OnDemand',
-  $rapid_fail_protection = true
-)
-{
+  $managed_pipeline_mode   = 'Integrated',
+  $ensure                  = 'present',
+  $start_mode              = 'OnDemand',
+  $rapid_fail_protection   = true
+){
 
   validate_bool($enable_32_bit)
   validate_re($managed_runtime_version, ['^(v2\.0|v4\.0)$'])
   validate_re($managed_pipeline_mode, ['^(Integrated|Classic)$'])
   validate_re($ensure, '^(present|installed|absent|purged)$', 'ensure must be one of \'present\', \'installed\', \'absent\', \'purged\'')
-  validate_re($start_mode,['^(OnDemand|AlwaysRunning)$'])
+  validate_re($start_mode, '^(OnDemand|AlwaysRunning)$')
   validate_bool($rapid_fail_protection)
 
   if ($ensure in ['present','installed']) {
