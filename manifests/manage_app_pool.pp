@@ -23,7 +23,7 @@ define iis::manage_app_pool(
       onlyif    => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\${app_pool_name}\")) { exit 1 } else { exit 0 }",
       logoutput => true,
     }
-    
+
     exec { "StartMode-${app_pool_name}" :
       command   => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" startMode ${start_mode}",
       provider  => powershell,
@@ -39,7 +39,7 @@ define iis::manage_app_pool(
       require   => Exec["Create-${app_pool_name}"],
       logoutput => true,
     }
-    
+
     exec { "Framework-${app_pool_name}" :
       command   => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" managedRuntimeVersion ${managed_runtime_version}",
       provider  => powershell,

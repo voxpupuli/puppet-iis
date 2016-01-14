@@ -10,12 +10,12 @@ class iis {
     port        => '80',
     ip_address  => '*',
     host_header => 'www.internalapi.co.uk',
-    app_pool    => 'www.internalapi.co.uk'
+    app_pool    => 'www.internalapi.co.uk',
   }
 
   iis::manage_virtual_application {'reviews':
     site_name => 'www.internalapi.co.uk',
     site_path => 'C:\inetpub\wwwroot\test',
-    app_pool  => 'www.internalapi.co.uk'
+    app_pool  => 'www.internalapi.co.uk',
   }
 }
