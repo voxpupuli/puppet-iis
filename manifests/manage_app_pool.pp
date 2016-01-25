@@ -10,7 +10,7 @@ define iis::manage_app_pool(
 ){
 
   validate_bool($enable_32_bit)
-  validate_re($managed_runtime_version, ['^(v2\.0|v4\.0)$'])
+  validate_re($managed_runtime_version, ['^(v2\.0|v4\.0|v4\.5)$'])
   validate_re($managed_pipeline_mode, ['^(Integrated|Classic)$'])
   validate_re($ensure, '^(present|installed|absent|purged)$', 'ensure must be one of \'present\', \'installed\', \'absent\', \'purged\'')
   validate_re($start_mode, '^(OnDemand|AlwaysRunning)$')
