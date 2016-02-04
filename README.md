@@ -73,3 +73,39 @@ Host header and ip address can also be supplied.
       ip_address  => '192.168.0.1',
       host_header => 'mysite.com',
     }
+Notes on Managing App Pools
+--
+
+      class mywebsite {
+        iis::manage_app_pool {'my_application_pool0':
+			enable_32_bit				=> true,
+			managed_runtime_version	=> 'v4.0',
+			apppool_identitytype		=> 'ApplicationPoolIdentity', # ApplicationPoolIdentity (or '4') is the default an IIS app pool will be created with
+        }
+
+        iis::manage_app_pool {'my_application_pool1':
+			enable_32_bit				=> true,
+			managed_runtime_version	=> 'v4.0',
+			apppool_identitytype		=> 'LocalSystem', # LocalSystem (or '0')
+        }
+
+        iis::manage_app_pool {'my_application_pool2':
+			enable_32_bit				=> true,
+			managed_runtime_version	=> 'v4.0',
+			apppool_identitytype		=> 'LocalService', # LocalService (or '1')
+        }
+
+        iis::manage_app_pool {'my_application_pool3':
+			enable_32_bit           => true,
+			managed_runtime_version => 'v4.0',
+			apppool_identitytype	   => 'NetworkService', # NetworkService (or '2')
+        }
+
+        iis::manage_app_pool {'my_application_pool4':
+			enable_32_bit					=> true,
+			managed_runtime_version			=> 'v4.0',
+			apppool_identitytype			=> 'SpecificUser',	# SpecificUser (or '3'),
+			apppool_username				=> 'username',		# MUST specify a username when 'SpecificUser'/'3' for apppool_identitytype
+			apppool_userpw					=> 'password'			# MUST specify a password when 'SpecificUser'/'3' for apppool_identitytype
+		}
+       }
