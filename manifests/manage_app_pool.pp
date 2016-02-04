@@ -1,12 +1,17 @@
 define iis::manage_app_pool (
-  $app_pool_name             = $title,
-  $enable_32_bit             = false,
-  $managed_runtime_version   = 'v4.0',
-  $managed_pipeline_mode     = 'Integrated',
-  $ensure                    = 'present',
-  $start_mode                = 'OnDemand',
-  $rapid_fail_protection     = true,
-  $apppool_idle_timeout_minutes = undef) {
+  $app_pool_name           = $title,
+  $enable_32_bit           = false,
+  $managed_runtime_version = 'v4.0',
+  $managed_pipeline_mode   = 'Integrated',
+  $ensure                  = 'present',
+  $start_mode              = 'OnDemand',
+  $rapid_fail_protection   = true,
+  $apppool_identitytype    = undef,
+  $apppool_username        = undef,
+  $apppool_userpw          = undef,
+  $apppool_idle_timeout_minutes = undef
+) {
+
   validate_bool($enable_32_bit)
   validate_re($managed_runtime_version, ['^(v2\.0|v4\.0|v4\.5)$'])
   validate_re($managed_pipeline_mode, ['^(Integrated|Classic)$'])
@@ -20,6 +25,55 @@ define iis::manage_app_pool (
     $idle_timeout_ticks          = $apppool_idle_timeout_minutes * 600000000
   } else {
     $process_app_pool_idle_timeout = false
+  }
+
+  # keeping new stuff optional for backwards compatibility
+  if $apppool_identitytype != undef {
+
+    validate_re($apppool_identitytype, ['^(0|1|2|3|4|LocalSystem|LocalService|NetworkService|SpecificUser|ApplicationPoolIdentity)$'], 'identitytype must be one of \'0\', \'1\',\'2\',\'3\',\'4\',\'LocalSystem\',\'LocalService\',\'NetworkService\',\'SpecificUser\',\'ApplicationPoolIdentity\'')
+
+    if ($apppool_identitytype in ['3','SpecificUser']) {
+      if ($apppool_username == undef) or (empty($apppool_username)) {
+        fail('attempt set app pool identity to SpecificUser null or zero length $apppool_username param')
+      }
+
+      if ($apppool_userpw == undef) or (empty($apppool_userpw)) {
+        fail('attempt set app pool identity to SpecificUser null or zero length $apppool_userpw param')
+      }
+    }
+
+    case $apppool_identitytype {
+      '0', 'LocalSystem'             : {
+        $identitystring = 'LocalSystem'
+        $identityenum   = '0'
+      }
+      '1', 'LocalService'            : {
+        $identitystring = 'LocalService'
+        $identityenum   = '1'
+      }
+      '2', 'NetworkService'          : {
+        $identitystring = 'NetworkService'
+        $identityenum   = '2'
+      }
+      '3', 'SpecificUser'            : {
+        $identitystring = 'SpecificUser'
+        $identityenum   = '3'
+      }
+      '4', 'ApplicationPoolIdentity' : {
+        $identitystring = 'ApplicationPoolIdentity'
+        $identityenum   = '4'
+      }
+      default : {
+        $identitystring = 'ApplicationPoolIdentity'
+        $identityenum   = '4'
+      }
+    }
+
+    $process_apppool_identity = true
+
+  }
+  else {
+    $process_apppool_identity = false
   }
 
   if ($ensure in ['present','installed']) {
@@ -85,6 +139,28 @@ define iis::manage_app_pool (
         logoutput => true,
       }
     }
+
+    if ($process_apppool_identity) {
+      if ($identitystring == 'SpecificUser') {
+        exec { "app pool identitytype - ${app_pool_name} - SPECIFICUSER - ${apppool_username}":
+          command   => "Import-Module WebAdministration;\$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;\$pool = get-item IIS:\\AppPools\\${app_pool_name};\$pool.processModel.username = \"${apppool_username}\";\$pool.processModel.password = \"${apppool_userpw}\";\$pool.processModel.identityType = ${identityenum};\$pool | set-item;",
+          provider  => powershell,
+          unless    => "Import-Module WebAdministration;\$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;\$pool = get-item IIS:\\AppPools\\${app_pool_name};if(\$pool.processModel.identityType -ne \"${identitystring}\"){exit 1;}\
+if(\$pool.processModel.userName -ne ${apppool_username}){exit 1;}if(\$pool.processModel.password -ne ${apppool_userpw}){exit 1;}exit 0;",
+          require   => Exec["Create-${app_pool_name}"],
+          logoutput => true,
+        }
+      } else {
+        exec { "app pool identitytype - ${app_pool_name} - ${identitystring}":
+          command   => "Import-Module WebAdministration;\$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;\$pool = get-item IIS:\\AppPools\\${app_pool_name};\$pool.processModel.identityType = ${identityenum};\$pool | set-item;",
+          provider  => powershell,
+          unless    => "Import-Module WebAdministration;\$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;\$pool = get-item IIS:\\AppPools\\${app_pool_name};if(\$pool.processModel.identityType -eq \"${identitystring}\"){exit 0;}else{exit 1;}",
+          require   => Exec["Create-${app_pool_name}"],
+          logoutput => true,
+        }
+      }
+    }
+
   } else {
     exec { "Delete-${app_pool_name}":
       command   => "Import-Module WebAdministration; Remove-Item \"IIS:\\AppPools\\${app_pool_name}\" -Recurse",
@@ -92,5 +168,6 @@ define iis::manage_app_pool (
       onlyif    => "Import-Module WebAdministration; if(!(Test-Path \"IIS:\\AppPools\\${app_pool_name}\")) { exit 1 } else { exit 0 }",
       logoutput => true,
     }
+
   }
 }
