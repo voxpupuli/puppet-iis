@@ -1,20 +1,25 @@
-#
-define iis::manage_app_pool(
+define iis::manage_app_pool (
   $app_pool_name           = $title,
   $enable_32_bit           = false,
   $managed_runtime_version = 'v4.0',
   $managed_pipeline_mode   = 'Integrated',
   $ensure                  = 'present',
   $start_mode              = 'OnDemand',
-  $rapid_fail_protection   = true
-){
-
+  $rapid_fail_protection   = true,
+  $apppool_max_queue_length = undef
+  ) {
   validate_bool($enable_32_bit)
   validate_re($managed_runtime_version, ['^(v2\.0|v4\.0|v4\.5)$'])
   validate_re($managed_pipeline_mode, ['^(Integrated|Classic)$'])
   validate_re($ensure, '^(present|installed|absent|purged)$', 'ensure must be one of \'present\', \'installed\', \'absent\', \'purged\'')
   validate_re($start_mode, '^(OnDemand|AlwaysRunning)$')
   validate_bool($rapid_fail_protection)
+
+if $apppool_max_queue_length != undef{
+  validate_integer($apppool_max_queue_length, 65535, 10)
+  $process_max_queue_length = true
+}
+else{$process_max_queue_length = false}
 
   if ($ensure in ['present','installed']) {
     exec { "Create-${app_pool_name}" :
@@ -69,8 +74,20 @@ define iis::manage_app_pool(
       require   => Exec["Create-${app_pool_name}"],
       logoutput => true,
     }
-  } else {
-    exec { "Delete-${app_pool_name}" :
+
+    if($process_max_queue_length)
+    {
+        exec { "App Pool Max Queue Length - ${app_pool_name}":
+        command   => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"${app_pool_name}\");Set-ItemProperty \$appPoolPath queueLength ${apppool_max_queue_length};",
+        provider  => powershell,
+        unless    => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"${app_pool_name}\");if((get-ItemProperty \$appPoolPath).queuelength -ne ${apppool_max_queue_length}){exit 1;}exit 0;",
+        require   => Exec["Create-${app_pool_name}"],
+        logoutput => true,
+      }
+    }
+  }
+  else {
+    exec { "Delete-${app_pool_name}":
       command   => "Import-Module WebAdministration; Remove-Item \"IIS:\\AppPools\\${app_pool_name}\" -Recurse",
       provider  => powershell,
       onlyif    => "Import-Module WebAdministration; if(!(Test-Path \"IIS:\\AppPools\\${app_pool_name}\")) { exit 1 } else { exit 0 }",

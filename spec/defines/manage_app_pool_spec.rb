@@ -6,7 +6,8 @@ describe 'iis::manage_app_pool', :type => :define do
     let(:params) {{
       :enable_32_bit           => true,
       :managed_runtime_version => 'v4.0',
-      :managed_pipeline_mode   => 'Integrated'
+      :managed_pipeline_mode   => 'Integrated',
+      :apppool_max_queue_length => 1000
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
@@ -30,6 +31,11 @@ describe 'iis::manage_app_pool', :type => :define do
       :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 0",
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Integrated') -eq 0) { exit 1 } else { exit 0 }",)
     }
+
+    it { should contain_exec('App Pool Max Queue Length - myAppPool.example.com').with(
+      :command => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");Set-ItemProperty \$appPoolPath queueLength 1000;",
+      :unless  => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");if((get-ItemProperty \$appPoolPath).queuelength -ne 1000){exit 1;}exit 0;",)
+    }
   end
 
   describe 'when managing the iis application pool - v2.0 Classic' do
@@ -37,7 +43,8 @@ describe 'iis::manage_app_pool', :type => :define do
     let(:params) {{
       :enable_32_bit           => true,
       :managed_runtime_version => 'v2.0',
-      :managed_pipeline_mode   => 'Classic'
+      :managed_pipeline_mode   => 'Classic',
+      :apppool_max_queue_length => 1000
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
@@ -60,6 +67,11 @@ describe 'iis::manage_app_pool', :type => :define do
     it { should contain_exec('ManagedPipelineMode-myAppPool.example.com').with(
       :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 1",
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Classic') -eq 0) { exit 1 } else { exit 0 }",)
+    }
+
+    it { should contain_exec('App Pool Max Queue Length - myAppPool.example.com').with(
+      :command => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");Set-ItemProperty \$appPoolPath queueLength 1000;",
+      :unless  => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");if((get-ItemProperty \$appPoolPath).queuelength -ne 1000){exit 1;}exit 0;",)
     }
   end
 
@@ -87,6 +99,8 @@ describe 'iis::manage_app_pool', :type => :define do
       :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 0",
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Integrated') -eq 0) { exit 1 } else { exit 0 }",)
     }
+
+    it { should_not contain_exec('App Pool Max Queue Length - myAppPool.example.com') }
   end
 
   describe 'when managing the iis application with a managed_runtime_version of v2.0' do
@@ -136,6 +150,20 @@ describe 'iis::manage_app_pool', :type => :define do
     it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /"false" is not a boolean\./) }
   end
 
+  describe 'when managing the iis application and apppool_max_queue_length value too low' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) { { :apppool_max_queue_length => 1 } }
+
+    it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /.*validate_integer\(\)\: Expected 1 to be greater or equal to 10, got 1.*/) }
+  end
+
+  describe 'when managing the iis application and apppool_max_queue_length value too high' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) { { :apppool_max_queue_length => 655_36 } }
+
+    it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /.*validate_integer\(\)\: Expected 65536 to be smaller or equal to 65535, got 65536.*/) }
+  end
+
   describe 'when managing the iis application pool and setting ensure to present' do
     let(:title) { 'myAppPool.example.com' }
     let(:params) { { :ensure => 'present' } }
@@ -156,6 +184,8 @@ describe 'iis::manage_app_pool', :type => :define do
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'false\')) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
+
+    it { should_not contain_exec('App Pool Max Queue Length - myAppPool.example.com') }
   end
 
   describe 'when managing the iis application pool and setting ensure to installed' do
@@ -183,6 +213,8 @@ describe 'iis::manage_app_pool', :type => :define do
       :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 0",
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Integrated') -eq 0) { exit 1 } else { exit 0 }",)
     }
+
+    it { should_not contain_exec('App Pool Max Queue Length - myAppPool.example.com') }
   end
 
   describe 'when managing the iis application pool and setting ensure to absent' do
@@ -199,6 +231,8 @@ describe 'iis::manage_app_pool', :type => :define do
     it { should_not contain_exec('32bit-myAppPool.example.com') }
 
     it { should_not contain_exec('ManagedPipelineMode-myAppPool.example.com') }
+
+    it { should_not contain_exec('App Pool Max Queue Length - myAppPool.example.com') }
   end
 
   describe 'when managing the iis application pool and setting ensure to purged' do
@@ -215,5 +249,7 @@ describe 'iis::manage_app_pool', :type => :define do
     it { should_not contain_exec('32bit-myAppPool.example.com') }
 
     it { should_not contain_exec('ManagedPipelineMode-myAppPool.example.com') }
+
+    it { should_not contain_exec('App Pool Max Queue Length - myAppPool.example.com') }
   end
 end
