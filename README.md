@@ -73,3 +73,20 @@ Host header and ip address can also be supplied.
       ip_address  => '192.168.0.1',
       host_header => 'mysite.com',
     }
+
+Notes on Managing App Pools
+--
+
+      class mywebsite {
+        iis::manage_app_pool {'my_application_pool':
+			enable_32_bit           => true,
+			managed_runtime_version => 'v4.0',
+			apppool_recycle_schedule   => ['01:00:00','23:59:59'] # apppool scheduled recycling ['hh:mm:ss','...'] - empty array to clear scheduled recycling on an app pool
+        }
+
+        iis::manage_app_pool {'my_application_pool0':
+			enable_32_bit           => true,
+			managed_runtime_version => 'v4.0',
+			apppool_recycle_schedule   => [] # empty array to clear scheduled recycling on an app pool
+        }
+      }
