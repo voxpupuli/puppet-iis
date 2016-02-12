@@ -1,3 +1,30 @@
+#2016-02-12 - Release 2.0.0
+###Summary
+
+  New Major version. Support for installing IIS from scratch.
+  Lots of new configuration options for managing application pools.
+
+###Features
+ - adding support for installing the windows features required to install IIS (#26)
+ - added support for SNI (#56)
+ - added `start_mode` and `rapid_fail_protection` app pool advanced settings (#70)
+ - added `apppool_identitytype` to manage_app_pool (#72)
+ - added `apppool_idle_timeout_minutes` to manage_app_pool (#74)
+ - added `apppool_max_processes` to manage_app_pool (#75)
+ - added `apppool_recycle_periodic_minutes` to manage_app_pool (#78)
+ - added `apppool_recycle_logging` to manage_app_pool (#81)
+ - added `apppool_recycle_schedule` to manage_app_pool (#82)
+
+###Bugfixes
+ - fix virtual applications names that contain slashes (#59)
+ - fixed bug with space in virtual directory path (#67)
+ - updated the `iis_version` fact to support versions above 10 (#66)
+
+###Improvements
+ - updated the `iis_version` fact to be ruby only (#66)
+ - updated stdlib minimum version dependency to 4.6.0 (#72)
+ - added .net 4.5 as a supported app runtime version (#83)
+
 ##2015-05-22 - Release 1.4.1
 ###Summary
 
@@ -30,7 +57,7 @@
 - fixing bug when updating `managed_pipeline_mode`
 - update all classes to properly use the powershell provider
 
-##2014-08-14 - Release 1.2.0 
+##2014-08-14 - Release 1.2.0
 ###Summary
 
   This release fixes some bugs when defining virtual applications.
@@ -38,7 +65,7 @@
 ####Bugfixes
 - fix being able to manage virtual applications with spaces in the name
 - support for virtual applications on a directory that already exists
- 
+
 ##2014-08-08 - Release 1.1.2
 ###Summary
 
@@ -73,7 +100,7 @@
 
 ##2014-02-19 - Release 0.0.2
 ###Summary
-   
+
    Fixing lots of small bugs with this release. But the biggest change is the support of enabling SSL for sites.
 
 ####Features
@@ -84,9 +111,9 @@
 - fixed bug with quoting in app pool creation command
 - fix issue when IIS starts with zero existing sites
 - update PhysicalPath and ApplicationPool for existing sites
-- removed validation around wildcard '*' for IP address binding 
+- removed validation around wildcard '*' for IP address binding
 
 ##2013-08-22 - Release 0.0.1
 ###Summary
-  
+
    Initial version
