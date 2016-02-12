@@ -11,7 +11,8 @@ define iis::manage_app_pool (
   $apppool_userpw          = undef,
   $apppool_idle_timeout_minutes = undef,
   $apppool_max_processes    = undef,
-  $apppool_max_queue_length = undef
+  $apppool_max_queue_length = undef,
+  $apppool_recycle_periodic_minutes = undef
 ) {
 
   validate_bool($enable_32_bit)
@@ -89,10 +90,18 @@ define iis::manage_app_pool (
     validate_integer($apppool_max_queue_length, 65535, 10)
     $process_max_queue_length = true
   }
-  else{
+  else {
     $process_max_queue_length = false
   }
 
+  if $apppool_recycle_periodic_minutes != undef {
+    validate_integer($apppool_recycle_periodic_minutes, 15372286728, 0)
+    $periodic_ticks = $apppool_recycle_periodic_minutes * 600000000
+    $process_periodic_times = true
+  }
+  else {
+    $process_periodic_times = false
+  }
 
   if ($ensure in ['present','installed']) {
     exec { "Create-${app_pool_name}":
@@ -185,12 +194,19 @@ if(\$pool.processModel.userName -ne ${apppool_username}){exit 1;}if(\$pool.proce
       }
     }
 
-    if($process_max_queue_length)
-    {
-        exec { "App Pool Max Queue Length - ${app_pool_name}":
+    if($process_max_queue_length) {
+      exec { "App Pool Max Queue Length - ${app_pool_name}":
         command   => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"${app_pool_name}\");Set-ItemProperty \$appPoolPath queueLength ${apppool_max_queue_length};",
         provider  => powershell,
         unless    => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"${app_pool_name}\");if((get-ItemProperty \$appPoolPath).queuelength -ne ${apppool_max_queue_length}){exit 1;}exit 0;",
+      }
+    }
+
+    if($process_periodic_times) {
+      exec { "App Pool Recycle Periodic - ${app_pool_name} - ${apppool_recycle_periodic_minutes}":
+        command   => "\$appPoolName = \"${app_pool_name}\";[TimeSpan] \$ts = ${periodic_ticks};Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \$appPoolName);Get-ItemProperty \$appPoolPath -Name recycling.periodicRestart.time;Set-ItemProperty \$appPoolPath -Name recycling.periodicRestart.time -value \$ts;",
+        provider  => powershell,
+        unless    => "\$appPoolName = \"${app_pool_name}\";[TimeSpan] \$ts = ${periodic_ticks};Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \$appPoolName);if((Get-ItemProperty \$appPoolPath -Name recycling.periodicRestart.time.value) -ne \$ts.Ticks){exit 1;}exit 0;",
         require   => Exec["Create-${app_pool_name}"],
         logoutput => true,
       }

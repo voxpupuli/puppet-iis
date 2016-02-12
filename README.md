@@ -127,4 +127,10 @@ Notes on Managing App Pools
           managed_runtime_version  => 'v4.0',
           apppool_max_queue_length => 1000, # apppool max queue length - max queue length must be set 10 <= n <= 65535
         }
+
+        iis::manage_app_pool { 'my_application_pool7':
+          enable_32_bit                    => true,
+          managed_runtime_version          => 'v4.0',
+          apppool_recycle_periodic_minutes => 1440, # apppool periodic cycle - disable app pool cycling on periodic time set $apppoolperiodicrecycle to 0 - it's minutes - max 15372286728
+        }
     }
