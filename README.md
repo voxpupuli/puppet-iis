@@ -77,6 +77,7 @@ Host header and ip address can also be supplied.
 Notes on Managing App Pools
 --
 
+<<<<<<< HEAD
     class mywebsite {
         iis::manage_app_pool { 'my_application_pool0':
           enable_32_bit           => true,
@@ -132,5 +133,17 @@ Notes on Managing App Pools
           enable_32_bit                    => true,
           managed_runtime_version          => 'v4.0',
           apppool_recycle_periodic_minutes => 1440, # apppool periodic cycle - disable app pool cycling on periodic time set $apppoolperiodicrecycle to 0 - it's minutes - max 15372286728
+        }
+
+        iis::manage_app_pool { 'my_application_pool8':
+          enable_32_bit            => true,
+          managed_runtime_version  => 'v4.0',
+          apppool_recycle_schedule => ['01:00:00','23:59:59'] # apppool scheduled recycling ['hh:mm:ss','...'] - empty array to clear scheduled recycling on an app pool
+        }
+
+        iis::manage_app_pool { 'my_application_pool9':
+          enable_32_bit            => true,
+          managed_runtime_version  => 'v4.0',
+          apppool_recycle_schedule => [] # empty array to clear scheduled recycling on an app pool
         }
     }
