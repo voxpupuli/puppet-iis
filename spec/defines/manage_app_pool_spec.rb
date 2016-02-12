@@ -17,55 +17,55 @@ describe 'iis::manage_app_pool', :type => :define do
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
-      :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",)
+      :command => 'Import-Module WebAdministration; New-Item "IIS:\\AppPools\\myAppPool.example.com"',
+      :onlyif  => 'Import-Module WebAdministration; if((Test-Path "IIS:\\AppPools\\myAppPool.example.com")) { exit 1 } else { exit 0 }',)
     }
 
     it { should contain_exec('Framework-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v4.0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedRuntimeVersion v4.0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('32bit-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 true",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" enable32BitAppOnWin64 true',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'true\')) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('ManagedPipelineMode-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedPipelineMode 0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Integrated') -eq 0) { exit 1 } else { exit 0 }",)
     }
 
     it { should contain_exec('App Pool Idle Timeout - myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");[TimeSpan]\$ts = 36000000000;Set-ItemProperty \$appPoolPath -name processModel -value @{idletimeout=\$ts}",
-      :unless  => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");[TimeSpan]\$ts = 36000000000;if((get-ItemProperty \$appPoolPath -name processModel.idletimeout.value) -ne \$ts){exit 1;}exit 0;",)
+      :command => 'Import-Module WebAdministration;$appPoolPath = ("IIS:\\AppPools\\" + "myAppPool.example.com");[TimeSpan]$ts = 36000000000;Set-ItemProperty $appPoolPath -name processModel -value @{idletimeout=$ts}',
+      :unless  => 'Import-Module WebAdministration;$appPoolPath = ("IIS:\\AppPools\\" + "myAppPool.example.com");[TimeSpan]$ts = 36000000000;if((get-ItemProperty $appPoolPath -name processModel.idletimeout.value) -ne $ts){exit 1;}exit 0;',)
     }
 
     it { should contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity').with(
-      :command => "Import-Module WebAdministration;\$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;\$pool = get-item IIS:\\AppPools\\myAppPool.example.com;\$pool.processModel.identityType = 4;\$pool | set-item;",
-      :unless  => "Import-Module WebAdministration;\$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;\$pool = get-item IIS:\\AppPools\\myAppPool.example.com;if(\$pool.processModel.identityType -eq \"ApplicationPoolIdentity\"){exit 0;}else{exit 1;}",)
+      :command => 'Import-Module WebAdministration;$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;$pool = get-item IIS:\\AppPools\\myAppPool.example.com;$pool.processModel.identityType = 4;$pool | set-item;',
+      :unless  => 'Import-Module WebAdministration;$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;$pool = get-item IIS:\\AppPools\\myAppPool.example.com;if($pool.processModel.identityType -eq "ApplicationPoolIdentity"){exit 0;}else{exit 1;}',)
     }
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - SPECIFICUSER - username') }
 
     it { should contain_exec('App Pool Max Processes - myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");Set-ItemProperty \$appPoolPath -name processModel -value @{maxProcesses=0}",
-      :unless  => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");if((get-ItemProperty \$appPoolPath -name processModel.maxprocesses.value) -ne 0){exit 1;}exit 0;",)
+      :command => 'Import-Module WebAdministration;$appPoolPath = ("IIS:\\AppPools\\" + "myAppPool.example.com");Set-ItemProperty $appPoolPath -name processModel -value @{maxProcesses=0}',
+      :unless  => 'Import-Module WebAdministration;$appPoolPath = ("IIS:\\AppPools\\" + "myAppPool.example.com");if((get-ItemProperty $appPoolPath -name processModel.maxprocesses.value) -ne 0){exit 1;}exit 0;',)
     }
 
     it { should contain_exec('App Pool Max Queue Length - myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");Set-ItemProperty \$appPoolPath queueLength 1000;",
-      :unless  => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");if((get-ItemProperty \$appPoolPath).queuelength -ne 1000){exit 1;}exit 0;",)
+      :command => 'Import-Module WebAdministration;$appPoolPath = ("IIS:\\AppPools\\" + "myAppPool.example.com");Set-ItemProperty $appPoolPath queueLength 1000;',
+      :unless  => 'Import-Module WebAdministration;$appPoolPath = ("IIS:\\AppPools\\" + "myAppPool.example.com");if((get-ItemProperty $appPoolPath).queuelength -ne 1000){exit 1;}exit 0;',)
     }
 
     it { should contain_exec('App Pool Recycle Periodic - myAppPool.example.com - 60').with(
-      :command => "\$appPoolName = \"myAppPool.example.com\";[TimeSpan] \$ts = 36000000000;Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \$appPoolName);Get-ItemProperty \$appPoolPath -Name recycling.periodicRestart.time;Set-ItemProperty \$appPoolPath -Name recycling.periodicRestart.time -value \$ts;",
-      :unless  => "\$appPoolName = \"myAppPool.example.com\";[TimeSpan] \$ts = 36000000000;Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \$appPoolName);if((Get-ItemProperty \$appPoolPath -Name recycling.periodicRestart.time.value) -ne \$ts.Ticks){exit 1;}exit 0;",)
+      :command => '$appPoolName = "myAppPool.example.com";[TimeSpan] $ts = 36000000000;Import-Module WebAdministration;$appPoolPath = ("IIS:\\AppPools\\" + $appPoolName);Get-ItemProperty $appPoolPath -Name recycling.periodicRestart.time;Set-ItemProperty $appPoolPath -Name recycling.periodicRestart.time -value $ts;',
+      :unless  => '$appPoolName = "myAppPool.example.com";[TimeSpan] $ts = 36000000000;Import-Module WebAdministration;$appPoolPath = ("IIS:\\AppPools\\" + $appPoolName);if((Get-ItemProperty $appPoolPath -Name recycling.periodicRestart.time.value) -ne $ts.Ticks){exit 1;}exit 0;',)
     }
 
-    it { should contain_exec("App Pool Recycle Schedule - myAppPool.example.com - \"01:00:00\",\"23:59:59\"").with(
+    it { should contain_exec('App Pool Recycle Schedule - myAppPool.example.com - "01:00:00","23:59:59"').with(
       :command => "[string]\$ApplicationPoolName = \"myAppPool.example.com\";[string[]]\$RestartTimes = @(\"01:00:00\",\"23:59:59\");Import-Module WebAdministration;Clear-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule;\
 foreach (\$restartTime in \$RestartTimes){Write-Output \"Adding recycle at \$restartTime\";New-ItemProperty -Path \"IIS:\\AppPools\\\$ApplicationPoolName\" -Name Recycling.periodicRestart.schedule -Value @{value=\$restartTime};}",
       :unless  => "[string]\$ApplicationPoolName = \"myAppPool.example.com\";[string[]]\$RestartTimes = @(\"01:00:00\",\"23:59:59\");Import-Module WebAdministration;[Collections.Generic.List[String]]\$collectionAsList = @();\
@@ -76,7 +76,7 @@ if(\$collectionAsList.Count -ne \$RestartTimes.Length){exit 1;}foreach (\$restar
     it { should_not contain_exec(/CLEAR App Pool Recycle Schedule.*/) }
 
     it { should contain_exec('App Pool Logging - myAppPool.example.com').with(
-      :command => "\$appPoolName = \"myAppPool.example.com\";Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \$appPoolName);Set-ItemProperty \$appPoolPath -name recycling -value @{logEventOnRecycle=\"Time,Requests\"};",
+      :command => '$appPoolName = "myAppPool.example.com";Import-Module WebAdministration;$appPoolPath = ("IIS:\\AppPools\\" + $appPoolName);Set-ItemProperty $appPoolPath -name recycling -value @{logEventOnRecycle="Time,Requests"};',
       :unless  => "\$appPoolName = \"myAppPool.example.com\";Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \$appPoolName);[string[]]\$LoggingOptions = @(\"Time\",\"Requests\");if((Get-ItemProperty \$appPoolPath -Name Recycling.LogEventOnRecycle).value -eq 0){exit 1;}\
 [string[]]\$enumsplit = (Get-ItemProperty \$appPoolPath -Name Recycling.LogEventOnRecycle).Split(',');if(\$LoggingOptions.Length -ne \$enumsplit.Length){exit 1;}foreach(\$s in \$LoggingOptions){if(\$enumsplit.Contains(\$s) -eq \$false){exit 1;}}exit 0;",)
     }
@@ -96,30 +96,30 @@ if(\$collectionAsList.Count -ne \$RestartTimes.Length){exit 1;}foreach (\$restar
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
-      :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",)
+      :command => 'Import-Module WebAdministration; New-Item "IIS:\\AppPools\\myAppPool.example.com"',
+      :onlyif  => 'Import-Module WebAdministration; if((Test-Path "IIS:\\AppPools\\myAppPool.example.com")) { exit 1 } else { exit 0 }',)
     }
 
     it { should contain_exec('Framework-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v4.0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedRuntimeVersion v4.0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('32bit-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 true",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" enable32BitAppOnWin64 true',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'true\')) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('ManagedPipelineMode-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedPipelineMode 0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Integrated') -eq 0) { exit 1 } else { exit 0 }",)
     }
 
     it { should contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity').with(
-      :command => "Import-Module WebAdministration;\$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;\$pool = get-item IIS:\\AppPools\\myAppPool.example.com;\$pool.processModel.identityType = 4;\$pool | set-item;",
-      :unless  => "Import-Module WebAdministration;\$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;\$pool = get-item IIS:\\AppPools\\myAppPool.example.com;if(\$pool.processModel.identityType -eq \"ApplicationPoolIdentity\"){exit 0;}else{exit 1;}",)
+      :command => 'Import-Module WebAdministration;$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;$pool = get-item IIS:\\AppPools\\myAppPool.example.com;$pool.processModel.identityType = 4;$pool | set-item;',
+      :unless  => 'Import-Module WebAdministration;$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;$pool = get-item IIS:\\AppPools\\myAppPool.example.com;if($pool.processModel.identityType -eq "ApplicationPoolIdentity"){exit 0;}else{exit 1;}',)
     }
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - SPECIFICUSER - username') }
@@ -139,35 +139,34 @@ if(\$collectionAsList.Count -ne \$RestartTimes.Length){exit 1;}foreach (\$restar
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
-      :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",)
+      :command => 'Import-Module WebAdministration; New-Item "IIS:\\AppPools\\myAppPool.example.com"',
+      :onlyif  => 'Import-Module WebAdministration; if((Test-Path "IIS:\\AppPools\\myAppPool.example.com")) { exit 1 } else { exit 0 }',)
     }
 
     it { should contain_exec('Framework-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v4.0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedRuntimeVersion v4.0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('32bit-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 true",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" enable32BitAppOnWin64 true',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'true\')) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('ManagedPipelineMode-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedPipelineMode 0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Integrated') -eq 0) { exit 1 } else { exit 0 }",)
     }
 
     it { should contain_exec('app pool identitytype - myAppPool.example.com - SPECIFICUSER - username').with(
-      :command => "Import-Module WebAdministration;\$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;\$pool = get-item IIS:\\AppPools\\myAppPool.example.com;\$pool.processModel.username = \"username\";\$pool.processModel.password = \"password\";\$pool.processModel.identityType = 3;\$pool | set-item;",
+      :command => 'Import-Module WebAdministration;$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;$pool = get-item IIS:\\AppPools\\myAppPool.example.com;$pool.processModel.username = "username";$pool.processModel.password = "password";$pool.processModel.identityType = 3;$pool | set-item;',
       :unless  => "Import-Module WebAdministration;\$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;\$pool = get-item IIS:\\AppPools\\myAppPool.example.com;if(\$pool.processModel.identityType -ne \"SpecificUser\"){exit 1;}\
 if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.password -ne password){exit 1;}exit 0;",)
     }
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
-
   end
 
   describe 'when managing the iis application pool and clearing scheduled app pool recycling' do
@@ -180,30 +179,30 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
-      :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",)
+      :command => 'Import-Module WebAdministration; New-Item "IIS:\\AppPools\\myAppPool.example.com"',
+      :onlyif  => 'Import-Module WebAdministration; if((Test-Path "IIS:\\AppPools\\myAppPool.example.com")) { exit 1 } else { exit 0 }',)
     }
 
     it { should contain_exec('Framework-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v4.0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedRuntimeVersion v4.0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('32bit-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 true",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" enable32BitAppOnWin64 true',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'true\')) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('ManagedPipelineMode-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedPipelineMode 0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Integrated') -eq 0) { exit 1 } else { exit 0 }",)
     }
 
     it { should contain_exec('CLEAR App Pool Recycle Schedule - myAppPool.example.com').with(
-      :command => "[string]\$ApplicationPoolName = \"myAppPool.example.com\";Import-Module WebAdministration;Write-Output \"removing scheduled recycles\";Clear-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule;",
-      :unless  => "[string]\$ApplicationPoolName = \"myAppPool.example.com\";Import-Module WebAdministration;if((Get-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule.collection).Length -eq \$null){exit 0;}else{exit 1;}",)
+      :command => '[string]$ApplicationPoolName = "myAppPool.example.com";Import-Module WebAdministration;Write-Output "removing scheduled recycles";Clear-ItemProperty IIS:\\AppPools\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule;',
+      :unless  => '[string]$ApplicationPoolName = "myAppPool.example.com";Import-Module WebAdministration;if((Get-ItemProperty IIS:\\AppPools\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule.collection).Length -eq $null){exit 0;}else{exit 1;}',)
     }
 
     it { should_not contain_exec(/App Pool Recycle Schedule.*/) }
@@ -221,30 +220,30 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
-      :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",)
+      :command => 'Import-Module WebAdministration; New-Item "IIS:\\AppPools\\myAppPool.example.com"',
+      :onlyif  => 'Import-Module WebAdministration; if((Test-Path "IIS:\\AppPools\\myAppPool.example.com")) { exit 1 } else { exit 0 }',)
     }
 
     it { should contain_exec('Framework-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v4.0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedRuntimeVersion v4.0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('32bit-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 true",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" enable32BitAppOnWin64 true',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'true\')) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('ManagedPipelineMode-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedPipelineMode 0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Integrated') -eq 0) { exit 1 } else { exit 0 }",)
     }
 
     it { should contain_exec('Clear App Pool Logging - myAppPool.example.com').with(
-      :command => "\$appPoolName = \"myAppPool.example.com\";Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \$appPoolName);Set-ItemProperty \$appPoolPath -name recycling -value @{\"\"};",
-      :unless  => "\$appPoolName = \"myAppPool.example.com\";Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \$appPoolName);if((Get-ItemProperty \$appPoolPath -Name Recycling.LogEventOnRecycle).value -eq 0){exit 0;}else{exit 1;}",)
+      :command => '$appPoolName = "myAppPool.example.com";Import-Module WebAdministration;$appPoolPath = ("IIS:\\AppPools\\" + $appPoolName);Set-ItemProperty $appPoolPath -name recycling -value @{""};',
+      :unless  => '$appPoolName = "myAppPool.example.com";Import-Module WebAdministration;$appPoolPath = ("IIS:\\AppPools\\" + $appPoolName);if((Get-ItemProperty $appPoolPath -Name Recycling.LogEventOnRecycle).value -eq 0){exit 0;}else{exit 1;}',)
     }
 
     it { should_not contain_exec('App Pool Logging - myAppPool.example.com') }
@@ -257,7 +256,7 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
       :managed_runtime_version => 'v2.0',
       :managed_pipeline_mode   => 'Classic',
       :apppool_idle_timeout_minutes => 60,
-      :apppool_max_processes   => 0,
+      :apppool_max_processes => 0,
       :apppool_max_queue_length => 1000,
       :apppool_recycle_periodic_minutes => 60,
       :apppool_recycle_schedule => %w(01:00:00 23:59:59),
@@ -265,29 +264,29 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
-      :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",)
+      :command => 'Import-Module WebAdministration; New-Item "IIS:\\AppPools\\myAppPool.example.com"',
+      :onlyif  => 'Import-Module WebAdministration; if((Test-Path "IIS:\\AppPools\\myAppPool.example.com")) { exit 1 } else { exit 0 }',)
     }
 
     it { should contain_exec('Framework-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v2.0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedRuntimeVersion v2.0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v2.0\') -eq 0) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('32bit-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 true",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" enable32BitAppOnWin64 true',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'true\')) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('ManagedPipelineMode-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 1",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedPipelineMode 1',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Classic') -eq 0) { exit 1 } else { exit 0 }",)
     }
 
     it { should contain_exec('App Pool Logging - myAppPool.example.com').with(
-      :command => "\$appPoolName = \"myAppPool.example.com\";Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \$appPoolName);Set-ItemProperty \$appPoolPath -name recycling -value @{logEventOnRecycle=\"Time,Requests\"};",
+      :command => '$appPoolName = "myAppPool.example.com";Import-Module WebAdministration;$appPoolPath = ("IIS:\\AppPools\\" + $appPoolName);Set-ItemProperty $appPoolPath -name recycling -value @{logEventOnRecycle="Time,Requests"};',
       :unless  => "\$appPoolName = \"myAppPool.example.com\";Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \$appPoolName);[string[]]\$LoggingOptions = @(\"Time\",\"Requests\");if((Get-ItemProperty \$appPoolPath -Name Recycling.LogEventOnRecycle).value -eq 0){exit 1;}\
 [string[]]\$enumsplit = (Get-ItemProperty \$appPoolPath -Name Recycling.LogEventOnRecycle).Split(',');if(\$LoggingOptions.Length -ne \$enumsplit.Length){exit 1;}foreach(\$s in \$LoggingOptions){if(\$enumsplit.Contains(\$s) -eq \$false){exit 1;}}exit 0;",)
     }
@@ -305,30 +304,30 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
-      :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",)
+      :command => 'Import-Module WebAdministration; New-Item "IIS:\\AppPools\\myAppPool.example.com"',
+      :onlyif  => 'Import-Module WebAdministration; if((Test-Path "IIS:\\AppPools\\myAppPool.example.com")) { exit 1 } else { exit 0 }',)
     }
 
     it { should contain_exec('Framework-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v2.0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedRuntimeVersion v2.0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v2.0\') -eq 0) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('32bit-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 true",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" enable32BitAppOnWin64 true',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'true\')) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('ManagedPipelineMode-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 1",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedPipelineMode 1',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Classic') -eq 0) { exit 1 } else { exit 0 }",)
     }
 
     it { should contain_exec('Clear App Pool Logging - myAppPool.example.com').with(
-      :command => "\$appPoolName = \"myAppPool.example.com\";Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \$appPoolName);Set-ItemProperty \$appPoolPath -name recycling -value @{\"\"};",
-      :unless  => "\$appPoolName = \"myAppPool.example.com\";Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \$appPoolName);if((Get-ItemProperty \$appPoolPath -Name Recycling.LogEventOnRecycle).value -eq 0){exit 0;}else{exit 1;}",)
+      :command => '$appPoolName = "myAppPool.example.com";Import-Module WebAdministration;$appPoolPath = ("IIS:\\AppPools\\" + $appPoolName);Set-ItemProperty $appPoolPath -name recycling -value @{""};',
+      :unless  => '$appPoolName = "myAppPool.example.com";Import-Module WebAdministration;$appPoolPath = ("IIS:\\AppPools\\" + $appPoolName);if((Get-ItemProperty $appPoolPath -Name Recycling.LogEventOnRecycle).value -eq 0){exit 0;}else{exit 1;}',)
     }
 
     it { should_not contain_exec('App Pool Logging - myAppPool.example.com') }
@@ -344,30 +343,30 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
-      :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",)
+      :command => 'Import-Module WebAdministration; New-Item "IIS:\\AppPools\\myAppPool.example.com"',
+      :onlyif  => 'Import-Module WebAdministration; if((Test-Path "IIS:\\AppPools\\myAppPool.example.com")) { exit 1 } else { exit 0 }',)
     }
 
     it { should contain_exec('Framework-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v2.0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedRuntimeVersion v2.0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v2.0\') -eq 0) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('32bit-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 true",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" enable32BitAppOnWin64 true',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'true\')) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('ManagedPipelineMode-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 1",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedPipelineMode 1',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Classic') -eq 0) { exit 1 } else { exit 0 }",)
     }
 
     it { should contain_exec('CLEAR App Pool Recycle Schedule - myAppPool.example.com').with(
-     :command => "[string]\$ApplicationPoolName = \"myAppPool.example.com\";Import-Module WebAdministration;Write-Output \"removing scheduled recycles\";Clear-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule;",
-     :unless  => "[string]\$ApplicationPoolName = \"myAppPool.example.com\";Import-Module WebAdministration;if((Get-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule.collection).Length -eq \$null){exit 0;}else{exit 1;}",)
+      :command => '[string]$ApplicationPoolName = "myAppPool.example.com";Import-Module WebAdministration;Write-Output "removing scheduled recycles";Clear-ItemProperty IIS:\\AppPools\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule;',
+      :unless  => '[string]$ApplicationPoolName = "myAppPool.example.com";Import-Module WebAdministration;if((Get-ItemProperty IIS:\\AppPools\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule.collection).Length -eq $null){exit 0;}else{exit 1;}',)
     }
 
     it { should_not contain_exec(/App Pool Recycle Schedule.*/) }
@@ -385,59 +384,58 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
-      :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",)
+      :command => 'Import-Module WebAdministration; New-Item "IIS:\\AppPools\\myAppPool.example.com"',
+      :onlyif  => 'Import-Module WebAdministration; if((Test-Path "IIS:\\AppPools\\myAppPool.example.com")) { exit 1 } else { exit 0 }',)
     }
 
     it { should contain_exec('Framework-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v2.0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedRuntimeVersion v2.0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v2.0\') -eq 0) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('32bit-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 true",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" enable32BitAppOnWin64 true',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'true\')) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('ManagedPipelineMode-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 1",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedPipelineMode 1',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Classic') -eq 0) { exit 1 } else { exit 0 }",)
     }
 
     it { should contain_exec('app pool identitytype - myAppPool.example.com - SPECIFICUSER - username').with(
-      :command => "Import-Module WebAdministration;\$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;\$pool = get-item IIS:\\AppPools\\myAppPool.example.com;\$pool.processModel.username = \"username\";\$pool.processModel.password = \"password\";\$pool.processModel.identityType = 3;\$pool | set-item;",
+      :command => 'Import-Module WebAdministration;$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;$pool = get-item IIS:\\AppPools\\myAppPool.example.com;$pool.processModel.username = "username";$pool.processModel.password = "password";$pool.processModel.identityType = 3;$pool | set-item;',
       :unless  => "Import-Module WebAdministration;\$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;\$pool = get-item IIS:\\AppPools\\myAppPool.example.com;if(\$pool.processModel.identityType -ne \"SpecificUser\"){exit 1;}\
 if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.password -ne password){exit 1;}exit 0;",)
     }
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
-
   end
 
   describe 'when managing the iis application pool without passing parameters' do
     let(:title) { 'myAppPool.example.com' }
 
     it { should contain_exec('Create-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
-      :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",)
+      :command => 'Import-Module WebAdministration; New-Item "IIS:\\AppPools\\myAppPool.example.com"',
+      :onlyif  => 'Import-Module WebAdministration; if((Test-Path "IIS:\\AppPools\\myAppPool.example.com")) { exit 1 } else { exit 0 }',)
     }
 
     it { should contain_exec('Framework-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v4.0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedRuntimeVersion v4.0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('32bit-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 false",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" enable32BitAppOnWin64 false',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'false\')) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('ManagedPipelineMode-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedPipelineMode 0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Integrated') -eq 0) { exit 1 } else { exit 0 }",)
     }
 
@@ -459,7 +457,6 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     it { should_not contain_exec('App Pool Logging - myAppPool.example.com') }
 
     it { should_not contain_exec('Clear App Pool Logging - myAppPool.example.com') }
-
   end
 
   describe 'when managing the iis application with a managed_runtime_version of v2.0' do
@@ -469,7 +466,7 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     it { expect { should contain_exec('Create-myAppPool.example.com') }.to_not raise_error }
 
     it { should contain_exec('Framework-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v2.0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedRuntimeVersion v2.0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v2.0\') -eq 0) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
@@ -488,7 +485,7 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     it { expect { should contain_exec('Create-myAppPool.example.com') }.to_not raise_error }
 
     it { should contain_exec('Framework-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v4.0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedRuntimeVersion v4.0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
@@ -607,18 +604,18 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     let(:params) { { :ensure => 'present' } }
 
     it { should contain_exec('Create-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
-      :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",)
+      :command => 'Import-Module WebAdministration; New-Item "IIS:\\AppPools\\myAppPool.example.com"',
+      :onlyif  => 'Import-Module WebAdministration; if((Test-Path "IIS:\\AppPools\\myAppPool.example.com")) { exit 1 } else { exit 0 }',)
     }
 
     it { should contain_exec('Framework-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v4.0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedRuntimeVersion v4.0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('32bit-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 false",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" enable32BitAppOnWin64 false',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'false\')) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
@@ -636,7 +633,6 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     it { should_not contain_exec('App Pool Logging - myAppPool.example.com') }
 
     it { should_not contain_exec('Clear App Pool Logging - myAppPool.example.com') }
-
   end
 
   describe 'when managing the iis application pool and setting ensure to installed' do
@@ -644,24 +640,24 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     let(:params) { { :ensure => 'installed' } }
 
     it { should contain_exec('Create-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
-      :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",)
+      :command => 'Import-Module WebAdministration; New-Item "IIS:\\AppPools\\myAppPool.example.com"',
+      :onlyif  => 'Import-Module WebAdministration; if((Test-Path "IIS:\\AppPools\\myAppPool.example.com")) { exit 1 } else { exit 0 }',)
     }
 
     it { should contain_exec('Framework-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v4.0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedRuntimeVersion v4.0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('32bit-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 false",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" enable32BitAppOnWin64 false',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'false\')) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
 
     it { should contain_exec('ManagedPipelineMode-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 0",
+      :command => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\\AppPools\\myAppPool.example.com" managedPipelineMode 0',
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Integrated') -eq 0) { exit 1 } else { exit 0 }",)
     }
 
@@ -690,8 +686,8 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     let(:params) { { :ensure => 'absent' } }
 
     it { should contain_exec('Delete-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Remove-Item \"IIS:\\AppPools\\myAppPool.example.com\" -Recurse",
-      :onlyif  => "Import-Module WebAdministration; if(!(Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",)
+      :command => 'Import-Module WebAdministration; Remove-Item "IIS:\\AppPools\\myAppPool.example.com" -Recurse',
+      :onlyif  => 'Import-Module WebAdministration; if(!(Test-Path "IIS:\\AppPools\\myAppPool.example.com")) { exit 1 } else { exit 0 }',)
     }
 
     it { should_not contain_exec('Framework-myAppPool.example.com') }
@@ -720,7 +716,6 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     it { should_not contain_exec('App Pool Logging - myAppPool.example.com') }
 
     it { should_not contain_exec('Clear App Pool Logging - myAppPool.example.com') }
-
   end
 
   describe 'when managing the iis application pool and setting ensure to purged' do
@@ -728,8 +723,8 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     let(:params) { { :ensure => 'purged' } }
 
     it { should contain_exec('Delete-myAppPool.example.com').with(
-      :command => "Import-Module WebAdministration; Remove-Item \"IIS:\\AppPools\\myAppPool.example.com\" -Recurse",
-      :onlyif  => "Import-Module WebAdministration; if(!(Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",)
+      :command => 'Import-Module WebAdministration; Remove-Item "IIS:\\AppPools\\myAppPool.example.com" -Recurse',
+      :onlyif  => 'Import-Module WebAdministration; if(!(Test-Path "IIS:\\AppPools\\myAppPool.example.com")) { exit 1 } else { exit 0 }',)
     }
 
     it { should_not contain_exec('Framework-myAppPool.example.com') }

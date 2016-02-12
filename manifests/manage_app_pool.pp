@@ -1,20 +1,20 @@
 define iis::manage_app_pool (
-  $app_pool_name           = $title,
-  $enable_32_bit           = false,
-  $managed_runtime_version = 'v4.0',
-  $managed_pipeline_mode   = 'Integrated',
-  $ensure                  = 'present',
-  $start_mode              = 'OnDemand',
-  $rapid_fail_protection   = true,
-  $apppool_identitytype    = undef,
-  $apppool_username        = undef,
-  $apppool_userpw          = undef,
-  $apppool_idle_timeout_minutes = undef,
-  $apppool_max_processes    = undef,
-  $apppool_max_queue_length = undef,
+  $app_pool_name                    = $title,
+  $enable_32_bit                    = false,
+  $managed_runtime_version          = 'v4.0',
+  $managed_pipeline_mode            = 'Integrated',
+  $ensure                           = 'present',
+  $start_mode                       = 'OnDemand',
+  $rapid_fail_protection            = true,
+  $apppool_identitytype             = undef,
+  $apppool_username                 = undef,
+  $apppool_userpw                   = undef,
+  $apppool_idle_timeout_minutes     = undef,
+  $apppool_max_processes            = undef,
+  $apppool_max_queue_length         = undef,
   $apppool_recycle_periodic_minutes = undef,
-  $apppool_recycle_schedule  = undef,
-  $apppool_recycle_logging   = undef
+  $apppool_recycle_schedule         = undef,
+  $apppool_recycle_logging          = undef
 ) {
 
   validate_bool($enable_32_bit)
@@ -197,9 +197,9 @@ define iis::manage_app_pool (
 
     if ($process_app_pool_idle_timeout) {
       exec { "App Pool Idle Timeout - ${app_pool_name}":
-        command   => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"${app_pool_name}\");[TimeSpan]\$ts = ${idle_timeout_ticks};Set-ItemProperty \$appPoolPath -name processModel -value @{idletimeout=\$ts}",
-        provider  => powershell,
-        unless    => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"${app_pool_name}\");[TimeSpan]\$ts = ${idle_timeout_ticks};if((get-ItemProperty \$appPoolPath -name processModel.idletimeout.value) -ne \$ts){exit 1;}exit 0;",
+        command  => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"${app_pool_name}\");[TimeSpan]\$ts = ${idle_timeout_ticks};Set-ItemProperty \$appPoolPath -name processModel -value @{idletimeout=\$ts}",
+        provider => powershell,
+        unless   => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"${app_pool_name}\");[TimeSpan]\$ts = ${idle_timeout_ticks};if((get-ItemProperty \$appPoolPath -name processModel.idletimeout.value) -ne \$ts){exit 1;}exit 0;",
       }
     }
 
@@ -226,17 +226,17 @@ if(\$pool.processModel.userName -ne ${apppool_username}){exit 1;}if(\$pool.proce
 
     if ($process_max_processes) {
       exec { "App Pool Max Processes - ${app_pool_name}":
-        command   => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"${app_pool_name}\");Set-ItemProperty \$appPoolPath -name processModel -value @{maxProcesses=${apppool_max_processes}}",
-        provider  => powershell,
-        unless    => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"${app_pool_name}\");if((get-ItemProperty \$appPoolPath -name processModel.maxprocesses.value) -ne ${apppool_max_processes}){exit 1;}exit 0;",
+        command  => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"${app_pool_name}\");Set-ItemProperty \$appPoolPath -name processModel -value @{maxProcesses=${apppool_max_processes}}",
+        provider => powershell,
+        unless   => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"${app_pool_name}\");if((get-ItemProperty \$appPoolPath -name processModel.maxprocesses.value) -ne ${apppool_max_processes}){exit 1;}exit 0;",
       }
     }
 
     if($process_max_queue_length) {
       exec { "App Pool Max Queue Length - ${app_pool_name}":
-        command   => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"${app_pool_name}\");Set-ItemProperty \$appPoolPath queueLength ${apppool_max_queue_length};",
-        provider  => powershell,
-        unless    => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"${app_pool_name}\");if((get-ItemProperty \$appPoolPath).queuelength -ne ${apppool_max_queue_length}){exit 1;}exit 0;",
+        command  => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"${app_pool_name}\");Set-ItemProperty \$appPoolPath queueLength ${apppool_max_queue_length};",
+        provider => powershell,
+        unless   => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"${app_pool_name}\");if((get-ItemProperty \$appPoolPath).queuelength -ne ${apppool_max_queue_length}){exit 1;}exit 0;",
       }
     }
 
