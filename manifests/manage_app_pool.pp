@@ -12,7 +12,8 @@ define iis::manage_app_pool (
   $apppool_idle_timeout_minutes = undef,
   $apppool_max_processes    = undef,
   $apppool_max_queue_length = undef,
-  $apppool_recycle_periodic_minutes = undef
+  $apppool_recycle_periodic_minutes = undef,
+  $apppool_recycle_schedule  = undef
 ) {
 
   validate_bool($enable_32_bit)
@@ -101,6 +102,22 @@ define iis::manage_app_pool (
   }
   else {
     $process_periodic_times = false
+  }
+
+  if $apppool_recycle_schedule != undef {
+    if (!empty($apppool_recycle_schedule)) {
+      $restart_times_string = join($apppool_recycle_schedule, ',')
+      validate_re($restart_times_string, '^\d{2}:\d{2}:\d{2}$|^\b\d{2}:\d{2}:\d{2}(?:,\b\d{2}:\d{2}:\d{2}\b)*$',
+      "${restart_times_string} bad - time format hh:mm:ss in array")
+      $temptimestr           = regsubst($restart_times_string, '([,]+)', "\"\\1\"", 'G')
+      $fixed_times_string      = "\"${temptimestr}\""
+
+      $processscheduledtimes = true
+    } else {
+      $processscheduledtimes = true
+    }
+  } else {
+    $processscheduledtimes = false
   }
 
   if ($ensure in ['present','installed']) {
@@ -212,8 +229,27 @@ if(\$pool.processModel.userName -ne ${apppool_username}){exit 1;}if(\$pool.proce
       }
     }
 
-  }
-  else {
+    if ($processscheduledtimes) {
+      if (empty($apppool_recycle_schedule)) {
+        exec { "CLEAR App Pool Recycle Schedule - ${app_pool_name}":
+          command   => "[string]\$ApplicationPoolName = \"${app_pool_name}\";Import-Module WebAdministration;Write-Output \"removing scheduled recycles\";Clear-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule;",
+          provider  => powershell,
+          unless    => "[string]\$ApplicationPoolName = \"${app_pool_name}\";Import-Module WebAdministration;if((Get-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule.collection).Length -eq \$null){exit 0;}else{exit 1;}",
+          require   => Exec["Create-${app_pool_name}"],
+          logoutput => true,
+        }
+      } else {
+        exec { "App Pool Recycle Schedule - ${app_pool_name} - ${fixed_times_string}":
+          command   => "[string]\$ApplicationPoolName = \"${app_pool_name}\";[string[]]\$RestartTimes = @(${fixed_times_string});Import-Module WebAdministration;Clear-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule;foreach (\$restartTime in \$RestartTimes){Write-Output \"Adding recycle at \$restartTime\";New-ItemProperty -Path \"IIS:\\AppPools\\\$ApplicationPoolName\" -Name Recycling.periodicRestart.schedule -Value @{value=\$restartTime};}",
+          provider  => powershell,
+          unless    => "[string]\$ApplicationPoolName = \"${app_pool_name}\";[string[]]\$RestartTimes = @(${fixed_times_string});Import-Module WebAdministration;[Collections.Generic.List[String]]\$collectionAsList = @();for(\$i=0; \$i -lt (Get-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule.collection).Count; \$i++){\$collectionAsList.Add((Get-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule.collection)[\$i].value.ToString());}if(\$collectionAsList.Count -ne \$RestartTimes.Length){exit 1;}foreach (\$restartTime in \$RestartTimes) {if(!\$collectionAsList.Contains(\$restartTime)){exit 1;}}exit 0;",
+          require   => Exec["Create-${app_pool_name}"],
+          logoutput => true,
+        }
+      }
+    }
+
+  } else {
     exec { "Delete-${app_pool_name}":
       command   => "Import-Module WebAdministration; Remove-Item \"IIS:\\AppPools\\${app_pool_name}\" -Recurse",
       provider  => powershell,
