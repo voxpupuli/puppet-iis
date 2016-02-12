@@ -13,7 +13,8 @@ define iis::manage_app_pool (
   $apppool_max_processes    = undef,
   $apppool_max_queue_length = undef,
   $apppool_recycle_periodic_minutes = undef,
-  $apppool_recycle_schedule  = undef
+  $apppool_recycle_schedule  = undef,
+  $apppool_recycle_logging   = undef
 ) {
 
   validate_bool($enable_32_bit)
@@ -118,6 +119,26 @@ define iis::manage_app_pool (
     }
   } else {
     $processscheduledtimes = false
+  }
+
+  if $apppool_recycle_logging != undef {
+    if (!empty($apppool_recycle_logging)) {
+      if (!member(['Time','Requests','Schedule','Memory','IsapiUnhealthy','OnDemand','ConfigChange','PrivateMemory'],$apppool_recycle_logging)) {
+        fail("[\$apppool_recycle_logging] values must be in [\'Time\',\'Requests\',\'Schedule\',\'Memory\',\'IsapiUnhealthy\',\'OnDemand\',\'ConfigChange\',\'PrivateMemory\']")
+      }
+
+      $loggingstring           = join($apppool_recycle_logging, ',')
+      $templogstr              = regsubst($loggingstring, '([,]+)', "\"\\1\"", 'G')
+      $fixedloggingstring      = "\"${templogstr}\""
+      $fixedloggingsetstring   = "\"${loggingstring}\""
+
+      $process_apppool_recycle_logging = true
+    } else {
+      $fixedloggingstring           = ''
+      $process_apppool_recycle_logging = true
+    }
+  } else {
+    $process_apppool_recycle_logging = false
   }
 
   if ($ensure in ['present','installed']) {
@@ -243,6 +264,27 @@ if(\$pool.processModel.userName -ne ${apppool_username}){exit 1;}if(\$pool.proce
           command   => "[string]\$ApplicationPoolName = \"${app_pool_name}\";[string[]]\$RestartTimes = @(${fixed_times_string});Import-Module WebAdministration;Clear-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule;foreach (\$restartTime in \$RestartTimes){Write-Output \"Adding recycle at \$restartTime\";New-ItemProperty -Path \"IIS:\\AppPools\\\$ApplicationPoolName\" -Name Recycling.periodicRestart.schedule -Value @{value=\$restartTime};}",
           provider  => powershell,
           unless    => "[string]\$ApplicationPoolName = \"${app_pool_name}\";[string[]]\$RestartTimes = @(${fixed_times_string});Import-Module WebAdministration;[Collections.Generic.List[String]]\$collectionAsList = @();for(\$i=0; \$i -lt (Get-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule.collection).Count; \$i++){\$collectionAsList.Add((Get-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.schedule.collection)[\$i].value.ToString());}if(\$collectionAsList.Count -ne \$RestartTimes.Length){exit 1;}foreach (\$restartTime in \$RestartTimes) {if(!\$collectionAsList.Contains(\$restartTime)){exit 1;}}exit 0;",
+          require   => Exec["Create-${app_pool_name}"],
+          logoutput => true,
+        }
+      }
+    }
+
+    if ($process_apppool_recycle_logging) {
+      if ((empty($fixedloggingstring))) {
+        exec { "Clear App Pool Logging - ${app_pool_name}":
+          command   => "\$appPoolName = \"${app_pool_name}\";Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \$appPoolName);Set-ItemProperty \$appPoolPath -name recycling -value @{\"\"};",
+          provider  => powershell,
+          unless    => "\$appPoolName = \"${app_pool_name}\";Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \$appPoolName);if((Get-ItemProperty \$appPoolPath -Name Recycling.LogEventOnRecycle).value -eq 0){exit 0;}else{exit 1;}",
+          require   => Exec["Create-${app_pool_name}"],
+          logoutput => true,
+        }
+      } else {
+        exec { "App Pool Logging - ${app_pool_name}":
+          command   => "\$appPoolName = \"${app_pool_name}\";Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \$appPoolName);Set-ItemProperty \$appPoolPath -name recycling -value @{logEventOnRecycle=${fixedloggingsetstring}};",
+          provider  => powershell,
+          unless    => "\$appPoolName = \"${app_pool_name}\";Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \$appPoolName);[string[]]\$LoggingOptions = @(${fixedloggingstring});if((Get-ItemProperty \$appPoolPath -Name Recycling.LogEventOnRecycle).value -eq 0){exit 1;}\
+[string[]]\$enumsplit = (Get-ItemProperty \$appPoolPath -Name Recycling.LogEventOnRecycle).Split(',');if(\$LoggingOptions.Length -ne \$enumsplit.Length){exit 1;}foreach(\$s in \$LoggingOptions){if(\$enumsplit.Contains(\$s) -eq \$false){exit 1;}}exit 0;",
           require   => Exec["Create-${app_pool_name}"],
           logoutput => true,
         }

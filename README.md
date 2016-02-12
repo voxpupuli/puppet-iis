@@ -78,32 +78,33 @@ Notes on Managing App Pools
 --
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     class mywebsite {
-        iis::manage_app_pool { 'my_application_pool0':
+        iis::manage_app_pool { 'my_application_pool_0':
           enable_32_bit           => true,
           managed_runtime_version => 'v4.0',
           apppool_identitytype    => 'ApplicationPoolIdentity', # ApplicationPoolIdentity (or '4') is the default an IIS app pool will be created with
         }
 
-        iis::manage_app_pool { 'my_application_pool1':
+        iis::manage_app_pool { 'my_application_pool_1':
           enable_32_bit           => true,
           managed_runtime_version => 'v4.0',
           apppool_identitytype    => 'LocalSystem', # LocalSystem (or '0')
         }
 
-        iis::manage_app_pool { 'my_application_pool2':
+        iis::manage_app_pool { 'my_application_pool_2':
           enable_32_bit           => true,
           managed_runtime_version => 'v4.0',
           apppool_identitytype    => 'LocalService', # LocalService (or '1')
         }
 
-        iis::manage_app_pool { 'my_application_pool3':
+        iis::manage_app_pool { 'my_application_pool_3':
           enable_32_bit           => true,
           managed_runtime_version => 'v4.0',
           apppool_identitytype    => 'NetworkService', # NetworkService (or '2')
         }
 
-        iis::manage_app_pool { 'my_application_pool4':
+        iis::manage_app_pool { 'my_application_pool_4':
           enable_32_bit           => true,
           managed_runtime_version => 'v4.0',
           apppool_identitytype    => 'SpecificUser', # SpecificUser (or '3'),
@@ -111,39 +112,51 @@ Notes on Managing App Pools
           apppool_userpw          => 'password'      # MUST specify a password when 'SpecificUser'/'3' for apppool_identitytype
         }
 
-        iis::manage_app_pool { 'my_application_pool5':
+        iis::manage_app_pool { 'my_application_pool_5':
           enable_32_bit                => true,
           managed_runtime_version      => 'v4.0',
           apppool_idle_timeout_minutes => 60, # 30 days (43200 min) is max value for this in iis, 0 disables
         }
 
-        iis::manage_app_pool { 'my_application_pool6':
+        iis::manage_app_pool { 'my_application_pool_6':
           enable_32_bit           => true,
           managed_runtime_version => 'v4.0',
           apppool_max_processes   => 0, # 0 lets iis detect optimal on numa system, not enforcing max (its an int64)
         }
 
-        iis::manage_app_pool { 'my_application_pool7':
+        iis::manage_app_pool { 'my_application_pool_7':
           enable_32_bit            => true,
           managed_runtime_version  => 'v4.0',
           apppool_max_queue_length => 1000, # apppool max queue length - max queue length must be set 10 <= n <= 65535
         }
 
-        iis::manage_app_pool { 'my_application_pool7':
+        iis::manage_app_pool { 'my_application_pool_8':
           enable_32_bit                    => true,
           managed_runtime_version          => 'v4.0',
           apppool_recycle_periodic_minutes => 1440, # apppool periodic cycle - disable app pool cycling on periodic time set $apppoolperiodicrecycle to 0 - it's minutes - max 15372286728
         }
 
-        iis::manage_app_pool { 'my_application_pool8':
+        iis::manage_app_pool { 'my_application_pool9':
           enable_32_bit            => true,
           managed_runtime_version  => 'v4.0',
           apppool_recycle_schedule => ['01:00:00','23:59:59'] # apppool scheduled recycling ['hh:mm:ss','...'] - empty array to clear scheduled recycling on an app pool
         }
 
-        iis::manage_app_pool { 'my_application_pool9':
+        iis::manage_app_pool { 'my_application_pool_10':
           enable_32_bit            => true,
           managed_runtime_version  => 'v4.0',
           apppool_recycle_schedule => [] # empty array to clear scheduled recycling on an app pool
+        }
+
+        iis::manage_app_pool { 'my_application_pool_11':
+          enable_32_bit           => true,
+          managed_runtime_version => 'v4.0',
+          apppool_recycle_logging => ['Time','Requests','Schedule','Memory','IsapiUnhealthy','OnDemand','ConfigChange','PrivateMemory'],
+        }
+
+        iis::manage_app_pool {'my_application_pool_12':
+          enable_32_bit           => true,
+          managed_runtime_version => 'v4.0',
+          apppool_recycle_logging => [], # clear all app pool recycle logging from 'my_application_pool_1 assuming other params set appropriately
         }
     }
