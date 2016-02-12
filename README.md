@@ -77,7 +77,6 @@ Host header and ip address can also be supplied.
 Notes on Managing App Pools
 --
 
-<<<<<<< HEAD
     class mywebsite {
         iis::manage_app_pool { 'my_application_pool0':
           enable_32_bit           => true,
@@ -117,9 +116,15 @@ Notes on Managing App Pools
           apppool_idle_timeout_minutes => 60, # 30 days (43200 min) is max value for this in iis, 0 disables
         }
 
-        iis::manage_app_pool { 'my_application_pool':
+        iis::manage_app_pool { 'my_application_pool6':
           enable_32_bit           => true,
           managed_runtime_version => 'v4.0',
           apppool_max_processes   => 0, # 0 lets iis detect optimal on numa system, not enforcing max (its an int64)
+        }
+
+        iis::manage_app_pool { 'my_application_pool7':
+          enable_32_bit            => true,
+          managed_runtime_version  => 'v4.0',
+          apppool_max_queue_length => 1000, # apppool max queue length - max queue length must be set 10 <= n <= 65535
         }
     }
