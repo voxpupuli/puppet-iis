@@ -9,7 +9,8 @@ describe 'iis::manage_app_pool', :type => :define do
       :managed_pipeline_mode        => 'Integrated',
       :apppool_idle_timeout_minutes => 60,
       :apppool_identitytype         => 'ApplicationPoolIdentity',
-      :apppool_max_processes        => 0
+      :apppool_max_processes        => 0,
+      :apppool_max_queue_length     => 1000
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
@@ -49,6 +50,11 @@ describe 'iis::manage_app_pool', :type => :define do
     it { should contain_exec('App Pool Max Processes - myAppPool.example.com').with(
       :command => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");Set-ItemProperty \$appPoolPath -name processModel -value @{maxProcesses=0}",
       :unless  => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");if((get-ItemProperty \$appPoolPath -name processModel.maxprocesses.value) -ne 0){exit 1;}exit 0;",)
+    }
+
+    it { should contain_exec('App Pool Max Queue Length - myAppPool.example.com').with(
+      :command => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");Set-ItemProperty \$appPoolPath queueLength 1000;",
+      :unless  => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");if((get-ItemProperty \$appPoolPath).queuelength -ne 1000){exit 1;}exit 0;",)
     }
   end
 
@@ -102,7 +108,8 @@ describe 'iis::manage_app_pool', :type => :define do
       :apppool_identitytype    => 'SpecificUser',
       :apppool_username        => 'username',
       :apppool_userpw          => 'password',
-      :apppool_max_processes   => 0
+      :apppool_max_processes   => 0,
+      :apppool_max_queue_length => 1000
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
@@ -144,7 +151,8 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
       :managed_runtime_version => 'v2.0',
       :managed_pipeline_mode   => 'Classic',
       :apppool_idle_timeout_minutes => 60,
-      :apppool_max_processes   => 0
+      :apppool_max_processes   => 0,
+      :apppool_max_queue_length => 1000
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
@@ -180,6 +188,11 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     it { should contain_exec('App Pool Max Processes - myAppPool.example.com').with(
       :command => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");Set-ItemProperty \$appPoolPath -name processModel -value @{maxProcesses=0}",
       :unless  => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");if((get-ItemProperty \$appPoolPath -name processModel.maxprocesses.value) -ne 0){exit 1;}exit 0;",)
+    }
+
+    it { should contain_exec('App Pool Max Queue Length - myAppPool.example.com').with(
+      :command => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");Set-ItemProperty \$appPoolPath queueLength 1000;",
+      :unless  => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");if((get-ItemProperty \$appPoolPath).queuelength -ne 1000){exit 1;}exit 0;",)
     }
   end
 
@@ -223,7 +236,6 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     }
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
-
   end
 
   describe 'when managing the iis application pool without passing parameters' do
@@ -258,6 +270,7 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
 
     it { should_not contain_exec('App Pool Max Processes - myAppPool.example.com') }
 
+    it { should_not contain_exec('App Pool Max Queue Length - myAppPool.example.com') }
   end
 
   describe 'when managing the iis application with a managed_runtime_version of v2.0' do
@@ -351,6 +364,20 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /attempt set app pool identity to SpecificUser null or zero length \$apppool_username param/) }
   end
 
+  describe 'when managing the iis application and apppool_max_queue_length value too low' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) { { :apppool_max_queue_length => 1 } }
+
+    it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /.*validate_integer\(\)\: Expected 1 to be greater or equal to 10, got 1.*/) }
+  end
+
+  describe 'when managing the iis application and apppool_max_queue_length value too high' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) { { :apppool_max_queue_length => 655_36 } }
+
+    it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /.*validate_integer\(\)\: Expected 65536 to be smaller or equal to 65535, got 65536.*/) }
+  end
+
   describe 'when managing the iis application pool and setting ensure to present' do
     let(:title) { 'myAppPool.example.com' }
     let(:params) { { :ensure => 'present' } }
@@ -373,6 +400,8 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     }
 
     it { should_not contain_exec('App Pool Idle Timeout - myAppPool.example.com') }
+
+    it { should_not contain_exec('App Pool Max Queue Length - myAppPool.example.com') }
   end
 
   describe 'when managing the iis application pool and setting ensure to installed' do
@@ -407,6 +436,9 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - SPECIFICUSER - username') }
+
+    it { should_not contain_exec('App Pool Max Queue Length - myAppPool.example.com') }
+
   end
 
   describe 'when managing the iis application pool and setting ensure to absent' do
@@ -433,6 +465,7 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
 
     it { should_not contain_exec('App Pool Max Processes - myAppPool.example.com') }
 
+    it { should_not contain_exec('App Pool Max Queue Length - myAppPool.example.com') }
   end
 
   describe 'when managing the iis application pool and setting ensure to purged' do
@@ -459,5 +492,6 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
 
     it { should_not contain_exec('App Pool Max Processes - myAppPool.example.com') }
 
+    it { should_not contain_exec('App Pool Max Queue Length - myAppPool.example.com') }
   end
 end
