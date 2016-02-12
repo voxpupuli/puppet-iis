@@ -1,5 +1,5 @@
 #
-define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_address = '*', $certificate_thumbprint = '', $ensure = 'present', $require_site = true) {
+define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_address = '*', $certificate_thumbprint = '', $store = 'My', $sslFlag = 0, $ensure = 'present', $require_site = true) {
   if ! ($protocol in [ 'http', 'https', 'net.tcp', 'net.pipe', 'netmsmq', 'msmq.formatname' ]) {
     fail('valid protocols \'http\', \'https\', \'net.tcp\', \'net.pipe\', \'netmsmq\', \'msmq.formatname\'')
   }
@@ -7,6 +7,7 @@ define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_
   validate_string($site_name)
   validate_re($site_name,['^(.)+$'], 'site_name must not be empty')
   validate_re($ensure, '^(present|installed|absent|purged)$', 'ensure must be one of \'present\', \'installed\', \'absent\', \'purged\'')
+  validate_re($store, '^(My|WebHosting)$')
   validate_bool($require_site)
   if ! ($ip_address == '*') {
     validate_re($ip_address, ['^([0-9]){1,3}\.([0-9]){1,3}\.([0-9]){1,3}\.([0-9]){1,3}$'], "\"${ip_address}\" is not a valid ip address")
@@ -19,7 +20,7 @@ define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_
     }
 
     exec { "CreateBinding-${title}":
-      command   => "Import-Module WebAdministration; New-WebBinding -Name \"${site_name}\" -Port ${port} -Protocol \"${protocol}\" -HostHeader \"${host_header}\" -IPAddress \"${ip_address}\"",
+      command   => "Import-Module WebAdministration; New-WebBinding -Name \"${site_name}\" -Port ${port} -Protocol \"${protocol}\" -HostHeader \"${host_header}\" -IPAddress \"${ip_address}\" -SslFlags \"${sslFlag}\"",
       onlyif    => "Import-Module WebAdministration; if (Get-WebBinding -Name \"${site_name}\" -Port ${port} -Protocol \"${protocol}\" -HostHeader \"${host_header}\" -IPAddress \"${ip_address}\" | Where-Object {\$_.bindingInformation -eq \"${ip_address}:${port}:${host_header}\"}) { exit 1 } else { exit 0 }",
       provider  => powershell,
       logoutput => true,
@@ -54,7 +55,7 @@ define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_
     }
   } else {
     exec { "DeleteBinding-${title}":
-    command   => "Import-Module WebAdministration; Remove-WebBinding -Name \"${site_name}\" -Port ${port} -Protocol \"${protocol}\" -HostHeader \"${host_header}\" -IPAddress \"${ip_address}\"",
+    command   => "Import-Module WebAdministration; Remove-WebBinding -Name \"${site_name}\" -Port ${port} -Protocol \"${protocol}\" -HostHeader \"${host_header}\" -IPAddress \"${ip_address}\" -SslFlags \"${sslFlag}\"",
     onlyif    => "Import-Module WebAdministration; if (!(Get-WebBinding -Name \"${site_name}\" -Port ${port} -Protocol \"${protocol}\" -HostHeader \"${host_header}\" -IPAddress \"${ip_address}\" | Where-Object {\$_.bindingInformation -eq \"${ip_address}:${port}:${host_header}\"})) { exit 1 } else { exit 0 }",
     provider  => powershell,
     logoutput => true,

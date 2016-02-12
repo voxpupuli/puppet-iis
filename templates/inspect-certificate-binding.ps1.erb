@@ -1,9 +1,10 @@
 Import-Module WebAdministration
 
-if((Test-Path IIS:\SslBindings\<%= @ip_address %>!<%= @port %>) -eq $true) {
+if((Test-Path IIS:\SslBindings\<%= @ip_address %>!<%= @port %>,IIS:\SslBindings\<%= @ip_address %>!<%= @port %>!<%= @host_header %>) -eq $true) {
     $site = Get-Website | Where-Object { $_.Name -eq "<%= @site_name %>" }
+    $store = "<%= @store %>"
     $certsAttachedToSite = Get-ChildItem IIS:\SSLBindings | ? { $site | Select-Object { $_ -contains $_.Sites.Value }} | % { $_.Thumbprint }
-    $certificate = Get-ChildItem CERT:\LocalMachine\My | ? { $certsAttachedToSite -contains $_.Thumbprint} | Where-Object { $_.Thumbprint -eq "<%= @certificate_thumbprint %>" }
+    $certificate = Get-ChildItem CERT:\LocalMachine\$store | ? { $certsAttachedToSite -contains $_.Thumbprint} | Where-Object { $_.Thumbprint -eq "<%= @certificate_thumbprint %>" }
     if ($certificate -ne $null ){
         exit 1
     }
