@@ -1,4 +1,4 @@
-class iis::features::application_deployment {
+class iis::features::application_development {
 
   case $::kernelmajversion {
     '6.2','6.3': {

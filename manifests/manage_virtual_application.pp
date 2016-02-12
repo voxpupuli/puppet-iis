@@ -3,7 +3,7 @@ define iis::manage_virtual_application($site_name, $site_path, $app_pool, $virtu
   validate_re($ensure, '^(present|installed|absent|purged)$', 'ensure must be one of \'present\', \'installed\', \'absent\', \'purged\'')
 
   $virtual_application_name_norm = regsubst($virtual_application_name, '/', '\\')
-  
+
   if ($ensure in ['present','installed']) {
     iis::createpath { "${site_name}-${virtual_application_name}-${site_path}":
       site_path => $site_path,

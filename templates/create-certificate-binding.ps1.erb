@@ -2,7 +2,7 @@ Import-Module WebAdministration
 
 $site = Get-Website | Where-Object { $_.Name -eq "<%= @site_name %>" }
 $store = "<%= @store %>"
-$sslFlag = "<%= @sslFlag %>"
+$sslFlag = "<%= @ssl_flag %>"
 $certsAttachedToSite = Get-ChildItem IIS:\SSLBindings | ? { $site | Select-Object { $_ -contains $_.Sites.Value }} | % { $_.Thumbprint }
 $certificate = Get-ChildItem CERT:\LocalMachine\$store | ? { $certsAttachedToSite -contains $_.Thumbprint} | Where-Object { $_.Thumbprint -eq "<%= @certificate_thumbprint %>" }
 
