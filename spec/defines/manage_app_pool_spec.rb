@@ -8,7 +8,8 @@ describe 'iis::manage_app_pool', :type => :define do
       :managed_runtime_version      => 'v4.0',
       :managed_pipeline_mode        => 'Integrated',
       :apppool_idle_timeout_minutes => 60,
-      :apppool_identitytype         => 'ApplicationPoolIdentity'
+      :apppool_identitytype         => 'ApplicationPoolIdentity',
+      :apppool_max_processes        => 0
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
@@ -44,6 +45,11 @@ describe 'iis::manage_app_pool', :type => :define do
     }
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - SPECIFICUSER - username') }
+
+    it { should contain_exec('App Pool Max Processes - myAppPool.example.com').with(
+      :command => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");Set-ItemProperty \$appPoolPath -name processModel -value @{maxProcesses=0}",
+      :unless  => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");if((get-ItemProperty \$appPoolPath -name processModel.maxprocesses.value) -ne 0){exit 1;}exit 0;",)
+    }
   end
 
   describe 'when managing the iis application pool with SpecificUser identitytype' do
@@ -94,8 +100,9 @@ describe 'iis::manage_app_pool', :type => :define do
       :managed_runtime_version => 'v4.0',
       :managed_pipeline_mode   => 'Integrated',
       :apppool_identitytype    => 'SpecificUser',
-      :apppool_username		   => 'username',
-      :apppool_userpw		   => 'password'
+      :apppool_username        => 'username',
+      :apppool_userpw          => 'password',
+      :apppool_max_processes   => 0
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
@@ -127,6 +134,7 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     }
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
+
   end
 
   describe 'when managing the iis application pool - v2.0 Classic' do
@@ -135,7 +143,8 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
       :enable_32_bit           => true,
       :managed_runtime_version => 'v2.0',
       :managed_pipeline_mode   => 'Classic',
-      :apppool_idle_timeout_minutes => 60
+      :apppool_idle_timeout_minutes => 60,
+      :apppool_max_processes   => 0
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
@@ -167,6 +176,11 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - SPECIFICUSER - username') }
+
+    it { should contain_exec('App Pool Max Processes - myAppPool.example.com').with(
+      :command => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");Set-ItemProperty \$appPoolPath -name processModel -value @{maxProcesses=0}",
+      :unless  => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");if((get-ItemProperty \$appPoolPath -name processModel.maxprocesses.value) -ne 0){exit 1;}exit 0;",)
+    }
   end
 
   describe 'when managing the iis application pool - v2.0 Classic with SpecificUser identitytype' do
@@ -209,6 +223,7 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     }
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
+
   end
 
   describe 'when managing the iis application pool without passing parameters' do
@@ -240,6 +255,9 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - SPECIFICUSER - username') }
+
+    it { should_not contain_exec('App Pool Max Processes - myAppPool.example.com') }
+
   end
 
   describe 'when managing the iis application with a managed_runtime_version of v2.0' do
@@ -412,6 +430,9 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - SPECIFICUSER - username') }
+
+    it { should_not contain_exec('App Pool Max Processes - myAppPool.example.com') }
+
   end
 
   describe 'when managing the iis application pool and setting ensure to purged' do
@@ -435,5 +456,8 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - SPECIFICUSER - username') }
+
+    it { should_not contain_exec('App Pool Max Processes - myAppPool.example.com') }
+
   end
 end
