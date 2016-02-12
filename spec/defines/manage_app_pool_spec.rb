@@ -4,10 +4,57 @@ describe 'iis::manage_app_pool', :type => :define do
   describe 'when managing the iis application pool' do
     let(:title) { 'myAppPool.example.com' }
     let(:params) {{
+      :enable_32_bit                => true,
+      :managed_runtime_version      => 'v4.0',
+      :managed_pipeline_mode        => 'Integrated',
+      :apppool_idle_timeout_minutes => 60,
+      :apppool_identitytype         => 'ApplicationPoolIdentity'
+    }}
+
+    it { should contain_exec('Create-myAppPool.example.com').with(
+      :command => "Import-Module WebAdministration; New-Item \"IIS:\\AppPools\\myAppPool.example.com\"",
+      :onlyif  => "Import-Module WebAdministration; if((Test-Path \"IIS:\\AppPools\\myAppPool.example.com\")) { exit 1 } else { exit 0 }",)
+    }
+
+    it { should contain_exec('Framework-myAppPool.example.com').with(
+      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion v4.0",
+      :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v4.0\') -eq 0) { exit 1 } else { exit 0 }",
+      :require => 'Exec[Create-myAppPool.example.com]',)
+    }
+
+    it { should contain_exec('32bit-myAppPool.example.com').with(
+      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64 true",
+      :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'true\')) { exit 1 } else { exit 0 }",
+      :require => 'Exec[Create-myAppPool.example.com]',)
+    }
+
+    it { should contain_exec('ManagedPipelineMode-myAppPool.example.com').with(
+      :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 0",
+      :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Integrated') -eq 0) { exit 1 } else { exit 0 }",)
+    }
+
+    it { should contain_exec('App Pool Idle Timeout - myAppPool.example.com').with(
+      :command => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");[TimeSpan]\$ts = 36000000000;Set-ItemProperty \$appPoolPath -name processModel -value @{idletimeout=\$ts}",
+      :unless  => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");[TimeSpan]\$ts = 36000000000;if((get-ItemProperty \$appPoolPath -name processModel.idletimeout.value) -ne \$ts){exit 1;}exit 0;",)
+    }
+
+    it { should contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity').with(
+      :command => "Import-Module WebAdministration;\$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;\$pool = get-item IIS:\\AppPools\\myAppPool.example.com;\$pool.processModel.identityType = 4;\$pool | set-item;",
+      :unless  => "Import-Module WebAdministration;\$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;\$pool = get-item IIS:\\AppPools\\myAppPool.example.com;if(\$pool.processModel.identityType -eq \"ApplicationPoolIdentity\"){exit 0;}else{exit 1;}",)
+    }
+
+    it { should_not contain_exec('app pool identitytype - myAppPool.example.com - SPECIFICUSER - username') }
+  end
+
+  describe 'when managing the iis application pool with SpecificUser identitytype' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) {{
       :enable_32_bit           => true,
       :managed_runtime_version => 'v4.0',
       :managed_pipeline_mode   => 'Integrated',
-      :apppool_identitytype    => 'ApplicationPoolIdentity'
+      :apppool_identitytype    => 'ApplicationPoolIdentity',
+      :apppool_username        => 'username',
+      :apppool_userpw          => 'password'
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
@@ -87,7 +134,8 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     let(:params) {{
       :enable_32_bit           => true,
       :managed_runtime_version => 'v2.0',
-      :managed_pipeline_mode   => 'Classic'
+      :managed_pipeline_mode   => 'Classic',
+      :apppool_idle_timeout_minutes => 60
     }}
 
     it { should contain_exec('Create-myAppPool.example.com').with(
@@ -110,6 +158,11 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     it { should contain_exec('ManagedPipelineMode-myAppPool.example.com').with(
       :command => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode 1",
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Classic') -eq 0) { exit 1 } else { exit 0 }",)
+    }
+
+    it { should contain_exec('App Pool Idle Timeout - myAppPool.example.com').with(
+      :command => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");[TimeSpan]\$ts = 36000000000;Set-ItemProperty \$appPoolPath -name processModel -value @{idletimeout=\$ts}",
+      :unless  => "Import-Module WebAdministration;\$appPoolPath = (\"IIS:\\AppPools\\\" + \"myAppPool.example.com\");[TimeSpan]\$ts = 36000000000;if((get-ItemProperty \$appPoolPath -name processModel.idletimeout.value) -ne \$ts){exit 1;}exit 0;",)
     }
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
@@ -183,6 +236,8 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedPipelineMode).CompareTo('Integrated') -eq 0) { exit 1 } else { exit 0 }",)
     }
 
+    it { should_not contain_exec('App Pool Idle Timeout - myAppPool.example.com') }
+
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - SPECIFICUSER - username') }
   end
@@ -198,6 +253,8 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" managedRuntimeVersion).Value.CompareTo(\'v2.0\') -eq 0) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
+
+    it { should_not contain_exec('App Pool Idle Timeout - myAppPool.example.com') }
   end
 
   describe 'when managing the iis application with a managed_runtime_version of v4.0' do
@@ -232,6 +289,20 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     let(:params) { { :enable_32_bit => 'false' } }
 
     it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /"false" is not a boolean\./) }
+  end
+
+  describe 'when managing the iis application with out of bounds apppool_idle_timeout_minutes parameter' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) { { :apppool_idle_timeout_minutes => -1 } }
+
+    it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /.*validate_integer\(\)\: Expected -1 to be greater or equal to 0, got -1.*/) }
+  end
+
+  describe 'when managing the iis application with out of bounds apppool_idle_timeout_minutes parameter' do
+    let(:title) { 'myAppPool.example.com' }
+    let(:params) { { :apppool_idle_timeout_minutes => 432_01 } }
+
+    it { expect { should contain_exec('Create-myAppPool.example.com') }.to raise_error(Puppet::Error, /.*validate_integer\(\)\: Expected 43201 to be smaller or equal to 43200, got 43201.*/) }
   end
 
   describe 'when managing the iis application and identity type invalid' do
@@ -282,6 +353,8 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
       :onlyif  => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\myAppPool.example.com\" enable32BitAppOnWin64).Value -eq [System.Convert]::ToBoolean(\'false\')) { exit 1 } else { exit 0 }",
       :require => 'Exec[Create-myAppPool.example.com]',)
     }
+
+    it { should_not contain_exec('App Pool Idle Timeout - myAppPool.example.com') }
   end
 
   describe 'when managing the iis application pool and setting ensure to installed' do
@@ -312,6 +385,9 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
 
+    it { should_not contain_exec('App Pool Idle Timeout - myAppPool.example.com') }
+
+    it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - SPECIFICUSER - username') }
   end
 
@@ -332,6 +408,9 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
 
+    it { should_not contain_exec('App Pool Idle Timeout - myAppPool.example.com') }
+
+    it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - SPECIFICUSER - username') }
   end
 
@@ -352,6 +431,9 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
 
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
 
+    it { should_not contain_exec('App Pool Idle Timeout - myAppPool.example.com') }
+
+    it { should_not contain_exec('app pool identitytype - myAppPool.example.com - ApplicationPoolIdentity') }
     it { should_not contain_exec('app pool identitytype - myAppPool.example.com - SPECIFICUSER - username') }
   end
 end
