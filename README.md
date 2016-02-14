@@ -77,8 +77,6 @@ Host header and ip address can also be supplied.
 Notes on Managing App Pools
 --
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     class mywebsite {
         iis::manage_app_pool { 'my_application_pool_0':
           enable_32_bit           => true,
@@ -157,6 +155,6 @@ Notes on Managing App Pools
         iis::manage_app_pool {'my_application_pool_12':
           enable_32_bit           => true,
           managed_runtime_version => 'v4.0',
-          apppool_recycle_logging => [], # clear all app pool recycle logging from 'my_application_pool_1 assuming other params set appropriately
+          apppool_recycle_logging => [], # clear all app pool recycle logging from 'my_application_pool_12 assuming other params set appropriately
         }
     }
