@@ -35,10 +35,6 @@
     {
       "name": "puppetlabs/powershell",
       "version_requirement": ">= 1.0.1 < 2.0.0"
-    },
-    {
-      "name": "puppetlabs/dism",
-      "version_requirement": ">= 1.0.0"
     }
   ]
 }
