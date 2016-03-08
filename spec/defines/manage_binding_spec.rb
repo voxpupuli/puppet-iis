@@ -13,7 +13,7 @@ describe 'iis::manage_binding', :type => :define do
     it { should contain_exec('CreateBinding-myWebSite-port-80').with(
       :command => 'Import-Module WebAdministration; New-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "*" -SslFlags "0"',
       :onlyif  => 'Import-Module WebAdministration; if (Get-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "*" | Where-Object {$_.bindingInformation -eq "*:80:myHost.example.com"}) { exit 1 } else { exit 0 }',
-      :require => 'Iis::Manage_site[myWebSite]',)
+      :require => 'Iis_site[myWebSite]',)
     }
   end
 
@@ -30,7 +30,7 @@ describe 'iis::manage_binding', :type => :define do
     it { should contain_exec('CreateBinding-myWebSite-port-80').with(
       :command => 'Import-Module WebAdministration; New-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "192.168.1.5" -SslFlags "0"',
       :onlyif  => 'Import-Module WebAdministration; if (Get-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "192.168.1.5" | Where-Object {$_.bindingInformation -eq "192.168.1.5:80:myHost.example.com"}) { exit 1 } else { exit 0 }',
-      :require => 'Iis::Manage_site[myWebSite]',)
+      :require => 'Iis_site[myWebSite]',)
     }
   end
 
@@ -155,7 +155,7 @@ describe 'iis::manage_binding', :type => :define do
     it { should contain_exec('CreateBinding-myWebSite-port-80').with(
       :command => 'Import-Module WebAdministration; New-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "*" -SslFlags "0"',
       :onlyif  => 'Import-Module WebAdministration; if (Get-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "*" | Where-Object {$_.bindingInformation -eq "*:80:myHost.example.com"}) { exit 1 } else { exit 0 }',
-      :require => 'Iis::Manage_site[myWebSite]',)
+      :require => 'Iis_site[myWebSite]',)
     }
   end
 
