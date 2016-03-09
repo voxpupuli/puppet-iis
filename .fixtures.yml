@@ -1,5 +1,6 @@
 fixtures:
   repositories:
     stdlib: https://github.com/puppetlabs/puppetlabs-stdlib
+    dism: https://github.com/puppetlabs/puppetlabs-dism
   symlinks:
     iis: "#{source_dir}"

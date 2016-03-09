@@ -16,7 +16,7 @@ define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_
   if ($ensure in ['present','installed']) {
     $binding_require = $require_site ? {
       false   => undef,
-      default => Iis::Manage_site[$site_name],
+      default => Iis_site[$site_name],
     }
 
     exec { "CreateBinding-${title}":

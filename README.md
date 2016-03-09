@@ -1,160 +1,167 @@
-Puppet-IIS
-============================
+# IIS Types
 
-Module for puppet that can be used to create sites, application pools and virtual applications with IIS 7 and above.
+#### Table of Contents
+1. [Overview](#overview)
+1. [Requirements] (#requirements)
+1. [Types] (#types)
+  * [iis_site] (#iis_site)
+  * [iis_pool] (#iis_pool)
+  * [iis_virtualdirectory] (#iis_virtualdirectory)
+  * [iis_application] (#iis_application)
 
-[![Build Status](https://travis-ci.org/voxpupuli/puppet-iis.svg?branch=master)](https://travis-ci.org/voxpupuli/puppet-iis)
-Usage
---
-This module is only available to Windows Server 2008 and above due to using the WebAdministration module that ships with PowerShell. To use the module, use git clone to a directory in your modules folder on your puppetmaster. Then create a module manifest for the site you wish to maintain configuration for. Then you need to include this new module manifest in your nodes.pp file as follows:
+## Overview
 
-    node 'nodename' {
-        include 'mywebsite'
-    }
+Create and manage IIS websites, application pools, and virtual applications.
 
-Please note, that you need to implement the iis class in your module as in the example below
+## Requirements
 
-Examples
---
-      class mywebsite {
-        iis::manage_app_pool {'my_application_pool':
-          enable_32_bit           => true,
-          managed_runtime_version => 'v4.0',
-        }
+- >= Windows 2012
+- IIS installed
 
-        iis::manage_site {'www.mysite.com':
-          site_path     => 'C:\inetpub\wwwroot\mysite',
-          port          => '80',
-          ip_address    => '*',
-          host_header   => 'www.mysite.com',
-          app_pool      => 'my_application_pool'
-        }
+## Types
 
-        iis::manage_virtual_application {'application1':
-          site_name   => 'www.mysite.com',
-          site_path   => 'C:\inetpub\wwwroot\application1',
-          app_pool    => 'my_application_pool'
-        }
+### iis_site
 
-        iis::manage_virtual_application {'application2':
-          site_name   => 'www.mysite.com',
-          site_path   => 'C:\inetpub\wwwroot\application2',
-          app_pool    => 'my_application_pool'
-        }
-      }
+Enumerate all IIS websites:
+* `puppet resource iis_site`
 
-This will result in an IIS Directory setup as follows:
+Example output for `puppet resource iis_site 'Default Web Site'`
+```
+iis_site { 'Default Web Site':
+  ensure   => 'started',
+  app_pool => 'DefaultAppPool',
+  ip       => '*',
+  path     => 'C:\InetPub\WWWRoot',
+  port     => '80',
+  protocol => 'http',
+  ssl      => 'false',
+}
+```
 
-* www.mysite.com
-  * Application1
-  * Application2
+#### iis_site attributes
 
-The module knows that if requesting a virtual application, then it will have to create a site and application pool in the correct order so that it can build the correct model. Further usage would be to include the values as specified in the iis class above from hiera configuration.
+* `ensure`
+Denotes the presence and state of site. `{ present, absent, started, stopped}`
+Default: `started`
 
-Additional Bindings
---
-A default binding is setup using the values passed to the manage_site resource.
-Additional bindings can be added to a site using the manage_binding resource.
+* `name`
+(namevar) Web site's name.
 
---
-    iis::manage_binding { 'www.mysite.com-port-8080':
-      site_name => 'www.mysite.com',
-      protocol  => 'http',
-      port      => '8080',
-    }
+* `path`
+Web root for the site.  This can be left blank, although IIS won't
+be able to start the site.
 
-Host header and ip address can also be supplied.
+* `app_pool`
+The application pool which should contain the site. Default: `DefaultAppPool`
 
---
-    iis::manage_binding { 'www.mysite.com-port-8080':
-      site_name   => 'www.mysite.com',
-      protocol    => 'http',
-      port        => '8080',
-      ip_address  => '192.168.0.1',
-      host_header => 'mysite.com',
-    }
+* `host_header`
+A host header that should apply to the site. Set to `false` to maintain
+no host header.
 
-Notes on Managing App Pools
---
+* `protocol`
+The protocol for the site. Default `http`
 
-    class mywebsite {
-        iis::manage_app_pool { 'my_application_pool_0':
-          enable_32_bit           => true,
-          managed_runtime_version => 'v4.0',
-          apppool_identitytype    => 'ApplicationPoolIdentity', # ApplicationPoolIdentity (or '4') is the default an IIS app pool will be created with
-        }
+* `ip`
+The IP address for the site to listen on. Default: `$::ipaddress`
 
-        iis::manage_app_pool { 'my_application_pool_1':
-          enable_32_bit           => true,
-          managed_runtime_version => 'v4.0',
-          apppool_identitytype    => 'LocalSystem', # LocalSystem (or '0')
-        }
+* `port`
+The port for the site to listen on. Default: `80`
 
-        iis::manage_app_pool { 'my_application_pool_2':
-          enable_32_bit           => true,
-          managed_runtime_version => 'v4.0',
-          apppool_identitytype    => 'LocalService', # LocalService (or '1')
-        }
+* `ssl`
+If SSL should be enabled. Default: `false`
 
-        iis::manage_app_pool { 'my_application_pool_3':
-          enable_32_bit           => true,
-          managed_runtime_version => 'v4.0',
-          apppool_identitytype    => 'NetworkService', # NetworkService (or '2')
-        }
+* `state`
+Whether the site should be `Started` or `Stopped`.  Default: `Started`
 
-        iis::manage_app_pool { 'my_application_pool_4':
-          enable_32_bit           => true,
-          managed_runtime_version => 'v4.0',
-          apppool_identitytype    => 'SpecificUser', # SpecificUser (or '3'),
-          apppool_username        => 'username',     # MUST specify a username when 'SpecificUser'/'3' for apppool_identitytype
-          apppool_userpw          => 'password'      # MUST specify a password when 'SpecificUser'/'3' for apppool_identitytype
-        }
+####Refresh event
+Sending a refresh event to an iis_site type will recycle the web site.
 
-        iis::manage_app_pool { 'my_application_pool_5':
-          enable_32_bit                => true,
-          managed_runtime_version      => 'v4.0',
-          apppool_idle_timeout_minutes => 60, # 30 days (43200 min) is max value for this in iis, 0 disables
-        }
+### iis_pool
 
-        iis::manage_app_pool { 'my_application_pool_6':
-          enable_32_bit           => true,
-          managed_runtime_version => 'v4.0',
-          apppool_max_processes   => 0, # 0 lets iis detect optimal on numa system, not enforcing max (its an int64)
-        }
+Enumerate all IIS application pools:
+* `puppet resource iis_pool`
 
-        iis::manage_app_pool { 'my_application_pool_7':
-          enable_32_bit            => true,
-          managed_runtime_version  => 'v4.0',
-          apppool_max_queue_length => 1000, # apppool max queue length - max queue length must be set 10 <= n <= 65535
-        }
+Example output for `puppet resource iis_site 'DefaultAppPool'`
+```
+iis_pool { 'DefaultAppPool':
+  ensure        => 'started',
+  enable_32_bit => 'false',
+  pipeline      => 'Integrated',
+  runtime       => 'v4.0',
+}
+```
 
-        iis::manage_app_pool { 'my_application_pool_8':
-          enable_32_bit                    => true,
-          managed_runtime_version          => 'v4.0',
-          apppool_recycle_periodic_minutes => 1440, # apppool periodic cycle - disable app pool cycling on periodic time set $apppoolperiodicrecycle to 0 - it's minutes - max 15372286728
-        }
+#### iis_pool attributes
 
-        iis::manage_app_pool { 'my_application_pool9':
-          enable_32_bit            => true,
-          managed_runtime_version  => 'v4.0',
-          apppool_recycle_schedule => ['01:00:00','23:59:59'] # apppool scheduled recycling ['hh:mm:ss','...'] - empty array to clear scheduled recycling on an app pool
-        }
+* `ensure`
+Denotes the presence and state of pool. `{ present, absent, started, stopped}`
+Default: `started`
 
-        iis::manage_app_pool { 'my_application_pool_10':
-          enable_32_bit            => true,
-          managed_runtime_version  => 'v4.0',
-          apppool_recycle_schedule => [] # empty array to clear scheduled recycling on an app pool
-        }
+* `name`
+(namevar) Application pool's name.
 
-        iis::manage_app_pool { 'my_application_pool_11':
-          enable_32_bit           => true,
-          managed_runtime_version => 'v4.0',
-          apppool_recycle_logging => ['Time','Requests','Schedule','Memory','IsapiUnhealthy','OnDemand','ConfigChange','PrivateMemory'],
-        }
+* `enable_32_bit`
+Enable 32-bit applications (boolean). Default: `false`
 
-        iis::manage_app_pool {'my_application_pool_12':
-          enable_32_bit           => true,
-          managed_runtime_version => 'v4.0',
-          apppool_recycle_logging => [], # clear all app pool recycle logging from 'my_application_pool_12 assuming other params set appropriately
-        }
-    }
+* `pipeline`
+The managed pipeline mode for the pool {'Classic', 'Integrated'}.
+
+* `runtime`
+Version of .NET runtime for the pool (float).
+
+* `state`
+Whether the site should be `Started` or `Stopped`.  Default: `Started`
+
+####Refresh event
+Sending a refresh event to an iis_pool type will recycle the application pool.
+
+### iis_virtualdirectory
+
+Enumerate all IIS virtual directories:
+* `puppet resource iis_virtualdirectory`
+
+Example output for `puppet resource iis_virtualdirectory 'default'`
+```
+iis_virtualdirectory { 'default':
+  ensure => 'present',
+  path   => 'C:\inetpub\wwwroot',
+  site   => 'Default Web Site',
+}
+```
+
+#### iis_virtualdirectory attributes
+
+* `path`
+Target directory for the virtual directory.
+
+* `site`
+(Read-only) Web site in which the virtual directory resides.
+To change sites, remove and re-create virtual directory.
+
+### iis_application
+
+Enumerate all IIS applications:
+* `puppet resource iis_application`
+
+Example output for `puppet resource iis_site 'test_app'`
+```
+iis_application { 'test_app':
+  ensure   => 'present',
+  app_pool => 'DefaultAppPool',
+  path     => 'C:\Temp',
+  site     => 'Default Web Site',
+}
+```
+
+#### iis_application attributes
+
+* `app_pool`
+The application pool which should contain the application. Default: `DefaultAppPool`
+
+* `path`
+Root for the application.  This can be left blank, although IIS won't
+be able to use it.
+
+* `site`
+(Read-only) Web site in which the application resides.
+To change sites, remove and re-create application.
