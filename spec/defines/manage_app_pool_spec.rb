@@ -755,3 +755,4 @@ if(\$pool.processModel.userName -ne username){exit 1;}if(\$pool.processModel.pas
     it { should_not contain_exec('Clear App Pool Logging - myAppPool.example.com') }
   end
 end
+
