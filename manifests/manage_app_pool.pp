@@ -252,7 +252,7 @@ if(\$pool.processModel.userName -ne ${apppool_username}){exit 1;}if(\$pool.proce
       }
     }
     if ($apppool_recycle_fixed_requests) {
-      if (empty($s)) {
+      if (empty($apppool_recycle_fixed_requests)) {
         exec { "CLEAR App Pool Recycle Fixed Number Of Requests - ${app_pool_name}":
           command   => "[string]\$ApplicationPoolName = \"${app_pool_name}\";Import-Module WebAdministration;Write-Output \"removing recycle per requests\";Clear-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.requests;",
           provider  => powershell,
