@@ -1,7 +1,7 @@
 class iis::features::application_deployment {
 
   case $::kernelmajversion {
-    '6.2','6.3': {
+    '6.0','6.1': {
       ensure_resource('windowsfeature', 'IIS-ASPNET' )
       ensure_resource('windowsfeature', 'IIS-ASPNET45' )
       ensure_resource('windowsfeature', 'IIS-NetFxExtensibility' )
@@ -9,7 +9,7 @@ class iis::features::application_deployment {
       ensure_resource('windowsfeature', 'IIS-ISAPIExtentions' )
       ensure_resource('windowsfeature', 'IIS-ISAPIFilter' )
     }
-    '6.0','6.1': {
+    '6.2','6.3': {
       ensure_resource('windowsfeature', 'Web-Asp-Net' )
       ensure_resource('windowsfeature', 'Web-Net-Ext' )
       ensure_resource('windowsfeature', 'Web-ISAPI-Ext' )
