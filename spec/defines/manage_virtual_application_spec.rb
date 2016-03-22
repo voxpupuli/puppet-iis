@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-describe 'iis::manage_virtual_application', :type => :define do
+describe 'iis::manage_virtual_application', type: :define do
   describe 'when I create a virtual application in IIS using default params' do
     let(:title) { 'mySite' }
     let(:params) {{
-      :site_name => 'myWebSite',
-      :site_path => 'C:\inetpub\wwwroot\myHost',
-      :app_pool  => 'myAppPool.example.com'
+      site_name: 'myWebSite',
+      site_path: 'C:\inetpub\wwwroot\myHost',
+      app_pool: 'myAppPool.example.com'
     }}
 
     it { should contain_exec('CreateVirtualApplication-myWebSite-mySite').with(
@@ -18,10 +18,10 @@ describe 'iis::manage_virtual_application', :type => :define do
   describe 'when I create a virtual application in IIS and set ensure to present' do
     let(:title) { 'mySite' }
     let(:params) {{
-      :site_name => 'myWebSite',
-      :site_path => 'C:\inetpub\wwwroot\myHost',
-      :app_pool  => 'myAppPool.example.com',
-      :ensure    => 'present'
+      site_name: 'myWebSite',
+      site_path: 'C:\inetpub\wwwroot\myHost',
+      app_pool: 'myAppPool.example.com',
+      ensure: 'present'
     }}
 
     it { should contain_exec('CreateVirtualApplication-myWebSite-mySite').with(
@@ -33,10 +33,10 @@ describe 'iis::manage_virtual_application', :type => :define do
   describe 'when I create a virtual application in IIS on a site with spaces in the name' do
     let(:title) { 'myVirtualApp' }
     let(:params) {{
-      :site_name => 'My Web Site',
-      :site_path => 'C:\inetpub\wwwroot\myHost',
-      :app_pool => 'myAppPool.example.com',
-      :ensure   => 'present'
+      site_name: 'My Web Site',
+      site_path: 'C:\inetpub\wwwroot\myHost',
+      app_pool: 'myAppPool.example.com',
+      ensure: 'present'
     }}
 
     it { should contain_exec('CreateVirtualApplication-My Web Site-myVirtualApp').with(
@@ -48,10 +48,10 @@ describe 'iis::manage_virtual_application', :type => :define do
   describe 'when I create a virtual application in IIS and set ensure to installed' do
     let(:title) { 'mySite' }
     let(:params) {{
-      :site_name => 'myWebSite',
-      :site_path => 'C:\inetpub\wwwroot\myHost',
-      :app_pool => 'myAppPool.example.com',
-      :ensure   => 'installed'
+      site_name: 'myWebSite',
+      site_path: 'C:\inetpub\wwwroot\myHost',
+      app_pool: 'myAppPool.example.com',
+      ensure: 'installed'
     }}
 
     it { should contain_exec('CreateVirtualApplication-myWebSite-mySite').with(
@@ -63,10 +63,10 @@ describe 'iis::manage_virtual_application', :type => :define do
   describe 'when I create a virtual application in IIS and set ensure to purged' do
     let(:title) { 'mySite' }
     let(:params) {{
-      :site_name => 'myWebSite',
-      :site_path => 'C:\inetpub\wwwroot\myHost',
-      :app_pool  => 'myAppPool.example.com',
-      :ensure    => 'purged'
+      site_name: 'myWebSite',
+      site_path: 'C:\inetpub\wwwroot\myHost',
+      app_pool: 'myAppPool.example.com',
+      ensure: 'purged'
     }}
 
     it { should contain_exec('DeleteVirtualApplication-myWebSite-mySite').with(
@@ -78,10 +78,10 @@ describe 'iis::manage_virtual_application', :type => :define do
   describe 'when I create a virtual application in IIS and set ensure to absent' do
     let(:title) { 'mySite' }
     let(:params) {{
-      :site_name => 'myWebSite',
-      :site_path => 'C:\inetpub\wwwroot\myHost',
-      :app_pool => 'myAppPool.example.com',
-      :ensure   => 'absent'
+      site_name: 'myWebSite',
+      site_path: 'C:\inetpub\wwwroot\myHost',
+      app_pool: 'myAppPool.example.com',
+      ensure: 'absent'
     }}
 
     it { should contain_exec('DeleteVirtualApplication-myWebSite-mySite').with(
