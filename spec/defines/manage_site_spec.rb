@@ -13,7 +13,8 @@ describe 'iis::manage_site', type: :define do
     }}
 
     it { should contain_exec('CreateSite-myWebSite').with(
-      'command' => 'Import-Module WebAdministration; $id = ''; if ($id) {Get-WebSite | foreach { if ($_.id -match $id) { exit 1 }}} else {$id = (Get-WebSite | foreach {$_.id} | sort -Descending | select -first 1) + 1}; New-WebSite -Name "myWebSite" -Port 80 -IP * -HostHeader "myHost.example.com" -PhysicalPath "C:\\inetpub\\wwwroot\\myWebSite" -ApplicationPool "myAppPool.example.com" -Ssl:$false -ID \$id',
+      'command' => 'Import-Module WebAdministration; $id = \'\'; if ($id) {Get-WebSite | foreach { if ($_.id -match $id) { exit 1 }}} else {$id = (Get-WebSite | foreach {$_.id} | sort -Descending | select -first 1) + 1}; '\
+                   'New-WebSite -Name "myWebSite" -Port 80 -IP * -HostHeader "myHost.example.com" -PhysicalPath "C:\\inetpub\\wwwroot\\myWebSite" -ApplicationPool "myAppPool.example.com" -Ssl:$false -ID $id',
       'onlyif'  => 'Import-Module WebAdministration; if((Test-Path "IIS:\\Sites\\myWebSite")) { exit 1 } else { exit 0 }',)
     }
 
@@ -44,7 +45,8 @@ describe 'iis::manage_site', type: :define do
     }}
 
     it { should contain_exec('CreateSite-myWebSite').with(
-      'command' => 'Import-Module WebAdministration; $id = '10'; if ($id) {Get-WebSite | foreach { if ($_.id -match $id) { exit 1 }}} else {$id = (Get-WebSite | foreach {$_.id} | sort -Descending | select -first 1) + 1}; New-WebSite -Name "myWebSite" -Port 1080 -IP 127.0.0.1 -HostHeader "myHost.example.com" -PhysicalPath "C:\\inetpub\\wwwroot\\path" -ApplicationPool "myAppPool.example.com" -Ssl:$false -ID $id',
+      'command' => 'Import-Module WebAdministration; $id = \'10\'; if ($id) {Get-WebSite | foreach { if ($_.id -match $id) { exit 1 }}} else {$id = (Get-WebSite | foreach {$_.id} | sort -Descending | select -first 1) + 1}; '\
+                   'New-WebSite -Name "myWebSite" -Port 1080 -IP 127.0.0.1 -HostHeader "myHost.example.com" -PhysicalPath "C:\\inetpub\\wwwroot\\path" -ApplicationPool "myAppPool.example.com" -Ssl:$false -ID $id',
       'onlyif'  => 'Import-Module WebAdministration; if((Test-Path "IIS:\\Sites\\myWebSite")) { exit 1 } else { exit 0 }',)
     }
 
@@ -73,7 +75,8 @@ describe 'iis::manage_site', type: :define do
     }}
 
     it { should contain_exec('CreateSite-myWebSite').with(
-      'command' => 'Import-Module WebAdministration; $id = '20'; if ($id) {Get-WebSite | foreach { if ($_.id -match $id) { exit 1 }}} else {$id = (Get-WebSite | foreach {$_.id} | sort -Descending | select -first 1) + 1}; New-WebSite -Name "myWebSite" -Port 80 -IP * -HostHeader "myHost.example.com" -PhysicalPath "C:\\inetpub\\wwwroot\\myWebSite" -ApplicationPool "myAppPool.example.com" -Ssl:$false -ID $id',
+      'command' => 'Import-Module WebAdministration; $id = \'20\'; if ($id) {Get-WebSite | foreach { if ($_.id -match $id) { exit 1 }}} else {$id = (Get-WebSite | foreach {$_.id} | sort -Descending | select -first 1) + 1}; '\
+                   'New-WebSite -Name "myWebSite" -Port 80 -IP * -HostHeader "myHost.example.com" -PhysicalPath "C:\\inetpub\\wwwroot\\myWebSite" -ApplicationPool "myAppPool.example.com" -Ssl:$false -ID $id',
       'onlyif'  => 'Import-Module WebAdministration; if((Test-Path "IIS:\\Sites\\myWebSite")) { exit 1 } else { exit 0 }',)
     }
 
@@ -102,7 +105,8 @@ describe 'iis::manage_site', type: :define do
     }}
 
     it { should contain_exec('CreateSite-myWebSite').with(
-      'command' => 'Import-Module WebAdministration; $id = '30'; if ($id) {Get-WebSite | foreach { if ($_.id -match $id) { exit 1 }}} else {$id = (Get-WebSite | foreach {$_.id} | sort -Descending | select -first 1) + 1}; New-WebSite -Name "myWebSite" -Port 80 -IP * -HostHeader "myHost.example.com" -PhysicalPath "C:\\inetpub\\wwwroot\\myWebSite" -ApplicationPool "myAppPool.example.com" -Ssl:$false -ID $id',
+      'command' => 'Import-Module WebAdministration; $id = \'30\'; if ($id) {Get-WebSite | foreach { if ($_.id -match $id) { exit 1 }}} else {$id = (Get-WebSite | foreach {$_.id} | sort -Descending | select -first 1) + 1}; '\
+                   'New-WebSite -Name "myWebSite" -Port 80 -IP * -HostHeader "myHost.example.com" -PhysicalPath "C:\\inetpub\\wwwroot\\myWebSite" -ApplicationPool "myAppPool.example.com" -Ssl:$false -ID $id',
       'onlyif'  => 'Import-Module WebAdministration; if((Test-Path "IIS:\\Sites\\myWebSite")) { exit 1 } else { exit 0 }',)
     }
 
