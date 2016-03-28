@@ -1,2 +1,18 @@
 ---
+spec/acceptance/nodesets/centos-511-x64.yml:
+  unmanaged: true
+spec/acceptance/nodesets/centos-66-x64-pe.yml:
+  unmanaged: true
+spec/acceptance/nodesets/centos-66-x64.yml:
+  unmanaged: true
+spec/acceptance/nodesets/centos-72-x64.yml:
+  unmanaged: true
+spec/acceptance/nodesets/ubuntu-server-1204-x64.yml:
+  unmanaged: true
+spec/acceptance/nodesets/ubuntu-server-1404-x64.yml:
+  unmanaged: true
+spec/acceptance/nodesets/debian-78-x64.yml:
+  unmanaged: true
+spec/acceptance/nodesets/debian-82-x64.yml:
+  unmanaged: true
 secure: "XeskI0qPXdnzw63JkJd6aSnaOY2OqD57hXhgJ8c8nq3h5cnMLXDRtyorFRAV+drXkt4q8rEyN+Bj8x9CtMOTY9t8GT5YLRG9T7mscFIPMU7pLSt4Gh25LRYtBwD5JBvX6XdGsHnjkQ8mIrponNy5xgF0a50dnSrIfL6W+6drt/k="
