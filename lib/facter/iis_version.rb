@@ -1,5 +1,5 @@
 Facter.add(:iis_version) do
-  confine :kernel => :windows
+  confine kernel: :windows
   setcode do
     version = nil
     require 'win32/registry'

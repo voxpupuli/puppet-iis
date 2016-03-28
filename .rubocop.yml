@@ -26,6 +26,10 @@ Metrics/AbcSize:
 Metrics/MethodLength:
   Enabled: false
 
+# Module length is not necessarily an indicator of code quality
+Metrics/ModuleLength:
+  Enabled: false
+
 # Class length is not necessarily an indicator of code quality
 Metrics/ClassLength:
   Enabled: false
@@ -33,11 +37,9 @@ Metrics/ClassLength:
 # dealbreaker:
 Style/TrailingCommaInArguments:
   Enabled: false
-Style/ClosingParenthesisIndentation:
+Style/TrailingCommaInLiteral:
   Enabled: false
-
-# we still support ruby 1.8
-Style/HashSyntax:
+Style/ClosingParenthesisIndentation:
   Enabled: false
 
 Lint/AmbiguousRegexpLiteral:

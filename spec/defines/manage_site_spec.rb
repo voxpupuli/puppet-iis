@@ -1,15 +1,15 @@
 require 'spec_helper'
 
-describe 'iis::manage_site', :type => :define do
+describe 'iis::manage_site', type: :define do
   describe 'when managing the iis site using default params' do
     let(:title) { 'myWebSite' }
     let(:params) { {
-      :app_pool    => 'myAppPool.example.com',
-      :host_header => 'myHost.example.com',
-      :site_path   => 'C:\inetpub\wwwroot\myWebSite'
+      app_pool: 'myAppPool.example.com',
+      host_header: 'myHost.example.com',
+      site_path: 'C:\inetpub\wwwroot\myWebSite'
     } }
     let(:facts) {{
-      :path        => 'C:\Windows\system32'
+      path: 'C:\Windows\system32'
     }}
 
     it { should contain_exec('CreateSite-myWebSite').with(
@@ -31,15 +31,15 @@ describe 'iis::manage_site', :type => :define do
   describe 'when managing the iis site passing in all parameters' do
     let(:title) { 'myWebSite' }
     let(:params) {{
-      :app_pool    => 'myAppPool.example.com',
-      :host_header => 'myHost.example.com',
-      :site_path   => 'C:\inetpub\wwwroot\path',
-      :port        => '1080',
-      :ip_address  => '127.0.0.1',
-      :ensure      => 'present'
+      app_pool: 'myAppPool.example.com',
+      host_header: 'myHost.example.com',
+      site_path: 'C:\inetpub\wwwroot\path',
+      port: '1080',
+      ip_address: '127.0.0.1',
+      ensure: 'present'
     }}
     let(:facts) {{
-      :path        => 'C:\Windows\system32'
+      path: 'C:\Windows\system32'
     }}
 
     it { should contain_exec('CreateSite-myWebSite').with(
@@ -61,13 +61,13 @@ describe 'iis::manage_site', :type => :define do
   describe 'when managing the iis site and setting ensure to present' do
     let(:title) { 'myWebSite' }
     let(:params) { {
-      :app_pool    => 'myAppPool.example.com',
-      :host_header => 'myHost.example.com',
-      :site_path   => 'C:\inetpub\wwwroot\myWebSite',
-      :ensure      => 'present'
+      app_pool: 'myAppPool.example.com',
+      host_header: 'myHost.example.com',
+      site_path: 'C:\inetpub\wwwroot\myWebSite',
+      ensure: 'present'
     } }
     let(:facts) {{
-      :path        => 'C:\Windows\system32'
+      path: 'C:\Windows\system32'
     }}
 
     it { should contain_exec('CreateSite-myWebSite').with(
@@ -89,13 +89,13 @@ describe 'iis::manage_site', :type => :define do
   describe 'when managing the iis site and setting ensure to installed' do
     let(:title) { 'myWebSite' }
     let(:params) { {
-      :app_pool    => 'myAppPool.example.com',
-      :host_header => 'myHost.example.com',
-      :site_path   => 'C:\inetpub\wwwroot\myWebSite',
-      :ensure      => 'installed'
+      app_pool: 'myAppPool.example.com',
+      host_header: 'myHost.example.com',
+      site_path: 'C:\inetpub\wwwroot\myWebSite',
+      ensure: 'installed'
     } }
     let(:facts) {{
-      :path        => 'C:\Windows\system32'
+      path: 'C:\Windows\system32'
     }}
 
     it { should contain_exec('CreateSite-myWebSite').with(
@@ -117,13 +117,13 @@ describe 'iis::manage_site', :type => :define do
   describe 'when managing the iis site and setting ensure to absent' do
     let(:title) { 'myWebSite' }
     let(:params) { {
-      :app_pool    => 'myAppPool.example.com',
-      :host_header => 'myHost.example.com',
-      :site_path   => 'C:\inetpub\wwwroot\myWebSite',
-      :ensure      => 'absent'
+      app_pool: 'myAppPool.example.com',
+      host_header: 'myHost.example.com',
+      site_path: 'C:\inetpub\wwwroot\myWebSite',
+      ensure: 'absent'
     } }
     let(:facts) {{
-      :path        => 'C:\Windows\system32'
+      path: 'C:\Windows\system32'
     }}
 
     it { should contain_exec('DeleteSite-myWebSite').with(
@@ -135,13 +135,13 @@ describe 'iis::manage_site', :type => :define do
   describe 'when managing the iis site and setting ensure to purged' do
     let(:title) { 'myWebSite' }
     let(:params) { {
-      :app_pool    => 'myAppPool.example.com',
-      :host_header => 'myHost.example.com',
-      :site_path   => 'C:\inetpub\wwwroot\myWebSite',
-      :ensure      => 'purged'
+      app_pool: 'myAppPool.example.com',
+      host_header: 'myHost.example.com',
+      site_path: 'C:\inetpub\wwwroot\myWebSite',
+      ensure: 'purged'
     } }
     let(:facts) {{
-      :path        => 'C:\Windows\system32'
+      path: 'C:\Windows\system32'
     }}
 
     it { should contain_exec('DeleteSite-myWebSite').with(
@@ -153,13 +153,13 @@ describe 'iis::manage_site', :type => :define do
   describe 'when ssl parameter is not valid' do
     let(:title) { 'myWebSite' }
     let(:params) { {
-      :app_pool    => 'myAppPool.example.com',
-      :host_header => 'myHost.example.com',
-      :site_path   => 'C:\inetpub\wwwroot\myWebSite',
-      :ssl         => 'nope'
+      app_pool: 'myAppPool.example.com',
+      host_header: 'myHost.example.com',
+      site_path: 'C:\inetpub\wwwroot\myWebSite',
+      ssl: 'nope'
     } }
     let(:facts) {{
-      :path        => 'C:\Windows\system32'
+      path: 'C:\Windows\system32'
     }}
 
     it { expect { should contain_exec('CreateSite-myWebSite') }.to raise_error(Puppet::Error, /"nope" is not a boolean/) }

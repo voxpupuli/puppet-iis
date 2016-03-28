@@ -1,11 +1,11 @@
 require 'spec_helper'
 
-describe 'iis::manage_site_state', :type => :define do
+describe 'iis::manage_site_state', type: :define do
   describe 'when ensuring an iis site is running' do
     let(:title) { 'StartSite-DefaultWebsite' }
     let(:params) { {
-      :site_name => 'DefaultWebsite',
-      :ensure    => 'running'
+      site_name: 'DefaultWebsite',
+      ensure: 'running'
     } }
 
     it { should contain_exec('StartSite-DefaultWebsite').with(
@@ -17,8 +17,8 @@ describe 'iis::manage_site_state', :type => :define do
   describe 'when ensuring an iis site is stopped' do
     let(:title) { 'StopSite-DefaultWebsite' }
     let(:params) { {
-      :site_name => 'DefaultWebsite',
-      :ensure    => 'stopped'
+      site_name: 'DefaultWebsite',
+      ensure: 'stopped'
     } }
 
     it { should contain_exec('StopSite-DefaultWebsite').with(
