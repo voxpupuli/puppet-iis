@@ -2,18 +2,17 @@ require 'puppet'
 require 'puppet/type/iis_site'
 
 describe Puppet::Type.type(:iis_site) do
-
   before :each do
     @site = Puppet::Type.type(:iis_site).new(
-      :name        => 'test_web',
-      :ensure      => 'started',
-      :path        => 'C:/Temp',
-      :app_pool    => 'DefaultAppPool',
-      :host_header => 'test.com',
-      :protocol    => 'http',
-      :ip          => '*',
-      :port        => '81',
-      :ssl         => false,
+      name: 'test_web',
+      ensure: 'started',
+      path: 'C:/Temp',
+      app_pool: 'DefaultAppPool',
+      host_header: 'test.com',
+      protocol: 'http',
+      ip: '*',
+      port: '81',
+      ssl: false,
     )
   end
 
@@ -52,5 +51,4 @@ describe Puppet::Type.type(:iis_site) do
   it 'should accept an ssl state' do
     expect(@site[:ssl]).to eq(:false)
   end
-
 end

@@ -4,11 +4,11 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'iis_stateful_shared_
 
 describe Puppet::Type.type(:iis_pool) do
   let(:params) { {
-      :name => 'test_pool',
-      :ensure => 'started',
-      :enable_32_bit => true,
-      :runtime => '4.0',
-      :pipeline => 'Classic',
+    name: 'test_pool',
+    ensure: 'started',
+    enable_32_bit: true,
+    runtime: '4.0',
+    pipeline: 'Classic',
   } }
 
   def subject(p = params)
@@ -33,21 +33,20 @@ describe Puppet::Type.type(:iis_pool) do
       expect(subject[:runtime]).to eq('v4.0')
     end
     it 'should munge runtime' do
-      expect(subject(params.merge({:runtime => '4.0'}))[:runtime]).to eq('v4.0')
+      expect(subject(params.merge(runtime: '4.0'))[:runtime]).to eq('v4.0')
     end
   end
 
   describe 'pipeline =>' do
-    ['Integrated', 'Classic'].each do |pipeline|
+    %w(Integrated Classic).each do |pipeline|
       it "should accept #{pipeline}" do
-        param = params.merge({:pipeline => pipeline})
+        param = params.merge(pipeline: pipeline)
         expect(subject(param)[:pipeline]).to eq(pipeline)
       end
       it "should munge #{pipeline.downcase} to capital" do
-        param = params.merge({:pipeline => pipeline.downcase})
+        param = params.merge(pipeline: pipeline.downcase)
         expect(subject(param)[:pipeline]).to eq(pipeline)
       end
     end
   end
-
 end

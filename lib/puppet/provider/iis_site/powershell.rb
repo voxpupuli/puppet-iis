@@ -1,9 +1,8 @@
 require 'puppet/provider/iispowershell'
 require 'json'
 
-Puppet::Type.type(:iis_site).provide(:powershell, :parent => Puppet::Provider::Iispowershell) do
-
-  def initialize(value={})
+Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iispowershell) do
+  def initialize(value = {})
     super(value)
     @property_flush = {
       'itemproperty' => {},
@@ -13,9 +12,9 @@ Puppet::Type.type(:iis_site).provide(:powershell, :parent => Puppet::Provider::I
 
   def self.iisnames
     {
-      :name        => 'name',
-      :path        => 'physicalPath',
-      :app_pool    => 'applicationPool',
+      name: 'name',
+      path: 'physicalPath',
+      app_pool: 'applicationPool',
     }
   end
 
@@ -39,11 +38,11 @@ ps1
       site_hash[:ip]          = bindings.split(':')[0]
       site_hash[:port]        = bindings.split(':')[1]
       site_hash[:host_header] = bindings.split(':')[2]
-      if site['bindings']['Collection'].first['sslFlags'] == 0
-        site_hash[:ssl]       = :false
-      else
-        site_hash[:ssl]       = :true
-      end
+      site_hash[:ssl] = if site['bindings']['Collection'].first['sslFlags'] == 0
+                          :false
+                        else
+                          :true
+                        end
       new(site_hash)
     end
   end
@@ -51,20 +50,21 @@ ps1
   def self.prefetch(resources)
     sites = instances
     resources.keys.each do |site|
-      if provider = sites.find{ |s| s.name == site }
+      # rubocop:disable Lint/AssignmentInCondition
+      if provider = sites.find { |s| s.name == site }
         resources[site].provider = provider
       end
     end
   end
 
   def exists?
-    [ 'stopped', 'started' ].include?(@property_hash[:ensure])
+    %w(stopped started).include?(@property_hash[:ensure])
   end
 
   mk_resource_methods
 
   def create
-    createSwitches = [
+    create_switches = [
       "-Name \"#{@resource[:name]}\"",
       "-Port #{@resource[:port]} -IP #{@resource[:ip]}",
       "-HostHeader \"#{@resource[:host_header]}\"",
@@ -73,8 +73,9 @@ ps1
       "-Ssl:$#{@resource[:ssl]}",
       '-Force'
     ]
-    inst_cmd = "Import-Module WebAdministration; New-Website #{createSwitches.join(' ')}"
+    inst_cmd = "Import-Module WebAdministration; New-Website #{create_switches.join(' ')}"
     resp = Puppet::Type::Iis_site::ProviderPowershell.run(inst_cmd)
+    Puppet.debug "Creation powershell response was #{resp}"
 
     @resource.original_parameters.each_key do |k|
       @property_hash[k] = @resource[k]
@@ -92,14 +93,14 @@ ps1
   def destroy
     inst_cmd = "Import-Module WebAdministration; Remove-Website -Name \"#{@property_hash[:name]}\""
     resp = Puppet::Type::Iis_site::ProviderPowershell.run(inst_cmd)
-    fail(resp) if resp.length > 0
+    raise(resp) unless resp.empty?
     @property_hash.clear
     exists? ? (return false) : (return true)
   end
 
-  iisnames.each do |property,iisname|
+  iisnames.each do |property, iisname|
     next if property == :ensure
-    define_method "#{property.to_s}=" do |value|
+    define_method "#{property}=" do |value|
       @property_flush['itemproperty'][iisname] = value
       @property_hash[property.to_sym] = value
     end
@@ -107,13 +108,12 @@ ps1
 
   # These three properties have to be submitted together
   def self.binders
-    [
-      'protocol',
-      'ip',
-      'port',
-      'host_header',
-      'ssl'
-    ]
+    %w(
+      protocol
+      ip
+      port
+      host_header
+      ssl)
   end
 
   binders.each do |property|
@@ -124,14 +124,14 @@ ps1
   end
 
   def start
-    create if ! exists?
+    create unless exists?
     @property_hash[:name]    = @resource[:name]
     @property_flush['state'] = :Started
     @property_hash[:ensure]  = 'started'
   end
 
   def stop
-    create if ! exists?
+    create unless exists?
     @property_hash[:name]    = @resource[:name]
     @property_flush['state'] = :Stopped
     @property_hash[:ensure]  = 'stopped'
@@ -144,38 +144,39 @@ ps1
       "Start-WebSite -Name \"#{@resource[:name]}\""
     ]
     resp = Puppet::Type::Iis_site::ProviderPowershell.run(inst_cmd.join('; '))
-    fail(resp) if resp.length > 0
+    raise(resp) unless resp.empty?
   end
 
   def enabled?
     inst_cmd = "Import-Module WebAdministration; (Get-WebSiteState -Name \"#{@resource[:name]}\").value"
     resp = Puppet::Type::Iis_site::ProviderPowershell.run(inst_cmd).rstrip
-    if resp == 'Started'
-      return true
+    case resp
+    when 'Started'
+      true
     else
-      return false
+      false
     end
   end
 
   def flush
     command_array = []
-    command_array << "Import-Module WebAdministration; "
+    command_array << 'Import-Module WebAdministration; '
     if @property_flush['state']
-      if @property_flush['state'] == :Started
-        state_cmd = 'Start-Website'
-      else
-        state_cmd = 'Stop-Website'
-      end
+      state_cmd = if @property_flush['state'] == :Started
+                    'Start-Website'
+                  else
+                    'Stop-Website'
+                  end
       state_cmd += " -Name \"#{@property_hash[:name]}\""
       command_array << state_cmd
     end
-    @property_flush['itemproperty'].each do |iisname,value|
+    @property_flush['itemproperty'].each do |iisname, value|
       command_array << "Set-ItemProperty -Path \"IIS:\\\\Sites\\#{@property_hash[:name]}\" -Name \"#{iisname}\" -Value \"#{value}\""
     end
     bhash = {}
-    if ! @property_flush['binders'].empty?
+    unless @property_flush['binders'].empty?
       Puppet::Type::Iis_site::ProviderPowershell.binders.each do |b|
-        if @property_flush['binders'].has_key?(b)
+        if @property_flush['binders'].key?(b)
           bhash[b] = @property_flush['binders'][b] unless @property_flush['binders'][b] == 'false'
         else
           bhash[b] = @property_hash[b.to_sym]
@@ -184,12 +185,11 @@ ps1
       binder_cmd = "Set-ItemProperty -Path \"IIS:\\\\Sites\\#{@property_hash[:name]}\" -Name Bindings -Value @{protocol=\"#{bhash['protocol']}\";bindingInformation=\"#{bhash['ip']}:#{bhash['port']}:#{bhash['host_header']}"
       binder_cmd += '"'
       # Append sslFlags to args is enabled
-      binder_cmd += '; sslFlags=0' if bhash['ssl'] and bhash['ssl'] != :false
+      binder_cmd += '; sslFlags=0' if bhash['ssl'] && bhash['ssl'] != :false
       binder_cmd += '}'
       command_array << binder_cmd
     end
     resp = Puppet::Type::Iis_site::ProviderPowershell.run(command_array.join('; '))
-    fail(resp) if resp.length > 0
+    raise(resp) unless resp.empty?
   end
-
 end

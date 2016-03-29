@@ -1,12 +1,11 @@
 require 'puppet/provider/iispowershell'
 require 'json'
 
-Puppet::Type.type(:iis_virtualdirectory).provide(:powershell, :parent => Puppet::Provider::Iispowershell) do
-
-  def initialize(value={})
+Puppet::Type.type(:iis_virtualdirectory).provide(:powershell, parent: Puppet::Provider::Iispowershell) do
+  def initialize(value = {})
     super(value)
     @property_flush = {
-        'vdattrs' => {},
+      'vdattrs' => {},
     }
   end
 
@@ -14,12 +13,12 @@ Puppet::Type.type(:iis_virtualdirectory).provide(:powershell, :parent => Puppet:
     virtual_directories = []
     inst_cmd = 'Import-Module WebAdministration; Get-WebVirtualDirectory | Select path, physicalPath, ItemXPath | ConvertTo-JSON -Depth 4'
     result = run(inst_cmd)
-    if !result.empty?
+    unless result.empty?
       vd_names = JSON.parse(result)
       vd_names = [vd_names] if vd_names.is_a?(Hash)
       vd_names.each do |vd|
         vd_hash = {}
-        vd_hash[:name] = vd['path'].gsub(/^\//, '')
+        vd_hash[:name] = vd['path'].gsub(%r{^\/}, '')
         vd_hash[:path] = vd['physicalPath']
         vd_hash[:site] = vd['ItemXPath'].match(/@name='([a-z0-9_\ ]+)'/i)[1]
         vd_hash[:ensure] = :present
@@ -33,6 +32,7 @@ Puppet::Type.type(:iis_virtualdirectory).provide(:powershell, :parent => Puppet:
   def self.prefetch(resources)
     vds = instances
     resources.keys.each do |vd|
+      # rubocop:disable Lint/AssignmentInCondition
       if provider = vds.find { |v| v.name == vd }
         resources[vd].provider = provider
       end
@@ -47,13 +47,14 @@ Puppet::Type.type(:iis_virtualdirectory).provide(:powershell, :parent => Puppet:
 
   def create
     inst_cmd = [
-        'Import-Module WebAdministration; ',
-        "New-WebVirtualDirectory -Name \"#{@resource[:name]}\"",
-        "-PhysicalPath \"#{@resource[:path]}\"",
-        "-Site \"#{@resource[:site]}\"",
-        '-Force'
+      'Import-Module WebAdministration; ',
+      "New-WebVirtualDirectory -Name \"#{@resource[:name]}\"",
+      "-PhysicalPath \"#{@resource[:path]}\"",
+      "-Site \"#{@resource[:site]}\"",
+      '-Force'
     ]
     resp = Puppet::Type::Iis_virtualdirectory::ProviderPowershell.run(inst_cmd.join(' '))
+    Puppet.debug "Creation powershell response was #{resp}"
 
     @resource.original_parameters.each_key do |k|
       @property_hash[k] = @resource[k]
@@ -65,13 +66,13 @@ Puppet::Type.type(:iis_virtualdirectory).provide(:powershell, :parent => Puppet:
 
   def destroy
     inst_cmd = [
-        'Import-Module WebAdministration; ',
-        'Remove-Item',
-        "\"IIS:\\Sites\\#{@property_hash[:site]}\\#{@property_hash[:name]}\"",
-        '-Force -Recurse'
+      'Import-Module WebAdministration; ',
+      'Remove-Item',
+      "\"IIS:\\Sites\\#{@property_hash[:site]}\\#{@property_hash[:name]}\"",
+      '-Force -Recurse'
     ]
     resp = Puppet::Type::Iis_virtualdirectory::ProviderPowershell.run(inst_cmd.join(' '))
-    fail(resp) if resp.length > 0
+    raise(resp) unless resp.empty?
 
     @property_hash.clear
     exists? ? (return false) : (return true)
@@ -82,18 +83,17 @@ Puppet::Type.type(:iis_virtualdirectory).provide(:powershell, :parent => Puppet:
     @property_hash[:path] = value
   end
 
-  def site=(value)
-    fail("site is a read-only attribute.")
+  def site=(_value)
+    raise('site is a read-only attribute.')
   end
 
   def flush
     command_array = []
-    command_array << "Import-Module WebAdministration"
+    command_array << 'Import-Module WebAdministration'
     @property_flush['vdattrs'].each do |vdattr, value|
       command_array << "Set-ItemProperty \"IIS:\\\\Sites\\#{@property_hash[:site]}\\#{@property_hash[:name]}\" #{vdattr} #{value}"
     end
     resp = Puppet::Type::Iis_virtualdirectory::ProviderPowershell.run(command_array.join('; '))
-    fail(resp) if resp.length > 0
+    raise(resp) unless resp.empty?
   end
-
 end
