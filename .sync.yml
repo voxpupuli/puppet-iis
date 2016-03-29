@@ -1,4 +1,21 @@
 ---
+Gemfile:
+  supports_windows: true
+  required:
+    ':system_tests':
+      - gem: beaker-rspec
+        git: https://github.com/petems/beaker-windows.git
+        ref: 38227e3bec946dbd52ac4aece8d28af360a33cc4
+      - gem: beaker
+        git: https://github.com/petems/beaker-rspec-windows.git
+        ref: d96cff5fc937efe1dca03c6ea3c236bf4c7337ab
+      - gem: beaker-puppet_install_helper
+spec/spec_helper_acceptance.rb:
+  windows: true
+  dependencies:
+    - puppetlabs-stdlib
+    - puppetlabs-powershell
+    - puppet-windowsfeature
 spec/acceptance/nodesets/centos-511-x64.yml:
   unmanaged: true
 spec/acceptance/nodesets/centos-66-x64-pe.yml:

@@ -38,15 +38,15 @@ group :development do
 end
 
 group :system_tests do
-  gem 'beaker',                        :require => false
-  if beaker_version = ENV['BEAKER_VERSION']
-    gem 'beaker', *location_for(beaker_version)
-  end
-  if beaker_rspec_version = ENV['BEAKER_RSPEC_VERSION']
-    gem 'beaker-rspec', *location_for(beaker_rspec_version)
-  else
-    gem 'beaker-rspec',  :require => false
-  end
+  gem 'winrm'
+  gem "beaker",
+    :git => 'https://github.com/petems/beaker-windows.git',
+    :ref => 'd42d1b83b8de9c8b76fb5a19c859a3e71eeab28a',
+    :require => false
+  gem "beaker-rspec",
+    :git => 'https://github.com/petems/beaker-rspec-windows.git',
+    :ref => 'd96cff5fc937efe1dca03c6ea3c236bf4c7337ab',
+    :require => false
   gem 'beaker-puppet_install_helper',  :require => false
 end
 
