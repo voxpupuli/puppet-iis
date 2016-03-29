@@ -3,6 +3,7 @@ define iis::manage_site(
   $ensure      = 'present',
   $site_name   = $title,
   $site_path   = '',
+  $site_id     = '',
   $app_pool    = '',
   $host_header = '',
   $ip_address  = '*',
@@ -30,7 +31,7 @@ define iis::manage_site(
 
     $switches = join($create_switches,' ')
     exec { "CreateSite-${site_name}" :
-      command   => "Import-Module WebAdministration; \$id = (Get-WebSite | foreach {\$_.id} | sort -Descending | select -first 1) + 1; New-WebSite ${switches} -ID \$id",
+      command   => "Import-Module WebAdministration; \$id = \'${site_id}\'; if (\$id) {Get-WebSite | foreach { if (\$_.id -match \$id) { exit 1 }}} else {\$id = (Get-WebSite | foreach {\$_.id} | sort -Descending | select -first 1) + 1}; New-WebSite ${switches} -ID \$id",
       onlyif    => "Import-Module WebAdministration; if((${$cmd_site_exists})) { exit 1 } else { exit 0 }",
       provider  => 'powershell',
       path      => $::path,
