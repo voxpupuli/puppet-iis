@@ -18,23 +18,19 @@ class Puppet::Provider::Iispowershell < Puppet::Provider
     end
   end
 
-  class << self
-    private
-
-    def self.write_script(content)
-      Tempfile.open(['puppet-powershell', '.ps1']) do |file|
-        file.write(content)
-        file.flush
-        yield native_path(file.path)
-      end
+  def self.write_script(content)
+    Tempfile.open(['puppet-powershell', '.ps1']) do |file|
+      file.write(content)
+      file.flush
+      yield native_path(file.path)
     end
+  end
 
-    def self.native_path(path)
-      path.gsub(File::SEPARATOR, File::ALT_SEPARATOR)
-    end
+  def self.native_path(path)
+    path.gsub(File::SEPARATOR, File::ALT_SEPARATOR)
+  end
 
-    def self.args
-      '-NoProfile -NonInteractive -NoLogo -ExecutionPolicy Bypass'
-    end
+  def self.args
+    '-NoProfile -NonInteractive -NoLogo -ExecutionPolicy Bypass'
   end
 end

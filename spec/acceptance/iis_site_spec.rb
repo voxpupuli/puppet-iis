@@ -13,32 +13,29 @@ RSpec.describe 'iis_site' do
 
       # Setup a basic IIS pool and app running on port 8080
       pp = <<-IIS_SITE
-      include ::iis
 
+      class {'::iis':} ->
       windowsfeature { 'Web-Asp-Net45':
       } ->
       package {'chocolatey.server':
         ensure    => installed,
         provider  => chocolatey,
         source    => 'https://chocolatey.org/api/v2/',
-      } ->
-      iis::manage_site {'Default Web Site':
-        ensure        => absent,
-        site_path     => 'any',
-        app_pool      => 'DefaultAppPool'
-      } ->
+      }
+      ->
       # application in iis
-      iis::manage_app_pool { 'chocolatey.server':
-        enable_32_bit           => true,
-        managed_runtime_version => 'v4.0',
+      iis_pool { 'chocolatey.server':
+        ensure         => 'started',
+        enable_32_bit  => true,
+        runtime        => 'v4.0',
       } ->
-      iis::manage_site {'chocolatey.server':
-        site_path     => 'C:\\tools\\chocolatey.server',
+      iis_site {'chocolatey.server':
+        ensure        => 'started',
+        path          => 'C:\\tools\\chocolatey.server',
         port          => '8080',
-        ip_address    => '*',
+        ip            => '*',
         app_pool      => 'chocolatey.server',
       } ->
-
       # lock down web directory
       acl { 'C:\\tools\\chocolatey.server':
         purge      => true,
