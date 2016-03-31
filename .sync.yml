@@ -8,7 +8,7 @@ Gemfile:
         ref: 38227e3bec946dbd52ac4aece8d28af360a33cc4
       - gem: beaker
         git: https://github.com/petems/beaker-rspec-windows.git
-        ref: d96cff5fc937efe1dca03c6ea3c236bf4c7337ab
+        ref: d42d1b83b8de9c8b76fb5a19c859a3e71eeab28a
       - gem: beaker-puppet_install_helper
 spec/spec_helper_acceptance.rb:
   windows: true
