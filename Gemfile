@@ -17,8 +17,6 @@ group :test do
   gem 'metadata-json-lint',                                         :require => false
   gem 'rspec-puppet-facts',                                         :require => false
   gem 'rspec',                                                      :require => false
-  gem 'puppet-blacksmith',                                          :require => false, :git => 'https://github.com/voxpupuli/puppet-blacksmith.git'
-  gem 'voxpupuli-release',                                          :require => false, :git => 'https://github.com/voxpupuli/voxpupuli-release-gem.git'
   gem 'rubocop', '~> 0.38',                                         :require => false
   gem 'rspec-puppet-utils',                                         :require => false
   gem 'puppetlabs_spec_helper',                                     :require => false
@@ -35,6 +33,11 @@ group :development do
   gem 'travis',       :require => false
   gem 'travis-lint',  :require => false
   gem 'guard-rake',   :require => false
+end
+
+group :release do
+  gem 'puppet-blacksmith',                                          :require => false, :git => 'https://github.com/voxpupuli/puppet-blacksmith.git'
+  gem 'voxpupuli-release',                                          :require => false, :git => 'https://github.com/voxpupuli/voxpupuli-release-gem.git'
 end
 
 group :system_tests do
