@@ -1,3 +1,13 @@
+#2016-04-12 - Release 2.0.2
+###Summary
+
+  Bug fix release
+
+###Bugfixes
+
+  Application development renamed to application deployment
+  Travis release pipeline fixed
+
 #2016-02-12 - Release 2.0.1
 ###Summary
 
