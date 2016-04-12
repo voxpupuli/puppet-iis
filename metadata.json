@@ -1,17 +1,21 @@
 {
-  "name":         "puppet-iis",
-  "version":      "2.0.1",
-  "author":       "voxpupuli",
-  "license":      "Apache-2.0",
-  "summary":      "Module that will manage IIS for windows server 2008 and above. It will help maintain application pools, sites and virtual applications",
-  "source":       "https://github.com/voxpupuli/puppet-iis.git",
+  "name": "puppet-iis",
+  "version": "2.0.2-rc0",
+  "author": "voxpupuli",
+  "license": "Apache-2.0",
+  "summary": "Module that will manage IIS for windows server 2008 and above. It will help maintain application pools, sites and virtual applications",
+  "source": "https://github.com/voxpupuli/puppet-iis.git",
   "project_page": "https://github.com/voxpupuli/puppet-iis",
-  "issues_url":   "https://github.com/voxpupuli/puppet-iis/issues",
+  "issues_url": "https://github.com/voxpupuli/puppet-iis/issues",
   "operatingsystem_support": [
-      {
-        "operatingsystem": "windows",
-        "operatingsystemrelease": [ "2008R2", "2012", "2012R2" ]
-      }
+    {
+      "operatingsystem": "windows",
+      "operatingsystemrelease": [
+        "2008R2",
+        "2012",
+        "2012R2"
+      ]
+    }
   ],
   "requirements": [
     {
@@ -19,8 +23,8 @@
       "version_requirement": "3.x"
     },
     {
-		  "name": "puppet",
-			"version_requirement": "3.x"
+      "name": "puppet",
+      "version_requirement": "3.x"
     }
   ],
   "dependencies": [
