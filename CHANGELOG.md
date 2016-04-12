@@ -1,3 +1,12 @@
+#2016-02-12 - Release 2.0.1
+###Summary
+
+  Bug fix release
+
+###Bugfixes
+
+  Application development renamed to application deployment
+
 #2016-02-12 - Release 2.0.0
 ###Summary
 
