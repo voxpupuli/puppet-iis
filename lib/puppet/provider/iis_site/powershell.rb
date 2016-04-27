@@ -21,7 +21,7 @@ Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iisp
   def self.instances
     inst_cmd = <<-ps1
 Import-Module WebAdministration;
-gci "IIS:\\sites" | %{ Get-ItemProperty $_.PSPath  | Select name, PhysicalPath, ApplicationPool, HostHeader, State, Bindings } | ConvertTo-Json -Depth 4
+gci "IIS:\\sites" | %{ Get-ItemProperty $_.PSPath  | Select name, PhysicalPath, ApplicationPool, HostHeader, State, Bindings } | ConvertTo-Json -Depth 4 -Compress
 ps1
     site_json = JSON.parse(run(inst_cmd))
     # The command returns a Hash if there is 1 site
