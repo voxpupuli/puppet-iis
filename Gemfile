@@ -35,6 +35,7 @@ group :development do
   gem 'travis',       :require => false
   gem 'travis-lint',  :require => false
   gem 'guard-rake',   :require => false
+  gem 'listen', '<= 3.0.6', :require => false
 end
 
 group :system_tests do
