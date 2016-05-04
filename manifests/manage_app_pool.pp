@@ -209,7 +209,7 @@ define iis::manage_app_pool (
           command   => "Import-Module WebAdministration;\$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;\$pool = get-item IIS:\\AppPools\\${app_pool_name};\$pool.processModel.username = \"${apppool_username}\";\$pool.processModel.password = \"${apppool_userpw}\";\$pool.processModel.identityType = ${identityenum};\$pool | set-item;",
           provider  => powershell,
           unless    => "Import-Module WebAdministration;\$iis = New-Object Microsoft.Web.Administration.ServerManager;iis:;\$pool = get-item IIS:\\AppPools\\${app_pool_name};if(\$pool.processModel.identityType -ne \"${identitystring}\"){exit 1;}\
-if(\$pool.processModel.userName -ne ${apppool_username}){exit 1;}if(\$pool.processModel.password -ne ${apppool_userpw}){exit 1;}exit 0;",
+if(\$pool.processModel.userName -ne \"${apppool_username}\"){exit 1;}if(\$pool.processModel.password -ne \"${apppool_userpw}\"){exit 1;}exit 0;",
           require   => Exec["Create-${app_pool_name}"],
           logoutput => true,
         }
