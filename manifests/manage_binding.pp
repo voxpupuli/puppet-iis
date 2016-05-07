@@ -33,22 +33,9 @@ define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_
         fail('https bindings require a valid ip_address')
       }
 
-      file { "inspect-${title}-certificate.ps1":
-        ensure  => present,
-        path    => "C:\\temp\\inspect-${name}.ps1",
-        content => template('iis/inspect-certificate-binding.ps1.erb'),
-      }
-
-      file { "create-${title}-certificate.ps1":
-        ensure  => present,
-        path    => "C:\\temp\\create-${name}.ps1",
-        content => template('iis/create-certificate-binding.ps1.erb'),
-      }
-
       exec { "Attach-Certificate-${title}":
-        command   => "C:\\temp\\create-${name}.ps1",
-        onlyif    => "C:\\temp\\inspect-${name}.ps1",
-        require   => [File["inspect-${title}-certificate.ps1"], File["create-${title}-certificate.ps1"]],
+        command   => template('iis/create-certificate-binding.ps1.erb'),
+        onlyif    => template('iis/inspect-certificate-binding.ps1.erb'),
         provider  => powershell,
         logoutput => true,
       }
