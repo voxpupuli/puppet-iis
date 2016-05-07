@@ -34,13 +34,13 @@ define iis::manage_binding($site_name, $protocol, $port, $host_header = '', $ip_
       }
 
       file { "inspect-${title}-certificate.ps1":
-        ensure  => present,
+        ensure  => file,
         path    => "C:\\temp\\inspect-${name}.ps1",
         content => template('iis/inspect-certificate-binding.ps1.erb'),
       }
 
       file { "create-${title}-certificate.ps1":
-        ensure  => present,
+        ensure  => file,
         path    => "C:\\temp\\create-${name}.ps1",
         content => template('iis/create-certificate-binding.ps1.erb'),
       }
