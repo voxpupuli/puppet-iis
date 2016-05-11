@@ -14,7 +14,8 @@ define iis::manage_app_pool (
   $apppool_max_queue_length         = undef,
   $apppool_recycle_periodic_minutes = undef,
   $apppool_recycle_schedule         = undef,
-  $apppool_recycle_logging          = undef
+  $apppool_recycle_logging          = undef,
+  $apppool_idle_Timeout_action      = 'Terminate'
 ) {
 
   validate_bool($enable_32_bit)
@@ -22,6 +23,7 @@ define iis::manage_app_pool (
   validate_re($managed_pipeline_mode, ['^(Integrated|Classic)$'])
   validate_re($ensure, '^(present|installed|absent|purged)$', 'ensure must be one of \'present\', \'installed\', \'absent\', \'purged\'')
   validate_re($start_mode, '^(OnDemand|AlwaysRunning)$')
+  validate_re($apppool_idle_Timeout_action, '^(Suspend|Terminate)$')
   validate_bool($rapid_fail_protection)
 
   if $apppool_idle_timeout_minutes != undef {
@@ -153,6 +155,14 @@ define iis::manage_app_pool (
       command   => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" startMode ${start_mode}",
       provider  => powershell,
       onlyif    => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" startMode).CompareTo('${start_mode}') -eq 0) { exit 1 } else { exit 0 }",
+      require   => Exec["Create-${app_pool_name}"],
+      logoutput => true,
+    }
+    
+    exec { "IdleTimeoutAction-${app_pool_name}":
+      command   => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" startMode ${apppool_idle_Timeout_action}",
+      provider  => powershell,
+      onlyif    => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" startMode).CompareTo('${apppool_idle_Timeout_action}') -eq 0) { exit 1 } else { exit 0 }",
       require   => Exec["Create-${app_pool_name}"],
       logoutput => true,
     }
