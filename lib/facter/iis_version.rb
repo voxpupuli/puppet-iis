@@ -1,8 +1,7 @@
 require 'facter/util/registryiis'
 
 Facter.add(:iis_version) do
-  # rubocop:disable Style/HashSyntax
-  confine :kernel => :windows
+  confine :kernel => :windows # rubocop:disable Style/HashSyntax
   setcode do
     iis_version_string = Facter::Util::Registryiis.iis_version_string_from_registry
     # String returned on:
