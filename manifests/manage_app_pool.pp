@@ -14,6 +14,7 @@ define iis::manage_app_pool (
   $apppool_max_queue_length         = undef,
   $apppool_recycle_periodic_minutes = undef,
   $apppool_recycle_schedule         = undef,
+  $apppool_recycle_fixed_requests   = undef,
   $apppool_recycle_logging          = undef
 ) {
 
@@ -23,6 +24,7 @@ define iis::manage_app_pool (
   validate_re($ensure, '^(present|installed|absent|purged)$', 'ensure must be one of \'present\', \'installed\', \'absent\', \'purged\'')
   validate_re($start_mode, '^(OnDemand|AlwaysRunning)$')
   validate_bool($rapid_fail_protection)
+  validate_integer($apppool_recycle_fixed_requests, 4294967295, 0)
 
   if $apppool_idle_timeout_minutes != undef {
     validate_integer($apppool_idle_timeout_minutes, 43200, 0)
@@ -250,7 +252,25 @@ if(\$pool.processModel.userName -ne \"${apppool_username}\"){exit 1;}if(\$pool.p
         logoutput => true,
       }
     }
-
+    if ($apppool_recycle_fixed_requests) {
+      if (empty($apppool_recycle_fixed_requests)) {
+        exec { "CLEAR App Pool Recycle Fixed Number Of Requests - ${app_pool_name}":
+          command   => "[string]\$ApplicationPoolName = \"${app_pool_name}\";Import-Module WebAdministration;Write-Output \"removing recycle per requests\";Clear-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.requests;",
+          provider  => powershell,
+          unless    => "[string]\$ApplicationPoolName = \"${app_pool_name}\";Import-Module WebAdministration;if((Get-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.requests).Value -eq 0){exit 0;}else{exit 1;}",
+          require   => Exec["Create-${app_pool_name}"],
+          logoutput => true,
+        }
+      } else {
+        exec { "App Pool Recycle Fixed Number Of Requests - ${app_pool_name} - ${apppool_recycle_fixed_requests}":
+          command => "[string]\$ApplicationPoolName = \"${app_pool_name}\";Import-Module WebAdministration;Write-Output \"Adding recycle after \${apppool_recycle_fixed_requests}\";Set-ItemProperty -Path \"IIS:\\AppPools\\\$ApplicationPoolName\" -Name Recycling.periodicRestart.requests -Value ${apppool_recycle_fixed_requests};}",
+          provider  => powershell,
+          unless    => "[string]\$ApplicationPoolName = \"${app_pool_name}\";Import-Module WebAdministration;if((Get-ItemProperty IIS:\\AppPools\\\$ApplicationPoolName -Name Recycling.periodicRestart.requests).Value -eq ${apppool_recycle_fixed_requests}){exit 0;}else{exit 1;}",
+          require   => Exec["Create-${app_pool_name}"],
+          logoutput => true,
+        }
+      }
+    }
     if ($processscheduledtimes) {
       if (empty($apppool_recycle_schedule)) {
         exec { "CLEAR App Pool Recycle Schedule - ${app_pool_name}":
@@ -302,3 +322,5 @@ if(\$pool.processModel.userName -ne \"${apppool_username}\"){exit 1;}if(\$pool.p
 
   }
 }
+
+

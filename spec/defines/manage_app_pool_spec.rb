@@ -59,3 +59,4 @@ describe 'iis::manage_app_pool', type: :define do
     end
   end
 end
+
