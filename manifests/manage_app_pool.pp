@@ -14,7 +14,8 @@ define iis::manage_app_pool (
   $apppool_max_queue_length         = undef,
   $apppool_recycle_periodic_minutes = undef,
   $apppool_recycle_schedule         = undef,
-  $apppool_recycle_logging          = undef
+  $apppool_recycle_logging          = undef,
+  $apppool_idle_Timeout_action      = undef,
 ) {
 
   validate_bool($enable_32_bit)
@@ -156,6 +157,18 @@ define iis::manage_app_pool (
       require   => Exec["Create-${app_pool_name}"],
       logoutput => true,
     }
+    
+    
+if $apppool_idle_Timeout_action {
+    validate_re($apppool_idle_Timeout_action, '^(Suspend|Terminate)$')
+    exec { "IdleTimeoutAction-${app_pool_name}":
+      command   => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" startMode ${apppool_idle_Timeout_action}",
+      provider  => powershell,
+      onlyif    => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" startMode).CompareTo('${apppool_idle_Timeout_action}') -eq 0) { exit 1 } else { exit 0 }",
+      require   => Exec["Create-${app_pool_name}"],
+      logoutput => true,
+    }
+  }
 
     exec { "RapidFailProtection-${app_pool_name}":
       command   => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" failure.rapidFailProtection ${rapid_fail_protection}",
