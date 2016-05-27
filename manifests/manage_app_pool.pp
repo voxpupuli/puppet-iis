@@ -23,7 +23,6 @@ define iis::manage_app_pool (
   validate_re($managed_pipeline_mode, ['^(Integrated|Classic)$'])
   validate_re($ensure, '^(present|installed|absent|purged)$', 'ensure must be one of \'present\', \'installed\', \'absent\', \'purged\'')
   validate_re($start_mode, '^(OnDemand|AlwaysRunning)$')
-  validate_re($apppool_idle_Timeout_action, '^(Suspend|Terminate)$')
   validate_bool($rapid_fail_protection)
 
   if $apppool_idle_timeout_minutes != undef {
@@ -159,6 +158,9 @@ define iis::manage_app_pool (
       logoutput => true,
     }
     
+    
+if $apppool_idle_Timeout_action {
+    validate_re($apppool_idle_Timeout_action, '^(Suspend|Terminate)$')
     exec { "IdleTimeoutAction-${app_pool_name}":
       command   => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" startMode ${apppool_idle_Timeout_action}",
       provider  => powershell,
@@ -166,6 +168,7 @@ define iis::manage_app_pool (
       require   => Exec["Create-${app_pool_name}"],
       logoutput => true,
     }
+  }
 
     exec { "RapidFailProtection-${app_pool_name}":
       command   => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" failure.rapidFailProtection ${rapid_fail_protection}",
