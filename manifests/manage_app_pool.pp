@@ -15,7 +15,7 @@ define iis::manage_app_pool (
   $apppool_recycle_periodic_minutes = undef,
   $apppool_recycle_schedule         = undef,
   $apppool_recycle_logging          = undef,
-  $apppool_idle_Timeout_action      = 'Terminate'
+  $apppool_idle_Timeout_action      = undef,
 ) {
 
   validate_bool($enable_32_bit)
