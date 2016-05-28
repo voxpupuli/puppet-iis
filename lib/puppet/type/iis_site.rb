@@ -90,7 +90,7 @@ Puppet::Type.newtype(:iis_site) do
   newproperty(:port) do
     desc 'Port the web site listens on'
     munge(&:to_i)
-    validate do |value|
+    validate do |_value|
       # fail('Port must be an integer') unless value =~ /\d+/ || value.is_a? Numeric
     end
     defaultto 80

@@ -113,7 +113,8 @@ ps1
       ip
       port
       host_header
-      ssl)
+      ssl
+    )
   end
 
   binders.each do |property|
