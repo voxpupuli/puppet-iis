@@ -58,4 +58,52 @@ describe 'iis::manage_app_pool', type: :define do
               'logoutput' => 'true')
     end
   end
+
+  describe 'apppool_idle_timeout_action' do
+    let(:title) { 'my_cool_app_pool' }
+
+    context 'Suspend' do
+      let(:params) do
+        {
+          apppool_idle_timeout_action: 'Suspend'
+        }
+      end
+
+      it do
+        is_expected.to contain_exec('IdleTimeoutAction-my_cool_app_pool')
+          .with('command' => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\AppPools\my_cool_app_pool" startMode Suspend',
+                'provider' => 'powershell',
+                'onlyif' => 'Import-Module WebAdministration; if((Get-ItemProperty "IIS:\AppPools\my_cool_app_pool" startMode).CompareTo(\'Suspend\') -eq 0) { exit 1 } else { exit 0 }',
+                'logoutput' => 'true')
+      end
+    end
+
+    context 'Terminate' do
+      let(:params) do
+        {
+          apppool_idle_timeout_action: 'Terminate'
+        }
+      end
+
+      it do
+        is_expected.to contain_exec('IdleTimeoutAction-my_cool_app_pool')
+          .with('command' => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\AppPools\my_cool_app_pool" startMode Terminate',
+                'provider' => 'powershell',
+                'onlyif' => 'Import-Module WebAdministration; if((Get-ItemProperty "IIS:\AppPools\my_cool_app_pool" startMode).CompareTo(\'Terminate\') -eq 0) { exit 1 } else { exit 0 }',
+                'logoutput' => 'true')
+      end
+    end
+
+    context 'invalid' do
+      let(:params) do
+        {
+          apppool_idle_timeout_action: 'invalid'
+        }
+      end
+
+      it do
+        expect { should contain_exec('IdleTimeoutAction-my_cool_app_pool') }.to raise_error(Puppet::Error, /"invalid" does not match "\^\(Suspend\|Terminate\)\$/)
+      end
+    end
+  end
 end
