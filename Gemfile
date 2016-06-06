@@ -39,15 +39,9 @@ group :development do
 end
 
 group :system_tests do
-  gem 'winrm'
-  gem "beaker",
-    :git => 'https://github.com/petems/beaker-windows.git',
-    :ref => 'd42d1b83b8de9c8b76fb5a19c859a3e71eeab28a',
-    :require => false
-  gem "beaker-rspec",
-    :git => 'https://github.com/petems/beaker-rspec-windows.git',
-    :ref => 'd96cff5fc937efe1dca03c6ea3c236bf4c7337ab',
-    :require => false
+  gem 'winrm', '1.8.1'
+  gem 'beaker', '2.43.0'
+  gem 'beaker-rspec', '5.3.0'
   gem 'beaker-puppet_install_helper',  :require => false
 end
 
