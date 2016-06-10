@@ -36,7 +36,7 @@ describe Puppet::Type.type(:iis_application) do
       expect(subject(params.merge(path: 'C:\Temp'))[:path]).to eq('C:\Temp')
     end
     it 'should reject network' do
-      expect { subject(params.merge(path: '//remote/Temp'))[:path] }.to raise_error
+      expect { subject(params.merge(path: '//remote/Temp'))[:path] }.to raise_error(Puppet::ResourceError)
     end
   end
 
