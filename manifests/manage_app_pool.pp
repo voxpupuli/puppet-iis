@@ -159,12 +159,12 @@ define iis::manage_app_pool (
     }
     
     
-    if $apppool_idle_timeout_action {
+    if $apppool_idle_timeout_action != undef {
       validate_re($apppool_idle_timeout_action, '^(Suspend|Terminate)$')
       exec { "IdleTimeoutAction-${app_pool_name}":
-        command   => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" processmodel.idletimeoutaction ${apppool_idle_timeout_action}",
+        command   => "Import-Module WebAdministration; Set-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" processmodel.idleTimeoutAction ${apppool_idle_timeout_action}",
         provider  => powershell,
-        onlyif    => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" processmodel.idletimeoutaction).CompareTo('${apppool_idle_timeout_action}') -eq 0) { exit 1 } else { exit 0 }",
+        onlyif    => "Import-Module WebAdministration; if((Get-ItemProperty \"IIS:\\AppPools\\${app_pool_name}\" processmodel.idleTimeoutAction).CompareTo('${apppool_idle_timeout_action}') -eq 0) { exit 1 } else { exit 0 }",
         require   => Exec["Create-${app_pool_name}"],
         logoutput => true,
       }
