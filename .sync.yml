@@ -11,11 +11,13 @@ Gemfile:
         version: '1.8.1'
       - gem: beaker-puppet_install_helper
 spec/spec_helper_acceptance.rb:
-  windows: true
-  dependencies:
-    - puppetlabs-stdlib
-    - puppetlabs-powershell
-    - puppet-windowsfeature
+  umanaged: true
+# Temporarily unmanage spec_helper_acceptance (iss. #133)
+#  windows: true
+#  dependencies:
+#    - puppetlabs-stdlib
+#    - puppetlabs-powershell
+#    - puppet-windowsfeature
 spec/acceptance/nodesets/centos-511-x64.yml:
   unmanaged: true
 spec/acceptance/nodesets/centos-66-x64-pe.yml:
