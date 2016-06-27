@@ -2,8 +2,14 @@
 sudo: false
 language: ruby
 cache: bundler
-bundler_args: --without system_tests
-before_install: rm Gemfile.lock || true
+bundler_args: --without system_tests development
+before_install:
+  - bundle -v
+  - rm Gemfile.lock || true
+  - gem update --system
+  - gem update bundler
+  - gem --version
+  - bundle -v
 script:
   - 'bundle exec rake $CHECK'
 matrix:
@@ -11,34 +17,53 @@ matrix:
   include:
   - rvm: 1.9.3
     env: PUPPET_VERSION="~> 3.0" STRICT_VARIABLES="yes" CHECK=test
-  - rvm: 2.1.8
-    env: PUPPET_VERSION="~> 3.0" STRICT_VARIABLES="yes" CHECK=test
   - rvm: 1.9.3
-    env: PUPPET_VERSION="~> 3.0" STRICT_VARIABLES="yes" CHECK=test FUTURE_PARSER=yes
-  - rvm: 2.1.8
-    env: PUPPET_VERSION="~> 3.0" STRICT_VARIABLES="yes" CHECK=test FUTURE_PARSER=yes
-  - rvm: 2.1.8
+    env: PUPPET_VERSION="~> 3.0" STRICT_VARIABLES="yes" FUTURE_PARSER="yes" CHECK=test
+  - rvm: 2.1
+    env: PUPPET_VERSION="~> 3.0" STRICT_VARIABLES="yes" CHECK=test
+  - rvm: 2.1
     env: PUPPET_VERSION="~> 4.0" STRICT_VARIABLES="yes" CHECK=test
-  - rvm: 2.2.4
+  - rvm: 2.2
     env: PUPPET_VERSION="~> 4.0" STRICT_VARIABLES="yes" CHECK=test
-  - rvm: 2.2.4
+  - rvm: 2.3.1
     env: PUPPET_VERSION="~> 4.0" STRICT_VARIABLES="yes" CHECK=rubocop
-  - rvm: 2.3.0
+  - rvm: 2.3.1
     env: PUPPET_VERSION="~> 4.0" STRICT_VARIABLES="yes" CHECK=test
-  allow_failures:
-    - rvm: 2.3.0
-      env: PUPPET_VERSION="~> 4.0" STRICT_VARIABLES="yes" CHECK=test
+  - rvm: 2.1
+    env: PUPPET_VERSION="~> 3.0" STRICT_VARIABLES="yes" CHECK=acceptance BEAKER_debug=true BEAKER_set=docker/centos-7 PUPPET_INSTALL_TYPE=foss PUPPET_INSTALL_VERSION=3.8.7
+    services: docker
+    sudo: required
+    bundler_args: --without development
+  - rvm: 2.1
+    env: PUPPET_VERSION="~> 3.0" STRICT_VARIABLES="yes" CHECK=acceptance BEAKER_debug=true BEAKER_set=docker/ubuntu-14.04 PUPPET_INSTALL_TYPE=foss PUPPET_INSTALL_VERSION=3.8.7
+    services: docker
+    sudo: required
+    bundler_args: --without development
+  - rvm: 2.3.1
+    env: PUPPET_VERSION="~> 4.0" STRICT_VARIABLES="yes" CHECK=acceptance BEAKER_debug=true BEAKER_set=docker/centos-7 PUPPET_INSTALL_TYPE=agent PUPPET_INSTALL_VERSION=1.5.1
+    services: docker
+    sudo: required
+    bundler_args: --without development
+  - rvm: 2.3.1
+    env: PUPPET_VERSION="~> 4.0" STRICT_VARIABLES="yes" CHECK=acceptance BEAKER_debug=true BEAKER_set=docker/debian-8 PUPPET_INSTALL_TYPE=agent PUPPET_INSTALL_VERSION=1.5.1
+    services: docker
+    sudo: required
+    bundler_args: --without development
+  - rvm: 2.3.1
+    env: PUPPET_VERSION="~> 4.0" STRICT_VARIABLES="yes" CHECK=acceptance BEAKER_debug=true BEAKER_set=docker/ubuntu-14.04 PUPPET_INSTALL_TYPE=agent PUPPET_INSTALL_VERSION=1.5.1
+    services: docker
+    sudo: required
+    bundler_args: --without development
 notifications:
   email: false
 deploy:
   provider: puppetforge
   user: puppet
   password:
-    secure: "g8xUeBFJufX9jLsKUgkuR7v+KcTikCHTRa/2dvqIeNs5gT3mzCVbvMnrdC3l91UrttK+6XLU6Vyr20PFPX6X7HzaVeFRkTdJHFgZnFJsVBj7M1XgIBNT74taAiercTlzjUy2yTJdSoOV8pk9PFMGA8wo/QC20yTRTwkXdP0meh4="
+    secure: "OKYO+/kY1KB9EH0pB30AU6E2c5SZbNql+Klg+sb1/LMi+ADjyNEzcfTP6aUhnYedKJf5m8rfycc81UPuUeKaR/U/mPwR1R5OKh+S1KL1yzrRdxdpmLWMX14nBFbAZYvSTe/bPbxhngjW84uHRF2zkkSxKStsIzyy2DcTYayaWZ0="
   on:
     tags: true
     # all_branches is required to use tags
     all_branches: true
     # Only publish if our main Ruby target builds
-    rvm: 1.9.3
-    condition: "$FUTURE_PARSER = yes"
+    rvm: 2.2
