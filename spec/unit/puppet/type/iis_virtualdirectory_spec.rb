@@ -2,15 +2,13 @@ require 'puppet'
 require 'puppet/type/iis_virtualdirectory'
 
 describe Puppet::Type.type(:iis_virtualdirectory) do
-  before :each do
-    let(:virtualdirectory) do
-      Puppet::Type.type(:iis_virtualdirectory).new(
-        name: 'test_virtualdirectory',
-        ensure: 'present',
-        path: 'C:/Temp',
-        site: 'Default Web Site'
-      )
-    end
+  let(:virtualdirectory) do
+    Puppet::Type.type(:iis_virtualdirectory).new(
+      name: 'test_virtualdirectory',
+      ensure: 'present',
+      path: 'C:/Temp',
+      site: 'Default Web Site'
+    )
   end
 
   it 'accepts a virtualdirectory name' do
