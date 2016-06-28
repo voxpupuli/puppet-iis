@@ -2,7 +2,7 @@
   "name": "puppet-iis",
   "version": "2.0.3-rc0",
   "author": "voxpupuli",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "summary": "Module that will manage IIS for windows server 2008 and above. It will help maintain application pools, sites and virtual applications",
   "source": "https://github.com/voxpupuli/puppet-iis.git",
   "project_page": "https://github.com/voxpupuli/puppet-iis",
