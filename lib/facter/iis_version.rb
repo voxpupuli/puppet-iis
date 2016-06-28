@@ -8,6 +8,6 @@ Facter.add(:iis_version) do
     # Windows 2012 R2 - "Version 8.5"
     # Windows 2008 R2 - "Version 7.5"
     # Lets gsub to get just the number
-    iis_version_string.gsub(/Version\s+/, '') unless iis_version_string.nil?
+    iis_version_string.gsub(%r{Version\s+}, '') unless iis_version_string.nil?
   end
 end

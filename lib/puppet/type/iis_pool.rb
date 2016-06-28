@@ -27,7 +27,7 @@ Puppet::Type.newtype(:iis_pool) do
   newparam(:name, namevar: true) do
     desc 'This is the name of the application pool'
     validate do |value|
-      raise("#{name} is not a valid applcation pool name") unless value =~ /^[a-zA-Z0-9\-\_\.'\s]+$/
+      raise("#{name} is not a valid applcation pool name") unless value =~ %r{^[a-zA-Z0-9\-\_\.'\s]+$}
     end
   end
 
@@ -40,10 +40,10 @@ Puppet::Type.newtype(:iis_pool) do
   newproperty(:runtime) do
     desc '.NET runtime version for the pool'
     validate do |value|
-      raise("#{runtime} must be a float") unless value =~ /^v?\d+\.\d+$/
+      raise("#{runtime} must be a float") unless value =~ %r{^v?\d+\.\d+$}
     end
     munge do |value|
-      "v#{value.gsub(/^v/, '').to_f}"
+      "v#{value.gsub(%r{^v}, '').to_f}"
     end
   end
 

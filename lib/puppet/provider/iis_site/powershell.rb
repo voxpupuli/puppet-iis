@@ -6,7 +6,7 @@ Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iisp
     super(value)
     @property_flush = {
       'itemproperty' => {},
-      'binders'      => {},
+      'binders'      => {}
     }
   end
 
@@ -14,7 +14,7 @@ Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iisp
     {
       name: 'name',
       path: 'physicalPath',
-      app_pool: 'applicationPool',
+      app_pool: 'applicationPool'
     }
   end
 
@@ -26,7 +26,7 @@ ps1
     site_json = JSON.parse(run(inst_cmd))
     # The command returns a Hash if there is 1 site
     site_json = [site_json] if site_json.is_a?(Hash)
-    site_json.collect do |site|
+    site_json.map do |site|
       site_hash               = {}
       site_hash[:ensure]      = site['state'].downcase
       site_hash[:name]        = site['name']
