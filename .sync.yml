@@ -1,15 +1,5 @@
 ---
 Gemfile:
-  supports_windows: true
-  required:
-    ':system_tests':
-      - gem: beaker
-        version: '2.43.0'
-      - gem: beaker-rspec
-        version: '5.3.0'
-      - gem: winrm
-        version: '1.8.1'
-      - gem: beaker-puppet_install_helper
 #spec/spec_helper_acceptance.rb:
 # Temporarily unmanage spec_helper_acceptance (iss. #133)
 #  windows: true
