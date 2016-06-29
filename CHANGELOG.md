@@ -1,3 +1,22 @@
+#2016-06-29
+##Summary
+
+  Major IIS site improvements; bug fixes.
+
+###Features
+  - Add idle action timeout
+  - Add state to site for Started or Stopped
+
+###Improvements
+  - Overhaul of IIS site logic. Server 2008 support dropped.
+  - Add host_header functionality
+  - Add refresh event to iis_site
+
+###Bugfixes
+  - Fix error thrown by ConverTo-Json
+  - Fix fact causing errors on RHEL6 nodes
+  - Remove invalid argument -SslFlags from Remove-WebBinding
+
 #2016-04-12 - Release 2.0.2
 ###Summary
 
