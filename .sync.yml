@@ -10,8 +10,7 @@ Gemfile:
       - gem: winrm
         version: '1.8.1'
       - gem: beaker-puppet_install_helper
-spec/spec_helper_acceptance.rb:
-  umanaged: true
+#spec/spec_helper_acceptance.rb:
 # Temporarily unmanage spec_helper_acceptance (iss. #133)
 #  windows: true
 #  dependencies:
