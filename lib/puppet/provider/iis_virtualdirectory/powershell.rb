@@ -5,7 +5,7 @@ Puppet::Type.type(:iis_virtualdirectory).provide(:powershell, parent: Puppet::Pr
   def initialize(value = {})
     super(value)
     @property_flush = {
-      'vdattrs' => {},
+      'vdattrs' => {}
     }
   end
 
@@ -20,7 +20,7 @@ Puppet::Type.type(:iis_virtualdirectory).provide(:powershell, parent: Puppet::Pr
         vd_hash = {}
         vd_hash[:name] = vd['path'].gsub(%r{^\/}, '')
         vd_hash[:path] = vd['physicalPath']
-        vd_hash[:site] = vd['ItemXPath'].match(/@name='([a-z0-9_\ ]+)'/i)[1]
+        vd_hash[:site] = vd['ItemXPath'].match(%r{@name='([a-z0-9_\ ]+)'}i)[1]
         vd_hash[:ensure] = :present
         virtual_directories << new(vd_hash)
       end

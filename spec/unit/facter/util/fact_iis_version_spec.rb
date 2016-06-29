@@ -2,9 +2,9 @@ require 'spec_helper'
 require 'facter/util/registryiis'
 
 describe Facter::Util::Fact do
-  before {
+  before do
     Facter.clear
-  }
+  end
 
   describe 'Windows' do
     context 'returns IIS version when avaliable' do

@@ -27,7 +27,7 @@ Puppet::Type.newtype(:iis_site) do
   newparam(:name, namevar: true) do
     desc 'This is the name of the web site'
     validate do |value|
-      raise("#{name} is not a valid web site name") unless value =~ /[a-zA-Z0-9\-\_'\s]+$/
+      raise("#{name} is not a valid web site name") unless value =~ %r{[a-zA-Z0-9\-\_'\s]+$}
     end
   end
 
@@ -41,7 +41,7 @@ Puppet::Type.newtype(:iis_site) do
   newproperty(:app_pool) do
     desc 'Application pool for the site'
     validate do |value|
-      raise("#{app_pool} is not a valid application pool name") unless value =~ /[a-zA-Z0-9\-\_'\s]+$/
+      raise("#{app_pool} is not a valid application pool name") unless value =~ %r{[a-zA-Z0-9\-\_'\s]+$}
     end
     defaultto :DefaultAppPool
   end
@@ -49,14 +49,14 @@ Puppet::Type.newtype(:iis_site) do
   newproperty(:host_header) do
     desc 'Host header for the site'
     validate do |value|
-      raise("#{host_header} is not a valid application pool name") unless value =~ /[a-zA-Z0-9\-\_'\.\s]+$/ || value == :false
+      raise("#{host_header} is not a valid application pool name") unless value =~ %r{[a-zA-Z0-9\-\_'\.\s]+$} || value == :false
     end
   end
 
   newproperty(:protocol) do
     desc 'Protocol for the site'
     validate do |value|
-      raise("#{protcol} is not a valid application pool name") unless value =~ /[a-z]+$/
+      raise("#{protcol} is not a valid application pool name") unless value =~ %r{[a-z]+$}
     end
   end
 
@@ -64,11 +64,11 @@ Puppet::Type.newtype(:iis_site) do
     desc 'IP Address for the web site'
 
     def valid_v4?(addr)
-      if /(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/ =~ addr
-        return $LAST_MATCH_INFO.captures.all? { |i|
+      if %r{(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$} =~ addr
+        return $LAST_MATCH_INFO.captures.all? do |i|
           i = i.to_i
           i >= 0 && i <= 255
-        }
+        end
       end
       false
     end
@@ -76,8 +76,7 @@ Puppet::Type.newtype(:iis_site) do
     def valid_v6?(addr)
       # http://forums.dartware.com/viewtopic.php?t=452
       # ...and, yes, it is this hard.  Doing it programatically is harder.
-      # rubocop:disable Metrics/LineLength
-      return true if addr =~ /\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$/
+      return true if addr =~ %r{\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$}
       false
     end
 

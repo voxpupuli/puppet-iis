@@ -27,7 +27,7 @@ Puppet::Type.newtype(:iis_application) do
   newparam(:name, namevar: true) do
     desc 'This is the name of the application'
     validate do |value|
-      raise("#{value} is not a valid application name") unless value =~ /^[a-zA-Z0-9\-\_\.'\s]+$/
+      raise("#{value} is not a valid application name") unless value =~ %r{^[a-zA-Z0-9\-\_\.'\s]+$}
     end
   end
 
@@ -42,7 +42,7 @@ Puppet::Type.newtype(:iis_application) do
   newproperty(:site) do
     desc 'The site in which this virtual directory exists'
     validate do |value|
-      raise("#{site} is not a valid application name") unless value =~ /^[a-zA-Z0-9\-\_\.'\s]+$/
+      raise("#{site} is not a valid application name") unless value =~ %r{^[a-zA-Z0-9\-\_\.'\s]+$}
     end
     defaultto :"Default Web Site"
   end
@@ -50,7 +50,7 @@ Puppet::Type.newtype(:iis_application) do
   newproperty(:app_pool) do
     desc 'Application pool for the site'
     validate do |value|
-      raise("#{app_pool} is not a valid application pool name") unless value =~ /^[a-zA-Z0-9\-\_'\s]+$/
+      raise("#{app_pool} is not a valid application pool name") unless value =~ %r{^[a-zA-Z0-9\-\_'\s]+$}
     end
     defaultto :DefaultAppPool
   end

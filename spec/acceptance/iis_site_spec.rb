@@ -72,7 +72,7 @@ RSpec.describe 'iis_site' do
     # Setup a basic IIS pool and app running on port 8080
     context 'chocolatey.server should be running on port 8080' do
       describe command('(New-Object Net.WebClient).DownloadString("http://127.0.0.1:8080")') do
-        its(:stdout) { should match(/Simple Chocolatey Repository/) }
+        its(:stdout) { should match(%r{Simple Chocolatey Repository}) }
       end
     end
   end

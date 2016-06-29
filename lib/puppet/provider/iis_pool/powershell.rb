@@ -5,7 +5,7 @@ Puppet::Type.type(:iis_pool).provide(:powershell, parent: Puppet::Provider::Iisp
   def initialize(value = {})
     super(value)
     @property_flush = {
-      'poolattrs' => {},
+      'poolattrs' => {}
     }
   end
 

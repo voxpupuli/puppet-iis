@@ -7,7 +7,7 @@ Puppet::Type.type(:iis_application).provide(:powershell, parent: Puppet::Provide
   def initialize(value = {})
     super(value)
     @property_flush = {
-      'appattrs' => {},
+      'appattrs' => {}
     }
   end
 
@@ -26,7 +26,7 @@ Puppet::Type.type(:iis_application).provide(:powershell, parent: Puppet::Provide
         app_hash[:name] = app['path'].gsub(%r{^\/}, '')
         app_hash[:path] = app['PhysicalPath']
         app_hash[:app_pool] = app['applicationPool']
-        app_hash[:site] = app['ItemXPath'].match(/@name='([a-z0-9_\ ]+)'/i)[1]
+        app_hash[:site] = app['ItemXPath'].match(%r{@name='([a-z0-9_\ ]+)'}i)[1]
         app_hash[:ensure] = :present
         app_instances << new(app_hash)
       end
