@@ -71,9 +71,9 @@ describe 'iis::manage_app_pool', type: :define do
 
       it do
         is_expected.to contain_exec('IdleTimeoutAction-my_cool_app_pool').
-          with('command' => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\AppPools\my_cool_app_pool" processmodel.idletimeoutaction Suspend',
+          with('command' => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\AppPools\my_cool_app_pool" processModel.idleTimeoutAction Suspend',
                'provider' => 'powershell',
-               'onlyif' => 'Import-Module WebAdministration; if((Get-ItemProperty "IIS:\AppPools\my_cool_app_pool" processmodel.idletimeoutaction).CompareTo(\'Suspend\') -eq 0) { exit 1 } else { exit 0 }',
+               'onlyif' => 'Import-Module WebAdministration; if((Get-ItemProperty "IIS:\AppPools\my_cool_app_pool" processModel.idleTimeoutAction).CompareTo(\'Suspend\') -eq 0) { exit 1 } else { exit 0 }',
                'logoutput' => 'true')
       end
     end
@@ -87,9 +87,9 @@ describe 'iis::manage_app_pool', type: :define do
 
       it do
         is_expected.to contain_exec('IdleTimeoutAction-my_cool_app_pool').
-          with('command' => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\AppPools\my_cool_app_pool" processmodel.idletimeoutaction Terminate',
+          with('command' => 'Import-Module WebAdministration; Set-ItemProperty "IIS:\AppPools\my_cool_app_pool" processModel.idleTimeoutAction Terminate',
                'provider' => 'powershell',
-               'onlyif' => 'Import-Module WebAdministration; if((Get-ItemProperty "IIS:\AppPools\my_cool_app_pool" processmodel.idletimeoutaction).CompareTo(\'Terminate\') -eq 0) { exit 1 } else { exit 0 }',
+               'onlyif' => 'Import-Module WebAdministration; if((Get-ItemProperty "IIS:\AppPools\my_cool_app_pool" processModel.idleTimeoutAction).CompareTo(\'Terminate\') -eq 0) { exit 1 } else { exit 0 }',
                'logoutput' => 'true')
       end
     end
