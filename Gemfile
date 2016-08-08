@@ -46,6 +46,7 @@ group :system_tests do
     gem 'beaker-rspec',  :require => false
   end
   gem 'beaker-puppet_install_helper',  :require => false
+  gem 'winrm'
 end
 
 
