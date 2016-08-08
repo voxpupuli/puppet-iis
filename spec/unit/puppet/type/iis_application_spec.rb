@@ -13,6 +13,7 @@ describe Puppet::Type.type(:iis_application) do
     }
   end
 
+  # rubocop:disable RSpec/NamedSubject
   def subject(p = params)
     Puppet::Type.type(:iis_application).new(p)
   end

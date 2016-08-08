@@ -13,6 +13,7 @@ describe Puppet::Type.type(:iis_pool) do
     }
   end
 
+  # rubocop:disable RSpec/NamedSubject
   def subject(p = params)
     Puppet::Type.type(:iis_pool).new(p)
   end
