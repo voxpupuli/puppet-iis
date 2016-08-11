@@ -56,8 +56,19 @@ Puppet::Type.newtype(:iis_site) do
   newproperty(:protocol) do
     desc 'Protocol for the site'
     validate do |value|
-      raise("#{protcol} is not a valid application pool name") unless value =~ %r{[a-z]+$}
+      raise("#{protocol} is not a valid application pool name") unless value =~ %r{[a-z]+$}
     end
+  end
+
+ newproperty(:state) do
+   desc 'State of the '
+ end
+
+ newproperty(:id) do
+    desc 'The site id'
+#    validate do |value|
+#      raise("#{id} is not a valid site id. Please use a number.") unless value =~ %r{[1-9]\d*$}
+#    end
   end
 
   newproperty(:ip) do
