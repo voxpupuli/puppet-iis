@@ -1,5 +1,6 @@
 require 'puppet/provider/iispowershell'
-require 'json'
+require 'rexml/document'
+include REXML
 
 Puppet::Type.type(:iis_pool).provide(:powershell, parent: Puppet::Provider::Iispowershell) do
   def initialize(value = {})
@@ -26,21 +27,28 @@ Puppet::Type.type(:iis_pool).provide(:powershell, parent: Puppet::Provider::Iisp
 
   def self.instances
     pools = []
-    inst_cmd = 'Import-Module WebAdministration;gci "IIS:\AppPools" | %{ Get-ItemProperty $_.PSPath | Select Name, State, enable32BitAppOnWin64, managedRuntimeVersion, managedPipelineMode  } | ConvertTo-Json -depth 4'
+    inst_cmd = 'Import-Module WebAdministration;gci "IIS:\AppPools" | ConvertTo-Xml -Depth 4 -NoTypeInformation -As String'
     result = run(inst_cmd)
-    unless result.empty?
-      pool_names = JSON.parse(result)
-      pool_names = [pool_names] if pool_names.is_a?(Hash)
-      pool_names.each do |pool|
-        pools << new(ensure: pool['state'].downcase,
-                     name: pool['name'],
-                     enable_32_bit: ((pool['enable32BitAppOnWin64']).to_s.to_sym || :false),
-                     runtime: pool['managedRuntimeVersion'],
-                     pipeline: pool['managedPipelineMode'])
-      end
+    xml = Document.new result
+    xml.root.each_element do |object|
+      pool_hash = {
+        :ensure        => object.elements["Property[@Name='state']"].text.downcase,
+        :name          => object.elements["Property[@Name='name']"].text,
+        :enable_32_bit => object.elements["Property[@Name='enable32BitAppOnWin64']"].text.to_s.to_sym || :false,
+        :runtime       => object.elements["Property[@Name='managedRuntimeVersion']"].text,
+        :pipeline      => object.elements["Property[@Name='managedPipelineMode']"].text,
+      }
+      pools.push(pool_hash)
     end
-
-    pools
+    pools.map do |pool|
+      new(
+        :ensure        => pool[:ensure],
+        :name          => pool[:name],
+        :enable_32_bit => pool[:enable_32_bit],
+        :runtime       => pool[:runtime],
+        :pipeline      => pool[:pipeline],
+      )
+    end
   end
 
   def self.prefetch(resources)

@@ -1,5 +1,6 @@
 require 'puppet/provider/iispowershell'
-require 'json'
+require 'rexml/document'
+include REXML
 
 Puppet::Type.type(:iis_virtualdirectory).provide(:powershell, parent: Puppet::Provider::Iispowershell) do
   def initialize(value = {})
@@ -11,22 +12,30 @@ Puppet::Type.type(:iis_virtualdirectory).provide(:powershell, parent: Puppet::Pr
 
   def self.instances
     virtual_directories = []
-    inst_cmd = 'Import-Module WebAdministration; Get-WebVirtualDirectory | Select path, physicalPath, ItemXPath | ConvertTo-JSON -Depth 4'
+    inst_cmd = 'Import-Module WebAdministration; Get-WebVirtualDirectory | ConvertTo-XML -Depth 4 -NoTypeInformation -As String'
     result = run(inst_cmd)
+    Puppet.debug "Result is #{result}"
+    vds = []
     unless result.empty?
-      vd_names = JSON.parse(result)
-      vd_names = [vd_names] if vd_names.is_a?(Hash)
-      vd_names.each do |vd|
-        vd_hash = {}
-        vd_hash[:name] = vd['path'].gsub(%r{^\/}, '')
-        vd_hash[:path] = vd['physicalPath']
-        vd_hash[:site] = vd['ItemXPath'].match(%r{@name='([a-z0-9_\ ]+)'}i)[1]
-        vd_hash[:ensure] = :present
-        virtual_directories << new(vd_hash)
+      xml = Document.new result
+      xml.root.each_element do |object|
+      vd_hash = {
+        :ensure => :present,
+        :name   => object.elements["Property[@Name='path']"].text.gsub(%r{^\/}, ''),
+        :path   => object.elements["Property[@Name='physicalPath']"].text,
+        :site   => object.elements["Property[@Name='ItemXPath']"].text.match(%r{@name='([a-z0-9_\ ]+)'}i)[1]          
+      }
+      vds.push(vd_hash)
       end
     end
-
-    virtual_directories
+    vds.map do |vd|
+      new(
+        :ensure => :present,
+        :name   => vd[:name],
+        :path   => vd[:path],
+        :site   => vd[:site],
+      )
+    end
   end
 
   def self.prefetch(resources)

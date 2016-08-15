@@ -1,5 +1,6 @@
 require 'puppet/provider/iispowershell'
-require 'json'
+require 'rexml/document'
+include REXML
 
 Puppet::Type.type(:iis_application).provide(:powershell, parent: Puppet::Provider::Iispowershell) do
   mk_resource_methods
@@ -13,28 +14,30 @@ Puppet::Type.type(:iis_application).provide(:powershell, parent: Puppet::Provide
 
   def self.instances
     app_instances = []
-    inst_cmd = 'Import-Module WebAdministration; Get-WebApplication | Select path, physicalPath, applicationPool, ItemXPath | ConvertTo-JSON -Depth 4'
+    inst_cmd = 'Import-Module WebAdministration; Get-WebApplication | ConvertTo-XML -As String -Depth 4 -NoTypeInformation'
     result = run(inst_cmd)
-    Puppet.debug("WebApplicationResult is empty? #{result.empty?}")
-    unless result.empty?
-      app_names = JSON.parse(result)
-      # Powershell returns different data structure if length >1
-      app_names = [app_names] if app_names.is_a?(Hash)
-      app_names.each do |app|
-        app_hash = {}
-        Puppet.debug("Parsing result for #{app}")
-        app_hash[:name] = app['path'].gsub(%r{^\/}, '')
-        app_hash[:path] = app['PhysicalPath']
-        app_hash[:app_pool] = app['applicationPool']
-        app_hash[:site] = app['ItemXPath'].match(%r{@name='([a-z0-9_\ ]+)'}i)[1]
-        app_hash[:ensure] = :present
-        app_instances << new(app_hash)
-      end
+    xml = Document.new result
+    xml.root.each_element do |object|
+      app_hash = {
+        :name     => object.elements["Property[@Name='path']"].text.gsub(%r{^\/}, ''),
+        :path     => object.elements["Property[@Name='Collection']/Property/Property[@Name='physicalPath']"].text,
+        :app_pool => object.elements["Property[@Name='applicationPool']"].text,
+        :site     => object.elements["Property[@Name='ItemXPath']"].text.match(%r{@name='([a-z0-9_\ ]+)'}i)[1],
+        :ensure   => :present,
+      }
+      app_instances.push(app_hash)
     end
-
-    app_instances
+    app_instances.map do |app|
+      new(
+        :ensure   => :present,
+        :name     => app[:name],
+        :path     => app[:path],
+        :app_pool => app[:app_pool],
+        :site     => app[:site],
+      )
+    end
   end
-
+  
   def self.prefetch(resources)
     apps = instances
     resources.keys.each do |app|
