@@ -64,14 +64,7 @@ Puppet::Type.newtype(:iis_site) do
    desc 'State of the '
  end
 
- newproperty(:id) do
-    desc 'The site id'
-#    validate do |value|
-#      raise("#{id} is not a valid site id. Please use a number.") unless value =~ %r{[1-9]\d*$}
-#    end
-  end
-
-  newproperty(:ip) do
+ newproperty(:ip) do
     desc 'IP Address for the web site'
 
     def valid_v4?(addr)
@@ -89,12 +82,12 @@ Puppet::Type.newtype(:iis_site) do
       # ...and, yes, it is this hard.  Doing it programatically is harder.
       return true if addr =~ %r{\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$}
       false
-    end
+      end
 
-    validate do |value|
-      raise("Invalid IP address #{value.inspect}") unless valid_v4?(value) || valid_v6?(value) || value == '*'
-    end
-    defaultto '*'
+      validate do |value|
+        raise("Invalid IP address #{value.inspect}") unless valid_v4?(value) || valid_v6?(value) || value == '*'
+      end
+      defaultto '*'
   end
 
   newproperty(:port) do
@@ -109,11 +102,19 @@ Puppet::Type.newtype(:iis_site) do
   newproperty(:ssl) do
     desc 'If ssl is enabled for the site'
     newvalues(:false, :true)
-    defaultto :false
+    #TODO Removed the default to fix Windows 2008 support (for now?)
+  end
+  
+  newproperty(:id) do
+    desc 'The site id'
   end
 
   autorequire(:iis_pool) do
     self[:app_pool] if @parameters.include? :app_pool
+  end
+
+  autorequire(:file) do
+    self[:path]
   end
 
   def refresh

@@ -4,14 +4,6 @@ Puppet::Type.newtype(:iis_application) do
   newproperty(:ensure) do
     desc 'Whether an application should be started.'
 
-    newvalue(:stopped) do
-      provider.stop
-    end
-
-    newvalue(:started) do
-      provider.start
-    end
-
     newvalue(:present) do
       provider.create
     end
@@ -19,9 +11,6 @@ Puppet::Type.newtype(:iis_application) do
     newvalue(:absent) do
       provider.destroy
     end
-
-    aliasvalue(:false, :stopped)
-    aliasvalue(:true, :started)
   end
 
   newparam(:name, namevar: true) do

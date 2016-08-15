@@ -14,7 +14,7 @@ Puppet::Type.type(:iis_application).provide(:powershell, parent: Puppet::Provide
 
   def self.instances
     app_instances = []
-    inst_cmd = 'Import-Module WebAdministration; Get-WebApplication | ConvertTo-XML -As String -Depth 4 -NoTypeInformation'
+    inst_cmd = 'Import-Module WebAdministration; Get-WebApplication | Select Path,PhysicalPath,applicationPool,ItemXPath | ConvertTo-XML -As String -Depth 4 -NoTypeInformation'
     result = run(inst_cmd)
     xml = Document.new result
     xml.root.each_element do |object|
@@ -59,7 +59,7 @@ Puppet::Type.type(:iis_application).provide(:powershell, parent: Puppet::Provide
       "-PhysicalPath \"#{@resource[:path]}\"",
       "-Site \"#{@resource[:site]}\"",
       "-ApplicationPool \"#{@resource[:app_pool]}\"",
-      '-Force'
+      '-Force', "-ErrorVariable err | Out-Null; \$err"
     ]
     resp = Puppet::Type::Iis_application::ProviderPowershell.run(inst_cmd.join(' '))
     raise(resp) unless resp.empty?

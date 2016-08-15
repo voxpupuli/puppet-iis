@@ -6,7 +6,7 @@ describe Puppet::Type.type(:iis_application) do
   let(:params) do
     {
       name: 'test_application',
-      ensure: 'started',
+      ensure: 'present',
       path: 'C:/Temp',
       site: 'Default Web Site',
       app_pool: 'DefaultAppPool'
@@ -27,10 +27,10 @@ describe Puppet::Type.type(:iis_application) do
     end
   end
 
-  describe 'ensure =>' do
-    include_context 'stateful types'
-    it_behaves_like 'stateful type'
-  end
+  #describe 'ensure =>' do
+    #include_context 'stateful types'
+    #it_behaves_like 'stateful type'
+  #end
   describe 'path =>' do
     it 'accepts forwardslash' do
       expect(subject[:path]).to eq('C:/Temp')

@@ -26,4 +26,8 @@ Puppet::Type.newtype(:iis_virtualdirectory) do
   autorequire(:iis_site) do
     self[:site] if @parameters.include? :site
   end
+
+  autorequire(:file) do
+    self[:path]
+  end
 end

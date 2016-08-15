@@ -116,8 +116,89 @@ Version of .NET runtime for the pool (float).
 * `state`
 Whether the site should be `Started` or `Stopped`.  Default: `Started`
 
+* `autostart`
+Toggle the autostart option for the application pool. `{true, false}`
+
+* `start_mode`
+Toggle start mode. OnDemand (when http request is made) or AlwaysRunning (reduces
+startup on initial request). `{OnDemand, AlwaysRunning}`
+
+* `rapid_fail_protection`
+Downs the application pool if it fails x times within a time period. `{true, false}`
+
+* `identitytype`
+Name of the service or user account under which the application pool's worker process runs.
+Choose `SpecificUser` to add a username and password for a specific account.
+`{LocalSystem, LocalService, NetworkService, SpecificUser, ApplicationPoolIdentity}`
+
+*  `username`
+Account managing the application pool. Requires `identitytype => 'SpecificUser'`.
+
+* `password`
+Password for the username managing the application pool. Requires `identitytype => 'SpecificUser'`.
+
+* `idle_timeout`
+How long a worker process should run idle with no new requests before requesting shutdown. `{HH:MM:SS}`
+
+* `idle_timeout_action`
+How the worker process show respond when reaching the idle timeout. `{Terminate, Suspend}`
+
+* `max_processes`
+Maximum number of worker processes for the application pool. `{0, 1, 2}`
+
+* `max_queue_length`
+Maximum number of queued http requests for application pool.  Gives *503* when limit is reached. `{'1000', '2000'}`,
+
+* `recycle_periodic_minutes`
+Set the schedule of worker process recycling for the pool. `{'D.HH:MM:SS, 1.01:10:01'}`
+
+* `recycle_schedule` 
+Set the schedule of periodic restarts of the pool. `{'HH:MM:SS','02:03:04'}`,
+
+* `recycle_logging` 
+Log and event if the application pool is recycled. 
+`{['Time','Memory','Requests','Schedule','IsapiUnhealthy','ConfigChange','PrivateMemory']}`
+Note: at the moment this has to match the order that powershell wants, so you might see an error with
+the order listed if you have it wrong.
+
 ####Refresh event
 Sending a refresh event to an iis_pool type will recycle the application pool.
+
+### iis_binding
+
+Enumerate all IIS bindings :
+* `puppet resource iis_binding`
+
+#### iis_virtualdirectory attributes
+* `name`
+Set the name to the IP ':' the port ':' the host header.  This is the unique
+identifier used by Windows to find the binding. `{'127.0.0.1:80:puppetonwindows.com'}`
+
+* `ensure`
+Set the state of the binding. `{present, absent}`
+
+* `site_name`
+The associated web site for the binding. `{'Default Web Site'}`
+
+* `protocol`
+The protocol for the binding. `{'http','https','net.pipe','netmsmq','msmq.formatname'}`
+
+* `port`
+The port for the binding. `{'80','443'}`
+
+* `host_header`
+The host header for the binding. `{'puppetonwindows.com','defaultwebsite.com'}`
+
+* `ip_address`
+The ip address for the binding `{'127.0.0.1'}`
+
+* `ssl_flag`
+Toggle ssl for this binding `{true, false}`
+
+* `certificate`
+If you enable ssl, supply a certificate by including the full path
+to the certificate store and the thumbprint here.
+`{'cert:\localmachine\webhosting\<certificatethumbprint>'}`
 
 ### iis_virtualdirectory
 
@@ -169,3 +250,10 @@ be able to use it.
 * `site`
 (Read-only) Web site in which the application resides.
 To change sites, remove and re-create application.
+
+## Troubleshooting / Known Issues
+
+`Error: /Stage[main]/Main/Iis_pool[MyAppPool]: Could not evaluate: Set-ItemProperty : Flags must be some combination of Time, Requests, Schedule, Memory, IsapiUnhealthy, OnDemand, ConfigChange, PrivateMemory`
+
+If you receive this error you need to set the order of the items in the recycle_logging array to match the order of the flags above. For example,
+If you have the array set to `["Time","Memory","Requests"]` you will need to reorder it to `["Time","Requests","Memory"]`
