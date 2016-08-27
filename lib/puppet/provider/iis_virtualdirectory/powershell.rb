@@ -11,7 +11,6 @@ Puppet::Type.type(:iis_virtualdirectory).provide(:powershell, parent: Puppet::Pr
   end
 
   def self.instances
-    virtual_directories = []
     inst_cmd = 'Import-Module WebAdministration; Get-WebVirtualDirectory | ConvertTo-XML -Depth 4 -NoTypeInformation -As String'
     result = run(inst_cmd)
     Puppet.debug "Result is #{result}"
@@ -19,21 +18,21 @@ Puppet::Type.type(:iis_virtualdirectory).provide(:powershell, parent: Puppet::Pr
     unless result.empty?
       xml = Document.new result
       xml.root.each_element do |object|
-      vd_hash = {
-        :ensure => :present,
-        :name   => object.elements["Property[@Name='path']"].text.gsub(%r{^\/}, ''),
-        :path   => object.elements["Property[@Name='physicalPath']"].text,
-        :site   => object.elements["Property[@Name='ItemXPath']"].text.match(%r{@name='([a-z0-9_\ ]+)'}i)[1]          
-      }
-      vds.push(vd_hash)
+        vd_hash = {
+          ensure: :present,
+          name: object.elements["Property[@Name='path']"].text.gsub(%r{^\/}, ''),
+          path: object.elements["Property[@Name='physicalPath']"].text,
+          site: object.elements["Property[@Name='ItemXPath']"].text.match(%r{@name='([a-z0-9_\ ]+)'}i)[1]
+        }
+        vds.push(vd_hash)
       end
     end
     vds.map do |vd|
       new(
-        :ensure => :present,
-        :name   => vd[:name],
-        :path   => vd[:path],
-        :site   => vd[:site],
+        ensure: :present,
+        name: vd[:name],
+        path: vd[:path],
+        site: vd[:site]
       )
     end
   end

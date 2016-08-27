@@ -10,27 +10,27 @@ Puppet::Type.type(:iis_binding).provide(:powershell, parent: Puppet::Provider::I
              else
                run('Get-WebBinding | ConvertTo-Csv -NoTypeInformation')
              end
-    csv = CSV.parse(result, :headers => true)
+    csv = CSV.parse(result, headers: true)
     csv.each do |item|
-      site_name = item['ItemXPath'].match("'([^']*)'")[0].gsub("\'","")
+      site_name = item['ItemXPath'].match("'([^']*)'")[0].delete("\'")
       host_header = item['bindingInformation'].split(':')[2]
       host_header = '*' unless host_header
-      if item['certificateHash']
-        certificate = "Cert:\\LocalMachine\\#{item['certificateStoreName']}\\#{item['certificateHash']}"
-      else
-        certificate = ""
-      end
+      certificate = if item['certificateHash']
+                      "Cert:\\LocalMachine\\#{item['certificateStoreName']}\\#{item['certificateHash']}"
+                    else
+                      ''
+                    end
       binding = {
-        :ensure      => :present,
-        :name        => item['bindingInformation'],
-        :site_name   => site_name,
-        :ip_address  => item['bindingInformation'].split(':')[0],
-        :host_header => host_header,
-        :port        => item['bindingInformation'].split(':')[1],
-        :protocol    => item['protocol'],
-        :certificate => certificate,
-        :ssl_flag    => item['sslFlags'],
-        :binding     => item['bindingInformation'],
+        ensure: :present,
+        name: item['bindingInformation'],
+        site_name: site_name,
+        ip_address: item['bindingInformation'].split(':')[0],
+        host_header: host_header,
+        port: item['bindingInformation'].split(':')[1],
+        protocol: item['protocol'],
+        certificate: certificate,
+        ssl_flag: item['sslFlags'],
+        binding: item['bindingInformation']
       }
       b_array.push(binding)
     end
@@ -40,7 +40,7 @@ Puppet::Type.type(:iis_binding).provide(:powershell, parent: Puppet::Provider::I
   def self.prefetch(resources)
     bnd = instances
     resources.keys.each do |bd|
-     # rubocop:disable Lint/AssignmentInCondition
+      # rubocop:disable Lint/AssignmentInCondition
       if provider = bnd.find { |b| b.name == bd } then resources[bd].provider = provider end
     end
   end
@@ -70,7 +70,7 @@ Puppet::Type.type(:iis_binding).provide(:powershell, parent: Puppet::Provider::I
     cmd = "Import-Module WebAdministration; New-WebBinding #{create_switches.join(' ')}"
     result = Puppet::Type::Iis_binding::ProviderPowershell.run(cmd)
     Puppet.debug "Response from PowerShell create task: #{result}"
-    if @resource[:certificate] then self.create_certificate_binding end
+    create_certificate_binding if @resource[:certificate]
   end
 
   def destroy
@@ -80,23 +80,16 @@ Puppet::Type.type(:iis_binding).provide(:powershell, parent: Puppet::Provider::I
   end
 
   def create_certificate_binding
-  cmd = <<-ps1.gsub(/^\s+/, "")
+    cmd = <<-ps1.gsub(%r{^\s+}, '')
     Import-Module WebAdministration
     Get-Item '#{@resource[:certificate]}' | New-Item IIS:\\SslBindings\\#{@resource[:ip_address]}!#{@resource[:port]}
   ps1
-      resp = Puppet::Type::Iis_binding::ProviderPowershell.run(cmd)
-      Puppet.debug resp
-  end
-
-  def clean_certificate_binding
-    cmd = <<-ps1.gsub(/^\s+/, "")
-      Import-Module WebAdministration
-      Get-Item IIS:\\SslBindings\\#{@resource[:ip_address]}!#{@resource[:port]} | Remove-Item
-    ps1
+    resp = Puppet::Type::Iis_binding::ProviderPowershell.run(cmd)
+    Puppet.debug resp
   end
 
   def certificate=(value)
-    cmd = <<-ps1.gsub(/^\s+/, "")
+    cmd = <<-ps1.gsub(%r{^\s+}, '')
       Import-Module WebAdministration
       $sslbinding = If(Get-Item IIS:\\SslBindings\\#{@property_hash[:ip_address]}!#{@property_hash[:port]} -ErrorAction SilentlyContinue){$true}
       if($sslbinding){Get-Item IIS:\\SslBindings\\#{@property_hash[:ip_address]}!#{@property_hash[:port]} | Remove-Item}

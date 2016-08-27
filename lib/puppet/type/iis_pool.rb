@@ -86,8 +86,7 @@ Puppet::Type.newtype(:iis_pool) do
   newproperty(:idle_timeout) do
     desc 'set the idle timeout'
     validate do |value|
-      unless
-        value =~ %r{^(?:(?:([01]?\d|2[0-3]):)?([0-5]?\d):)?([0-5]?\d)$}
+      unless value =~ %r{^(?:(?:([01]?\d|2[0-3]):)?([0-5]?\d):)?([0-5]?\d)$}
         raise 'idle_timeout must be formatted as HH::MM::SS'
       end
     end
@@ -110,8 +109,7 @@ Puppet::Type.newtype(:iis_pool) do
   newproperty(:recycle_periodic_minutes) do
     desc 'recycle an app pool after an elapsed amount of time'
     validate do |value|
-      unless
-        value =~ %r{^([1-7].|[0][0-7].)(?:(?:([01]?\d|2[0-3]):)([0-5]?\d):)([0-5]?\d)$}
+      unless value =~ %r{^([1-7].|[0][0-7].)(?:(?:([01]?\d|2[0-3]):)([0-5]?\d):)([0-5]?\d)$}
         raise 'recycle_periodic_minutes must take the format of D.HH:MM:SS'
       end
     end
@@ -120,8 +118,7 @@ Puppet::Type.newtype(:iis_pool) do
   newproperty(:recycle_schedule) do
     desc 'recycle the app pool at a scheduled time'
     validate do |value|
-      unless
-        value =~ %r{^(?:(?:([01]?\d|2[0-3]):)?([0-5]?\d):)?([0-5]?\d)$}
+      unless value =~ %r{^(?:(?:([01]?\d|2[0-3]):)?([0-5]?\d):)?([0-5]?\d)$}
         raise 'recycle_schedule must be formatted as HH::MM::SS'
       end
     end

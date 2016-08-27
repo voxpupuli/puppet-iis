@@ -46,13 +46,12 @@ Puppet::Type.newtype(:iis_binding) do
 
   newproperty(:certificate) do
     def insync?(is)
-      is.downcase == should.downcase
+      is.casecmp(should.downcase).zero?
     end
-    #TODO: Validate should be a path starting with CERT:\<something>
+    # TODO: Validate should be a path starting with CERT:\<something>
   end
 
   autorequire(:iis_site) do
     self[:site_name]
   end
-
 end

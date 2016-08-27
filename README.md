@@ -88,10 +88,19 @@ Enumerate all IIS application pools:
 Example output for `puppet resource iis_site 'DefaultAppPool'`
 ```puppet
 iis_pool { 'DefaultAppPool':
-  ensure        => 'started',
-  enable_32_bit => 'false',
-  pipeline      => 'Integrated',
-  runtime       => 'v4.0',
+  ensure                   => 'started',
+  autostart                => 'true',
+  enable_32_bit            => 'false',
+  identitytype             => 'applicationpoolidentity',
+  idle_timeout             => '00:20:00',
+  max_processes            => '1',
+  max_queue_length         => '1000',
+  pipeline                 => 'integrated',
+  rapid_fail_protection    => 'true',
+  recycle_logging          => 'Time,Memory,PrivateMemory',
+  recycle_periodic_minutes => '1.05:00:00',
+  runtime                  => 'v2.0',
+  start_mode               => 'ondemand',
 }
 ```
 
@@ -165,6 +174,18 @@ the order listed if you have it wrong.
 Sending a refresh event to an iis_pool type will recycle the application pool.
 
 ### iis_binding
+
+Example output for `puppet resource iis_site 'DefaultAppPool'`
+```puppet
+iis_binding { '127.0.0.1:8081:www.puppetonwindows.com':
+  ensure      => 'present',
+  host_header => 'www.puppetonwindows.com',
+  ip_address  => '127.0.0.1',
+  port        => '8081',
+  protocol    => 'http',
+  site_name   => 'MyWebSite',
+}
+```
 
 Enumerate all IIS bindings :
 * `puppet resource iis_binding`

@@ -14,30 +14,30 @@ Puppet::Type.type(:iis_application).provide(:powershell, parent: Puppet::Provide
 
   def self.instances
     app_instances = []
-    inst_cmd = 'Import-Module WebAdministration; Get-WebApplication | Select Path,PhysicalPath,applicationPool,ItemXPath | ConvertTo-XML -As String -Depth 4 -NoTypeInformation'
+    inst_cmd = 'Import-Module WebAdministration; Get-WebApplication | Select Path,PhysicalPath,applicationPool,ItemXPath | ConvertTo-XML -As String -NoTypeInformation'
     result = run(inst_cmd)
     xml = Document.new result
     xml.root.each_element do |object|
       app_hash = {
-        :name     => object.elements["Property[@Name='path']"].text.gsub(%r{^\/}, ''),
-        :path     => object.elements["Property[@Name='Collection']/Property/Property[@Name='physicalPath']"].text,
-        :app_pool => object.elements["Property[@Name='applicationPool']"].text,
-        :site     => object.elements["Property[@Name='ItemXPath']"].text.match(%r{@name='([a-z0-9_\ ]+)'}i)[1],
-        :ensure   => :present,
+        name: object.elements["Property[@Name='path']"].text.gsub(%r{^\/}, ''),
+        path: object.elements["Property[@Name='PhysicalPath']"].text,
+        app_pool: object.elements["Property[@Name='applicationPool']"].text,
+        site: object.elements["Property[@Name='ItemXPath']"].text.match("'([^']*)'")[0].delete("\'"),
+        ensure: :present
       }
       app_instances.push(app_hash)
     end
     app_instances.map do |app|
       new(
-        :ensure   => :present,
-        :name     => app[:name],
-        :path     => app[:path],
-        :app_pool => app[:app_pool],
-        :site     => app[:site],
+        ensure: :present,
+        name: app[:name],
+        path: app[:path],
+        app_pool: app[:app_pool],
+        site: app[:site]
       )
     end
   end
-  
+
   def self.prefetch(resources)
     apps = instances
     resources.keys.each do |app|
@@ -59,9 +59,11 @@ Puppet::Type.type(:iis_application).provide(:powershell, parent: Puppet::Provide
       "-PhysicalPath \"#{@resource[:path]}\"",
       "-Site \"#{@resource[:site]}\"",
       "-ApplicationPool \"#{@resource[:app_pool]}\"",
-      '-Force', "-ErrorVariable err | Out-Null; \$err"
+      '-Force'
     ]
+    Puppet.debug "Sending command #{inst_cmd}"
     resp = Puppet::Type::Iis_application::ProviderPowershell.run(inst_cmd.join(' '))
+    Puppet.debug resp
     raise(resp) unless resp.empty?
 
     @resource.original_parameters.each_key do |k|

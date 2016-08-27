@@ -141,7 +141,24 @@ Puppet::Type.type(:iis_pool).provide(:powershell, parent: Puppet::Provider::Iisp
   def create
     inst_cmd = "Import-Module WebAdministration; New-WebAppPool -Name \"#{@resource[:name]}\""
     Puppet::Type::Iis_pool::ProviderPowershell.poolattrs.each do |property, value|
-      inst_cmd += "; Set-ItemProperty \"IIS:\\\\AppPools\\#{@resource[:name]}\" #{value} #{@resource[property]}" if @resource[property]
+      if property.is_a?(Hash)
+        # set variables for the key, downcase the value, get the property value for powershell
+        value = value.downcase
+        key = property.keys[0]
+        property_value = property[key.to_s][value.to_s]
+        inst_cmd += ";Set-ItemProperty \"IIS:\\\\AppPools\\#{@resource[:name]}\" #{key} #{property_value}"
+      # if the values are an array we set the values with a hash
+      elsif value.is_a?(Array)
+        alt_key = property.split('.')[0]
+        alt_property = property.split('.')[1]
+        alt_value = value.join(',')
+        alt_hash = "@{#{alt_property}='#{alt_value}'}"
+        inst_cmd += ";Set-ItemProperty \"IIS:\\\\AppPools\\#{@resource[:name]}\" -Name #{alt_key} -Value #{alt_hash}"
+      elsif property == 'recycling.periodicRestart.schedule'
+        inst_cmd += ";Set-ItemProperty \"IIS:\\\\AppPools\\#{@resource[:name]}\" -Name #{property} -Value @{value=\"#{value}\"}"
+        elseif @resource[property]
+        inst_cmd += "; Set-ItemProperty \"IIS:\\\\AppPools\\#{@resource[:name]}\" #{value} #{@resource[property]}"
+      end
     end
     resp = Puppet::Type::Iis_pool::ProviderPowershell.run(inst_cmd)
     Puppet.debug "Creation powershell response was #{resp}"
@@ -162,7 +179,7 @@ Puppet::Type.type(:iis_pool).provide(:powershell, parent: Puppet::Provider::Iisp
     exists? ? (return false) : (return true)
   end
 
-  self.poolattrs.each do |property, poolattr|
+  poolattrs.each do |property, poolattr|
     define_method "#{property}=" do |value|
       @property_hash[property] = value
       @property_flush['poolattrs'][poolattr] = value

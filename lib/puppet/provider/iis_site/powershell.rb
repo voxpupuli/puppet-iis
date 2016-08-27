@@ -9,7 +9,7 @@ Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iisp
     @property_flush = {
       'itemproperty' => {},
       'webconfig'    => {},
-      'binders'      => {},
+      'binders'      => {}
     }
   end
 
@@ -36,8 +36,8 @@ Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iisp
       ssl
     )
   end
-  
-  webconfig.each do |property,item|
+
+  webconfig.each do |property, item|
     define_method "#{property}=" do |value|
       @property_flush['webconfig'][item] = value
       @property_hash[property.to_sym] = value
@@ -46,7 +46,7 @@ Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iisp
 
   iisnames.each do |property, iisname|
     next if property == :ensure
-    next if property == :ssl and Facter.value(:kernelmajversion) == '6.1'
+    next if property == :ssl && Facter.value(:kernelmajversion) == '6.1'
     define_method "#{property}=" do |value|
       @property_flush['itemproperty'][iisname] = value
       @property_hash[property.to_sym] = value
@@ -63,37 +63,35 @@ Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iisp
   def self.install_command
     # if we are on windows 2008 then true
     win2008 = Facter.value(:kernelmajversion) == '6.1'
-    if win2008 == true
-      cmd = <<-ps1.gsub /^\s+/, ""
+    cmd = if win2008 == true
+            <<-ps1.gsub %r{^\s+}, ''
         Import-Module WebAdministration
         Get-Website | Select Name,ID,PhysicalPath,ApplicationPool,State | ConvertTo-XML -As String -Depth 4 -NoTypeInformation
       ps1
-    else
-      cmd = <<-ps1.gsub /^\s+/, ""
+          else
+            <<-ps1.gsub %r{^\s+}, ''
         Import-Module WebAdministration
         Get-Website | Select Name,ID,PhysicalPath,ApplicationPool,State,Bindings | ConvertTo-Xml -As String -Depth 4 -NoTypeInformation
       ps1
-    end
-    return cmd
+          end
+    cmd
   end
 
   def self.legacy_bindings(site_name)
     result = run("Get-WebBinding -Name '#{site_name}'| ConvertTo-CSV -NoTypeInformation")
-    csv = CSV.parse(result,:headers => true)
+    csv = CSV.parse(result, headers: true)
     ip = csv['bindingInformation'][0].split(':')[0]
     host_header = csv['bindingInformation'][0].split(':')[2]
-    if !host_header
-      host_header = "*"
-    end
+    host_header = '*' unless host_header
     port = csv['bindingInformation'][0].split(':')[1]
     protocol = csv['protocol'][0]
     bindings = {
-        :ip          => ip,
-        :host_header => host_header,
-        :port        => port,
-        :protocol    => protocol,
+      ip: ip,
+      host_header: host_header,
+      port: port,
+      protocol: protocol
     }
-    return bindings
+    bindings
   end
 
   def self.instances
@@ -111,7 +109,7 @@ Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iisp
                 object.elements["Property[@Name='state']"].text.downcase
               end
       if win2008
-        binding_hash = self.legacy_bindings(site_name)
+        binding_hash = legacy_bindings(site_name)
         protocol = binding_hash[:protocol]
         ip = binding_hash[:ip]
         host_header = binding_hash[:host_header]
@@ -123,55 +121,55 @@ Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iisp
         port = object.elements["Property[@Name='bindings']/Property[@Name='Collection']/Property/Property[@Name='bindingInformation']"].text.split(':')[1]
       end
       site_hash = {
-          :state        => state,
-          :name         => site_name,
-          :protocol     => protocol,
-          :ip           => ip,
-          :port         => port,
-          :host_header  => host_header,
-          :id           => object.elements["Property[@Name='id']"].text,
-          :app_pool     => object.elements["Property[@Name='applicationPool']"].text,
-          :path         => object.elements["Property[@Name='physicalPath']"].text,
+        state: state,
+        name: site_name,
+        protocol: protocol,
+        ip: ip,
+        port: port,
+        host_header: host_header,
+        id: object.elements["Property[@Name='id']"].text,
+        app_pool: object.elements["Property[@Name='applicationPool']"].text,
+        path: object.elements["Property[@Name='physicalPath']"].text
       }
       unless Facter.value(:kernelmajversion) == '6.1'
-        ssl_flags = if object.elements["Property[@Name='bindings']/Property[@Name='Collection']/Property/Property[@Name='sslFlags']"].text === 0
-          :false
-        else
-          :true
-        end
+        ssl_flags = if object.elements["Property[@Name='bindings']/Property[@Name='Collection']/Property/Property[@Name='sslFlags']"].text.zero?
+                      :false
+                    else
+                      :true
+                    end
         site_hash[:ssl] = ssl_flags
       end
       sites.push(site_hash)
     end
     sites.map do |site|
       case Facter.value(:kernelmajversion)
-        when %r{6.1}
-          new(
-              :ensure      => site[:state],
-              :name        => site[:name],
-              :port        => site[:port],
-              :id          => site[:id],
-              :protocol    => site[:protocol],
-              :ip          => site[:ip],
-              :host_header => site[:host_header],
-              :app_pool    => site[:app_pool],
-              :path        => site[:path],
-          )
-        else
-          # Moved the default ssl from type to here to get around Windows 2008
-          if !site[:ssl] then site[:ssl] = :false end
-          new(
-              :ensure      => site[:state],
-              :name        => site[:name],
-              :port        => site[:port],
-              :id          => site[:id],
-              :protocol    => site[:protocol],
-              :ip          => site[:ip],
-              :host_header => site[:host_header],
-              :app_pool    => site[:app_pool],
-              :path        => site[:path],
-              :ssl         => site[:ssl],
-          )
+      when %r{6.1}
+        new(
+          ensure: site[:state],
+          name: site[:name],
+          port: site[:port],
+          id: site[:id],
+          protocol: site[:protocol],
+          ip: site[:ip],
+          host_header: site[:host_header],
+          app_pool: site[:app_pool],
+          path: site[:path]
+        )
+      else
+        # Moved the default ssl from type to here to get around Windows 2008
+        site[:ssl] = :false unless site[:ssl]
+        new(
+          ensure: site[:state],
+          name: site[:name],
+          port: site[:port],
+          id: site[:id],
+          protocol: site[:protocol],
+          ip: site[:ip],
+          host_header: site[:host_header],
+          app_pool: site[:app_pool],
+          path: site[:path],
+          ssl: site[:ssl]
+        )
       end
     end
   end
@@ -194,11 +192,11 @@ Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iisp
 
   def create
     if Facter.value(:kernelmajversion) == '6.1'
-      if !@resource[:ssl]
-        @property_hash[:ssl] = 'false'
-      else
-        @property_hash[:ssl] = @resource[:ssl]
-      end
+      @property_hash[:ssl] = if !@resource[:ssl]
+                               'false'
+                             else
+                               @resource[:ssl]
+                             end
     end
     create_switches = [
       "-Name \"#{@resource[:name]}\"",
@@ -221,7 +219,7 @@ Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iisp
     @property_hash[:ip]          = @resource[:ip]
     @property_hash[:host_header] = @resource[:host_header]
     @property_hash[:path]        = @resource[:path]
-    
+
     exists? ? (return true) : (return false)
   end
 

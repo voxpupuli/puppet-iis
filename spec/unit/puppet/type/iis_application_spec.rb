@@ -27,10 +27,6 @@ describe Puppet::Type.type(:iis_application) do
     end
   end
 
-  #describe 'ensure =>' do
-    #include_context 'stateful types'
-    #it_behaves_like 'stateful type'
-  #end
   describe 'path =>' do
     it 'accepts forwardslash' do
       expect(subject[:path]).to eq('C:/Temp')
