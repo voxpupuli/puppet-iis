@@ -11,7 +11,11 @@ Puppet::Type.type(:iis_virtualdirectory).provide(:powershell, parent: Puppet::Pr
   end
 
   def self.instances
-    inst_cmd = 'Import-Module WebAdministration; Get-WebVirtualDirectory | ConvertTo-XML -Depth 4 -NoTypeInformation -As String'
+    inst_cmd = <<-ps1
+$ErrorActionPreference = 'SilentlyContinue'
+Import-Module WebAdministration
+Get-WebVirtualDirectory | ConvertTo-XML -Depth 4 -NoTypeInformation -As String'
+ps1
     result = run(inst_cmd)
     Puppet.debug "Result is #{result}"
     vds = []

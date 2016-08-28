@@ -68,57 +68,59 @@ Puppet::Type.type(:iis_pool).provide(:powershell, parent: Puppet::Provider::Iisp
 
   def self.instances
     pools = []
-    inst_cmd = 'Import-Module WebAdministration;gci "IIS:\AppPools" | Select * | ConvertTo-Xml -Depth 4 -NoTypeInformation -As String'
+    inst_cmd = 'Import-Module WebAdministration;gci "IIS:\AppPools" | Select * | ConvertTo-Xml -Depth 4 -NoTypeInformation -As String -ErrorAction SilentlyContinue'
     result = run(inst_cmd)
-    xml = Document.new result
-    xml.root.each_element do |object|
-      name = object.elements["Property[@Name='name']"].text
-      r_schedule = get_recycle_schedule(name)
-      pool_hash = {
-        ensure: object.elements["Property[@Name='state']"].text,
-        name: name,
-        enable_32_bit: object.elements["Property[@Name='enable32BitAppOnWin64']"].text, # .to_s.to_sym || :false,
-        runtime: object.elements["Property[@Name='managedRuntimeVersion']"].text,
-        pipeline: object.elements["Property[@Name='managedPipelineMode']"].text,
-        start_mode: object.elements["Property[@Name='startMode']"].text,
-        autostart: object.elements["Property[@Name='autoStart']"].text,
-        username: object.elements["Property[@Name='processModel']/Property[@Name='userName']"].text,
-        password: object.elements["Property[@Name='processModel']/Property[@Name='password']"].text,
-        idle_timeout: object.elements["Property[@Name='processModel']/Property[@Name='idleTimeout']"].text,
-        identitytype: object.elements["Property[@Name='processModel']/Property[@Name='identityType']"].text,
-        max_processes: object.elements["Property[@Name='processModel']/Property[@Name='maxProcesses']"].text,
-        max_queue_length: object.elements["Property[@Name='queueLength']"].text,
-        rapid_fail_protection: object.elements["Property[@Name='failure']/Property[@Name='rapidFailProtection']"].text,
-        recycle_periodic_minutes: object.elements["Property[@Name='recycling']/Property[@Name='periodicRestart']/Property[@Name='time']"].text,
-        recycle_schedule: r_schedule,
-        recycle_logging: object.elements["Property[@Name='recycling']/Property[@Name='logEventOnRecycle']"].text
-      }
-      unless Facter.value(:kernelmajversion) == '6.1'
-        pool_hash[:idle_timeout_action] = object.elements["Property[@Name='processModel']/Property[@Name='idleTimeoutAction']"].text
+    unless result.empty?
+      xml = Document.new result
+      xml.root.each_element do |object|
+        name = object.elements["Property[@Name='name']"].text
+        r_schedule = get_recycle_schedule(name)
+        pool_hash = {
+          ensure: object.elements["Property[@Name='state']"].text,
+          name: name,
+          enable_32_bit: object.elements["Property[@Name='enable32BitAppOnWin64']"].text, # .to_s.to_sym || :false,
+          runtime: object.elements["Property[@Name='managedRuntimeVersion']"].text,
+          pipeline: object.elements["Property[@Name='managedPipelineMode']"].text,
+          start_mode: object.elements["Property[@Name='startMode']"].text,
+          autostart: object.elements["Property[@Name='autoStart']"].text,
+          username: object.elements["Property[@Name='processModel']/Property[@Name='userName']"].text,
+          password: object.elements["Property[@Name='processModel']/Property[@Name='password']"].text,
+          idle_timeout: object.elements["Property[@Name='processModel']/Property[@Name='idleTimeout']"].text,
+          identitytype: object.elements["Property[@Name='processModel']/Property[@Name='identityType']"].text,
+          max_processes: object.elements["Property[@Name='processModel']/Property[@Name='maxProcesses']"].text,
+          max_queue_length: object.elements["Property[@Name='queueLength']"].text,
+          rapid_fail_protection: object.elements["Property[@Name='failure']/Property[@Name='rapidFailProtection']"].text,
+          recycle_periodic_minutes: object.elements["Property[@Name='recycling']/Property[@Name='periodicRestart']/Property[@Name='time']"].text,
+          recycle_schedule: r_schedule,
+          recycle_logging: object.elements["Property[@Name='recycling']/Property[@Name='logEventOnRecycle']"].text
+        }
+        unless Facter.value(:kernelmajversion) == '6.1'
+          pool_hash[:idle_timeout_action] = object.elements["Property[@Name='processModel']/Property[@Name='idleTimeoutAction']"].text
+        end
+        pools.push(pool_hash)
       end
-      pools.push(pool_hash)
-    end
-    pools.map do |pool|
-      new(
-        ensure: pool[:ensure].downcase,
-        name: pool[:name],
-        enable_32_bit: pool[:enable_32_bit].downcase,
-        runtime: pool[:runtime],
-        pipeline: pool[:pipeline].downcase,
-        start_mode: pool[:start_mode].downcase,
-        autostart: pool[:autostart].downcase,
-        username: pool[:username],
-        password: pool[:password],
-        idle_timeout: pool[:idle_timeout],
-        idle_timeout_action: pool[:idle_timeout_action],
-        identitytype: pool[:identitytype].downcase,
-        max_processes: pool[:max_processes],
-        max_queue_length: pool[:max_queue_length],
-        rapid_fail_protection: pool[:rapid_fail_protection].downcase,
-        recycle_periodic_minutes: pool[:recycle_periodic_minutes],
-        recycle_schedule: pool[:recycle_schedule].strip,
-        recycle_logging: pool[:recycle_logging]
-      )
+      pools.map do |pool|
+        new(
+          ensure: pool[:ensure].downcase,
+          name: pool[:name],
+          enable_32_bit: pool[:enable_32_bit].downcase,
+          runtime: pool[:runtime],
+          pipeline: pool[:pipeline].downcase,
+          start_mode: pool[:start_mode].downcase,
+          autostart: pool[:autostart].downcase,
+          username: pool[:username],
+          password: pool[:password],
+          idle_timeout: pool[:idle_timeout],
+          idle_timeout_action: pool[:idle_timeout_action],
+          identitytype: pool[:identitytype].downcase,
+          max_processes: pool[:max_processes],
+          max_queue_length: pool[:max_queue_length],
+          rapid_fail_protection: pool[:rapid_fail_protection].downcase,
+          recycle_periodic_minutes: pool[:recycle_periodic_minutes],
+          recycle_schedule: pool[:recycle_schedule].strip,
+          recycle_logging: pool[:recycle_logging]
+        )
+      end
     end
   end
 

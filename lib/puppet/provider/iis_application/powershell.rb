@@ -3,6 +3,7 @@ require 'rexml/document'
 include REXML
 
 Puppet::Type.type(:iis_application).provide(:powershell, parent: Puppet::Provider::Iispowershell) do
+  @eap = "$ErrorActionPreference = 'SilentlyContinue';"
   mk_resource_methods
 
   def initialize(value = {})
@@ -14,18 +15,20 @@ Puppet::Type.type(:iis_application).provide(:powershell, parent: Puppet::Provide
 
   def self.instances
     app_instances = []
-    inst_cmd = 'Import-Module WebAdministration; Get-WebApplication | Select Path,PhysicalPath,applicationPool,ItemXPath | ConvertTo-XML -As String -NoTypeInformation'
+    inst_cmd = "#{@eap}Import-Module WebAdministration; Get-WebApplication | Select Path,PhysicalPath,applicationPool,ItemXPath | ConvertTo-XML -As String -NoTypeInformation"
     result = run(inst_cmd)
-    xml = Document.new result
-    xml.root.each_element do |object|
-      app_hash = {
-        name: object.elements["Property[@Name='path']"].text.gsub(%r{^\/}, ''),
-        path: object.elements["Property[@Name='PhysicalPath']"].text,
-        app_pool: object.elements["Property[@Name='applicationPool']"].text,
-        site: object.elements["Property[@Name='ItemXPath']"].text.match("'([^']*)'")[0].delete("\'"),
-        ensure: :present
-      }
-      app_instances.push(app_hash)
+    unless result.empty?
+      xml = Document.new result
+      xml.root.each_element do |object|
+        app_hash = {
+          name: object.elements["Property[@Name='path']"].text.gsub(%r{^\/}, ''),
+          path: object.elements["Property[@Name='PhysicalPath']"].text,
+          app_pool: object.elements["Property[@Name='applicationPool']"].text,
+          site: object.elements["Property[@Name='ItemXPath']"].text.match("'([^']*)'")[0].delete("\'"),
+          ensure: :present
+        }
+        app_instances.push(app_hash)
+      end
     end
     app_instances.map do |app|
       new(
@@ -64,7 +67,7 @@ Puppet::Type.type(:iis_application).provide(:powershell, parent: Puppet::Provide
     Puppet.debug "Sending command #{inst_cmd}"
     resp = Puppet::Type::Iis_application::ProviderPowershell.run(inst_cmd.join(' '))
     Puppet.debug resp
-    raise(resp) unless resp.empty?
+    if resp.match(%r{FullyQualifiedErrorId}) then Puppet.error resp end
 
     @resource.original_parameters.each_key do |k|
       @property_hash[k] = @resource[k]

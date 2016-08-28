@@ -1,38 +1,37 @@
 require 'puppet/provider/iispowershell'
 require 'csv'
 Puppet::Type.type(:iis_binding).provide(:powershell, parent: Puppet::Provider::Iispowershell) do
+  @eap = "$ErrorActionPreference = 'SilentlyContinue'"
   mk_resource_methods
 
   def self.instances
     b_array = []
-    result = if Facter.value(:kernelmajversion) == '6.1'
-               run('Import-Module WebAdministration; Get-WebBinding | ConvertTo-Csv -NoTypeInformation')
-             else
-               run('Get-WebBinding | ConvertTo-Csv -NoTypeInformation')
-             end
-    csv = CSV.parse(result, headers: true)
-    csv.each do |item|
-      site_name = item['ItemXPath'].match("'([^']*)'")[0].delete("\'")
-      host_header = item['bindingInformation'].split(':')[2]
-      host_header = '*' unless host_header
-      certificate = if item['certificateHash']
-                      "Cert:\\LocalMachine\\#{item['certificateStoreName']}\\#{item['certificateHash']}"
-                    else
-                      ''
-                    end
-      binding = {
-        ensure: :present,
-        name: item['bindingInformation'],
-        site_name: site_name,
-        ip_address: item['bindingInformation'].split(':')[0],
-        host_header: host_header,
-        port: item['bindingInformation'].split(':')[1],
-        protocol: item['protocol'],
-        certificate: certificate,
-        ssl_flag: item['sslFlags'],
-        binding: item['bindingInformation']
-      }
-      b_array.push(binding)
+    result = "#{@eap}Import-Module WebAdministration; Get-WebBinding | ConvertTo-Csv -NoTypeInformation')"
+    unless result.empty?
+      csv = CSV.parse(result, headers: true)
+      csv.each do |item|
+        site_name = item['ItemXPath'].match("'([^']*)'")[0].delete("\'")
+        host_header = item['bindingInformation'].split(':')[2]
+        host_header = '*' unless host_header
+        certificate = if item['certificateHash']
+                        "Cert:\\LocalMachine\\#{item['certificateStoreName']}\\#{item['certificateHash']}"
+                      else
+                        ''
+                      end
+        binding = {
+          ensure: :present,
+          name: item['bindingInformation'],
+          site_name: site_name,
+          ip_address: item['bindingInformation'].split(':')[0],
+          host_header: host_header,
+          port: item['bindingInformation'].split(':')[1],
+          protocol: item['protocol'],
+          certificate: certificate,
+          ssl_flag: item['sslFlags'],
+          binding: item['bindingInformation']
+        }
+        b_array.push(binding)
+      end
     end
     b_array.map { |b| new(b) }
   end

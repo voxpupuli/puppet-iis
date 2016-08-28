@@ -4,6 +4,7 @@ require 'csv'
 include REXML
 
 Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iispowershell) do
+  @eap = "\$ErrorActionPreference = 'SilentlyContinue';"
   def initialize(value = {})
     super(value)
     @property_flush = {
@@ -64,15 +65,9 @@ Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iisp
     # if we are on windows 2008 then true
     win2008 = Facter.value(:kernelmajversion) == '6.1'
     cmd = if win2008 == true
-            <<-ps1.gsub %r{^\s+}, ''
-        Import-Module WebAdministration
-        Get-Website | Select Name,ID,PhysicalPath,ApplicationPool,State | ConvertTo-XML -As String -Depth 4 -NoTypeInformation
-      ps1
+            "#{@eap}Import-Module WebAdministration;Get-Website|Select Name,ID,PhysicalPath,ApplicationPool,State|ConvertTo-XML -As String -Depth 4 -NoTypeInformation"
           else
-            <<-ps1.gsub %r{^\s+}, ''
-        Import-Module WebAdministration
-        Get-Website | Select Name,ID,PhysicalPath,ApplicationPool,State,Bindings | ConvertTo-Xml -As String -Depth 4 -NoTypeInformation
-      ps1
+            "#{@eap}Import-Module WebAdministration;Get-Website|Select Name,ID,PhysicalPath,ApplicationPool,State,Bindings|ConvertTo-Xml -As String -Depth 4 -NoTypeInformation"
           end
     cmd
   end
@@ -99,47 +94,49 @@ Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iisp
     inst_cmd = install_command
     result = run(inst_cmd)
     sites = []
-    xml = Document.new result
-    xml.root.each_element do |object|
-      site_name = object.elements["Property[@Name='name']"].text
-      # If the site gets into an unknown state return 'unknown' instead of null.
-      state = if !object.elements["Property[@Name='state']"].text
-                'unknown'
-              else
-                object.elements["Property[@Name='state']"].text.downcase
-              end
-      if win2008
-        binding_hash = legacy_bindings(site_name)
-        protocol = binding_hash[:protocol]
-        ip = binding_hash[:ip]
-        host_header = binding_hash[:host_header]
-        port = binding_hash[:port]
-      else
-        protocol = object.elements["Property[@Name='bindings']/Property[@Name='Collection']/Property/Property[@Name='protocol']"].text
-        ip = object.elements["Property[@Name='bindings']/Property[@Name='Collection']/Property/Property[@Name='bindingInformation']"].text.split(':')[0]
-        host_header = object.elements["Property[@Name='bindings']/Property[@Name='Collection']/Property/Property[@Name='bindingInformation']"].text.split(':')[2]
-        port = object.elements["Property[@Name='bindings']/Property[@Name='Collection']/Property/Property[@Name='bindingInformation']"].text.split(':')[1]
+    unless result.empty?
+      xml = Document.new result
+      xml.root.each_element do |object|
+        site_name = object.elements["Property[@Name='name']"].text
+        # If the site gets into an unknown state return 'unknown' instead of null.
+        state = if !object.elements["Property[@Name='state']"].text
+                  'unknown'
+                else
+                  object.elements["Property[@Name='state']"].text.downcase
+                end
+        if win2008
+          binding_hash = legacy_bindings(site_name)
+          protocol = binding_hash[:protocol]
+          ip = binding_hash[:ip]
+          host_header = binding_hash[:host_header]
+          port = binding_hash[:port]
+        else
+          protocol = object.elements["Property[@Name='bindings']/Property[@Name='Collection']/Property/Property[@Name='protocol']"].text
+          ip = object.elements["Property[@Name='bindings']/Property[@Name='Collection']/Property/Property[@Name='bindingInformation']"].text.split(':')[0]
+          host_header = object.elements["Property[@Name='bindings']/Property[@Name='Collection']/Property/Property[@Name='bindingInformation']"].text.split(':')[2]
+          port = object.elements["Property[@Name='bindings']/Property[@Name='Collection']/Property/Property[@Name='bindingInformation']"].text.split(':')[1]
+        end
+        site_hash = {
+          state: state,
+          name: site_name,
+          protocol: protocol,
+          ip: ip,
+          port: port,
+          host_header: host_header,
+          id: object.elements["Property[@Name='id']"].text,
+          app_pool: object.elements["Property[@Name='applicationPool']"].text,
+          path: object.elements["Property[@Name='physicalPath']"].text
+        }
+        unless Facter.value(:kernelmajversion) == '6.1'
+          ssl_flags = if object.elements["Property[@Name='bindings']/Property[@Name='Collection']/Property/Property[@Name='sslFlags']"].text == '0'
+                        :false
+                      else
+                        :true
+                      end
+          site_hash[:ssl] = ssl_flags
+        end
+        sites.push(site_hash)
       end
-      site_hash = {
-        state: state,
-        name: site_name,
-        protocol: protocol,
-        ip: ip,
-        port: port,
-        host_header: host_header,
-        id: object.elements["Property[@Name='id']"].text,
-        app_pool: object.elements["Property[@Name='applicationPool']"].text,
-        path: object.elements["Property[@Name='physicalPath']"].text
-      }
-      unless Facter.value(:kernelmajversion) == '6.1'
-        ssl_flags = if object.elements["Property[@Name='bindings']/Property[@Name='Collection']/Property/Property[@Name='sslFlags']"].text.zero?
-                      :false
-                    else
-                      :true
-                    end
-        site_hash[:ssl] = ssl_flags
-      end
-      sites.push(site_hash)
     end
     sites.map do |site|
       case Facter.value(:kernelmajversion)
@@ -269,7 +266,7 @@ Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iisp
   def flush
     command_array = []
     command_array << 'Import-Module WebAdministration; '
-    if @property_flush['state'] && exists? == :true
+    if @property_flush['state']
       state_cmd = if @property_flush['state'] == :Started
                     'Start-Website'
                   else
