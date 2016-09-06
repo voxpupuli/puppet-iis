@@ -34,6 +34,9 @@ Puppet::Type.newtype(:iis_application) do
       raise("#{site} is not a valid application name") unless value =~ %r{^[a-zA-Z0-9\-\_\.'\s]+$}
     end
     defaultto :"Default Web Site"
+    def insync?(is)
+      is.downcase == should.downcase
+    end
   end
 
   newproperty(:app_pool) do

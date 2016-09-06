@@ -12,9 +12,8 @@ Puppet::Type.type(:iis_virtualdirectory).provide(:powershell, parent: Puppet::Pr
 
   def self.instances
     inst_cmd = <<-ps1
-$ErrorActionPreference = 'SilentlyContinue'
 Import-Module WebAdministration
-Get-WebVirtualDirectory | ConvertTo-XML -Depth 4 -NoTypeInformation -As String'
+Get-WebVirtualDirectory | Select path,physicalPath,ItemXPath | ConvertTo-XML -NoTypeInformation -As String
 ps1
     result = run(inst_cmd)
     Puppet.debug "Result is #{result}"
@@ -26,7 +25,8 @@ ps1
           ensure: :present,
           name: object.elements["Property[@Name='path']"].text.gsub(%r{^\/}, ''),
           path: object.elements["Property[@Name='physicalPath']"].text,
-          site: object.elements["Property[@Name='ItemXPath']"].text.match(%r{@name='([a-z0-9_\ ]+)'}i)[1]
+#          site: object.elements["Property[@Name='ItemXPath']"].text.match(%r{@name='([a-z0-9_\ ]+)'}i)[1]
+          site: object.elements["Property[@Name='ItemXPath']"].text.match("'([^']*)'")[0].delete("\'"),
         }
         vds.push(vd_hash)
       end
@@ -65,6 +65,7 @@ ps1
       "-Site \"#{@resource[:site]}\"",
       '-Force'
     ]
+    Puppet.notice inst_cmd
     resp = Puppet::Type::Iis_virtualdirectory::ProviderPowershell.run(inst_cmd.join(' '))
     Puppet.debug "Creation powershell response was #{resp}"
 

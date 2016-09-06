@@ -1,12 +1,11 @@
 require 'puppet/provider/iispowershell'
 require 'csv'
 Puppet::Type.type(:iis_binding).provide(:powershell, parent: Puppet::Provider::Iispowershell) do
-  @eap = "$ErrorActionPreference = 'SilentlyContinue'"
   mk_resource_methods
 
   def self.instances
     b_array = []
-    result = "#{@eap}Import-Module WebAdministration; Get-WebBinding | ConvertTo-Csv -NoTypeInformation')"
+    result = run("Import-Module WebAdministration; Get-WebBinding | ConvertTo-Csv -NoTypeInformation")
     unless result.empty?
       csv = CSV.parse(result, headers: true)
       csv.each do |item|
@@ -28,20 +27,24 @@ Puppet::Type.type(:iis_binding).provide(:powershell, parent: Puppet::Provider::I
           protocol: item['protocol'],
           certificate: certificate,
           ssl_flag: item['sslFlags'],
-          binding: item['bindingInformation']
         }
         b_array.push(binding)
       end
+        b_array.map { |web_binding| new(web_binding) }
     end
-    b_array.map { |b| new(b) }
   end
 
   def self.prefetch(resources)
-    bnd = instances
-    resources.keys.each do |bd|
-      # rubocop:disable Lint/AssignmentInCondition
-      if provider = bnd.find { |b| b.name == bd } then resources[bd].provider = provider end
+    instances.each do |prov|
+      if resource = resources[prov.name]
+        resource.provider = prov
+      end
     end
+  end
+
+  def generate_binding_variables(bindinginfo)
+    binding_array = bindinginfo.split(':')
+    return binding_array
   end
 
   def exists?
@@ -50,10 +53,6 @@ Puppet::Type.type(:iis_binding).provide(:powershell, parent: Puppet::Provider::I
 
   def create
     win2008 = Facter.value(:kernelmajversion) == '6.1'
-    @resource[:port] = @resource[:binding].split(':')[1] unless @resource[:port]
-    @resource[:host_header] = @resource[:binding].split(':')[2] unless @resource[:host_header]
-    @resource[:ip_address] = @resource[:binding].split(':')[0] unless @resource[:ip_address]
-    @resource[:host_header] = '*' unless @resource[:host_header]
     create_switches = [
       "-Name #{@resource[:site_name]}",
       "-Port #{@resource[:port]}",
@@ -67,15 +66,18 @@ Puppet::Type.type(:iis_binding).provide(:powershell, parent: Puppet::Provider::I
       create_switches << "-SslFlags #{@resource['ssl_flag']}"
     end
     cmd = "Import-Module WebAdministration; New-WebBinding #{create_switches.join(' ')}"
+    Puppet.debug "Creating web binding with #{cmd}"
     result = Puppet::Type::Iis_binding::ProviderPowershell.run(cmd)
     Puppet.debug "Response from PowerShell create task: #{result}"
     create_certificate_binding if @resource[:certificate]
+    @property_hash[:ensure] == :present
   end
 
   def destroy
-    cmd = "Import-Module WebAdministration; Remove-WebBinding -BindingInformation #{resource[:binding]}"
+    cmd = "Import-Module WebAdministration; Remove-WebBinding -BindingInformation #{resource[:name]}"
     result = Puppet::Type::Iis_binding::ProviderPowershell.run(cmd)
     Puppet.debug "Response from PowerShell destroy task: #{result}"
+    @property_hash.clear
   end
 
   def create_certificate_binding
@@ -94,8 +96,25 @@ Puppet::Type.type(:iis_binding).provide(:powershell, parent: Puppet::Provider::I
       if($sslbinding){Get-Item IIS:\\SslBindings\\#{@property_hash[:ip_address]}!#{@property_hash[:port]} | Remove-Item}
       Get-Item '#{value}' | New-Item IIS:\\SslBindings\\#{@property_hash[:ip_address]}!#{@property_hash[:port]}
     ps1
-    Puppet.notice cmd
+    Puppet.debug cmd
     resp = Puppet::Type::Iis_binding::ProviderPowershell.run(cmd)
     Puppet.debug resp
+  end
+
+  def flush
+    # TODO: Currently not working. Name is munged from ip/port/host
+    # so change events change the 'name' and therefore create a new
+    # entry instead of changing the current one. Maybe this if for
+    # the best, as if a person tries to change all params for an
+    # iis_binding resource all hell would break loose. The only
+    # consistant unique key is ip:port:host.
+    unless @property_hash.empty? || @property_hash.nil?
+      cmd = <<-ps1.gsub(%r{^\s+}, '')
+        Import-Module WebAdministration
+        Set-WebBinding -Name #{@property_hash[:site_name]} -IPAddress #{@resource[:ip_address]} `
+        -Port #{@resource[:port]} -HostHeader #{@resource[:host_header]}
+      ps1
+      Puppet::Type::Iis_binding::ProviderPowershell.run(cmd)
+    end
   end
 end

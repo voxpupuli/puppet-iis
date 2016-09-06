@@ -2,15 +2,18 @@ Puppet::Type.newtype(:iis_binding) do
   desc 'create web bindings in iis'
   ensurable
 
-  newparam(:binding, namevar: true) do
-    validate do |value|
-      unless value =~ %r{^(\*|(([0-9]){1,3}\.([0-9]){1,3}\.([0-9]){1,3}\.([0-9]){1,3})):\d*:.*$}
-        raise 'Title/Binding must be in the format of "127.0.0.1:80:mywebsite.com". "*" are allowed.'
-      end
+  newparam(:name) do
+#    validate do |value|
+#      unless value =~ %r{^(\*|(([0-9]){1,3}\.([0-9]){1,3}\.([0-9]){1,3}\.([0-9]){1,3})):\d*:.*$}
+#        raise 'Title/Binding must be in the format of "127.0.0.1:80:mywebsite.com". "*" are allowed.'
+#      end
+#    end
+    munge do |value|
+      port = @resource.original_parameters[:port]
+      ip   = @resource.original_parameters[:ip_address]
+      host = @resource.original_parameters[:host_header]
+      "#{ip}:#{port}:#{host}"
     end
-  end
-
-  newparam(:ensure) do
   end
 
   newproperty(:site_name) do
@@ -22,6 +25,7 @@ Puppet::Type.newtype(:iis_binding) do
         raise 'protocol must be http,https,net.pipe,netmsmq or msmq.formatname'
       end
     end
+    defaultto 'http'
   end
 
   newproperty(:port) do
@@ -31,6 +35,7 @@ Puppet::Type.newtype(:iis_binding) do
   end
 
   newproperty(:host_header) do
+    defaultto '*'
   end
 
   newproperty(:ip_address) do
