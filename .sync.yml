@@ -1,4 +1,6 @@
 ---
+.travis.yml:
+  secure: "XeskI0qPXdnzw63JkJd6aSnaOY2OqD57hXhgJ8c8nq3h5cnMLXDRtyorFRAV+drXkt4q8rEyN+Bj8x9CtMOTY9t8GT5YLRG9T7mscFIPMU7pLSt4Gh25LRYtBwD5JBvX6XdGsHnjkQ8mIrponNy5xgF0a50dnSrIfL6W+6drt/k="
 #spec/spec_helper_acceptance.rb:
 # Temporarily unmanage spec_helper_acceptance (iss. #133)
 #  windows: true
@@ -6,6 +8,22 @@
 #    - puppetlabs-stdlib
 #    - puppetlabs-powershell
 #    - puppet-windowsfeature
+spec/acceptance/nodesets/docker/centos-5.yml:
+  unmanaged: true
+spec/acceptance/nodesets/docker/centos-6.yml:
+  unmanaged: true
+spec/acceptance/nodesets/docker/centos-7.yml:
+  unmanaged: true
+spec/acceptance/nodesets/docker/debian-7.yml:
+  unmanaged: true
+spec/acceptance/nodesets/docker/debian-8.yml:
+  unmanaged: true
+spec/acceptance/nodesets/docker/ubuntu-12.04.yml:
+  unmanaged: true
+spec/acceptance/nodesets/docker/ubuntu-14.04.yml:
+  unmanaged: true
+spec/acceptance/nodesets/docker/ubuntu-16.04.yml:
+  unmanaged: true
 spec/acceptance/nodesets/centos-511-x64.yml:
   unmanaged: true
 spec/acceptance/nodesets/centos-66-x64-pe.yml:
@@ -14,14 +32,13 @@ spec/acceptance/nodesets/centos-66-x64.yml:
   unmanaged: true
 spec/acceptance/nodesets/centos-72-x64.yml:
   unmanaged: true
-spec/acceptance/nodesets/ubuntu-server-1204-x64.yml:
-  unmanaged: true
-spec/acceptance/nodesets/ubuntu-server-1404-x64.yml:
-  unmanaged: true
 spec/acceptance/nodesets/debian-78-x64.yml:
   unmanaged: true
 spec/acceptance/nodesets/debian-82-x64.yml:
   unmanaged: true
-.travis.yml:
-  secure: "XeskI0qPXdnzw63JkJd6aSnaOY2OqD57hXhgJ8c8nq3h5cnMLXDRtyorFRAV+drXkt4q8rEyN+Bj8x9CtMOTY9t8GT5YLRG9T7mscFIPMU7pLSt4Gh25LRYtBwD5JBvX6XdGsHnjkQ8mIrponNy5xgF0a50dnSrIfL6W+6drt/k="
-  docker_sets: []
+spec/acceptance/nodesets/ubuntu-server-1204-x64.yml:
+  unmanaged: true
+spec/acceptance/nodesets/ubuntu-server-1404-x64.yml:
+  unmanaged: true
+spec/acceptance/nodesets/ubuntu-server-1604-x64.yml:
+  unmanaged: true
