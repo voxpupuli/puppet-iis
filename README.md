@@ -1,10 +1,14 @@
 # IIS module for Puppet
 
+[![Build Status](https://travis-ci.org/voxpupuli/puppet-iis.png?branch=master)](https://travis-ci.org/voxpupuli/puppet-iis)
+[![Code Coverage](https://coveralls.io/repos/github/voxpupuli/puppet-iis/badge.svg?branch=master)](https://coveralls.io/github/voxpupuli/puppet-iis)
+[![Puppet Forge](https://img.shields.io/puppetforge/v/puppet/iis.svg)](https://forge.puppetlabs.com/puppet/iis)
+[![Puppet Forge - downloads](https://img.shields.io/puppetforge/dt/puppet/iis.svg)](https://forge.puppetlabs.com/puppet/iis)
+[![Puppet Forge - endorsement](https://img.shields.io/puppetforge/e/puppet/iis.svg)](https://forge.puppetlabs.com/puppet/iis)
+[![Puppet Forge - scores](https://img.shields.io/puppetforge/f/puppet/iis.svg)](https://forge.puppetlabs.com/puppet/iis)
+
 Module for puppet that can be used to create sites, application pools and
 virtual applications with IIS 7 and above.
-
-[![Build Status](https://travis-ci.org/voxpupuli/puppet-iis.svg?branch=master)](https://travis-ci.org/voxpupuli/puppet-iis)
-Usage
 
 #### Table of Contents
 
