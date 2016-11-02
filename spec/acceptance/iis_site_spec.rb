@@ -63,16 +63,16 @@ RSpec.describe 'iis_site' do
     end
 
     describe iis_website('chocolatey.server') do
-      it { should exist }
-      it { should be_running }
-      it { should be_in_app_pool('chocolatey.server') }
-      it { should have_physical_path('C:/tools/chocolatey.server') }
+      it { is_expected.to exist }
+      it { is_expected.to be_running }
+      it { is_expected.to be_in_app_pool('chocolatey.server') }
+      it { is_expected.to have_physical_path('C:/tools/chocolatey.server') }
     end
 
     # Setup a basic IIS pool and app running on port 8080
     context 'chocolatey.server should be running on port 8080' do
       describe command('(New-Object Net.WebClient).DownloadString("http://127.0.0.1:8080")') do
-        its(:stdout) { should match(%r{Simple Chocolatey Repository}) }
+        its(:stdout) { is_expected.to match(%r{Simple Chocolatey Repository}) }
       end
     end
   end

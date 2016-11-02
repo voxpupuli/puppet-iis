@@ -102,7 +102,7 @@ describe 'iis::manage_app_pool', type: :define do
       end
 
       it do
-        expect { should contain_exec('IdleTimeoutAction-my_cool_app_pool') }.to raise_error(Puppet::Error, %r{"invalid" does not match "\^\(Suspend\|Terminate\)\$})
+        expect { is_expected.to contain_exec('IdleTimeoutAction-my_cool_app_pool') }.to raise_error(Puppet::Error, %r{"invalid" does not match "\^\(Suspend\|Terminate\)\$})
       end
     end
   end
