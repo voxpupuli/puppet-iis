@@ -19,10 +19,10 @@ RSpec.describe 'iis::install' do
       apply_manifest_on(default, pp)
     end
     describe windows_feature('IIS-WebServer') do
-      it { should be_installed.by('dism') }
+      it { is_expected.to be_installed.by('dism') }
     end
     describe service('w3svc') do
-      it { should be_running }
+      it { is_expected.to be_running }
     end
   end
 end

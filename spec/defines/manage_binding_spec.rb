@@ -13,7 +13,7 @@ describe 'iis::manage_binding', type: :define do
     end
 
     it do
-      should contain_exec('CreateBinding-myWebSite-port-80').with(
+      is_expected.to contain_exec('CreateBinding-myWebSite-port-80').with(
         command: 'Import-Module WebAdministration; New-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "*" -SslFlags "0"',
         onlyif: 'Import-Module WebAdministration; if (Get-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "*" | Where-Object {$_.bindingInformation -eq "*:80:myHost.example.com"}) { exit 1 } else { exit 0 }',
         require: 'Iis_site[myWebSite]'
@@ -34,7 +34,7 @@ describe 'iis::manage_binding', type: :define do
     end
 
     it do
-      should contain_exec('CreateBinding-myWebSite-port-80').with(
+      is_expected.to contain_exec('CreateBinding-myWebSite-port-80').with(
         command: 'Import-Module WebAdministration; New-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "192.168.1.5" -SslFlags "0"',
         onlyif: 'Import-Module WebAdministration; if (Get-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "192.168.1.5" | Where-Object {$_.bindingInformation -eq "192.168.1.5:80:myHost.example.com"}) { exit 1 } else { exit 0 }',
         require: 'Iis_site[myWebSite]'
@@ -54,7 +54,7 @@ describe 'iis::manage_binding', type: :define do
       }
     end
 
-    it { expect { should contain_exec('CreateBinding-myWebSite-port-80') }.to raise_error(Puppet::Error, %r{"this is not an address" is not a valid ip address}) }
+    it { expect { is_expected.to contain_exec('CreateBinding-myWebSite-port-80') }.to raise_error(Puppet::Error, %r{"this is not an address" is not a valid ip address}) }
   end
 
   describe 'when I pass in an empty site_name' do
@@ -68,7 +68,7 @@ describe 'iis::manage_binding', type: :define do
       }
     end
 
-    it { expect { should contain_exec('CreateBinding-myWebSite-port-80') }.to raise_error(Puppet::Error, %r{site_name must not be empty}) }
+    it { expect { is_expected.to contain_exec('CreateBinding-myWebSite-port-80') }.to raise_error(Puppet::Error, %r{site_name must not be empty}) }
   end
 
   describe 'when protocol is not valid' do
@@ -82,7 +82,7 @@ describe 'iis::manage_binding', type: :define do
       }
     end
 
-    it { expect { should contain_exec('CreateBinding-myWebSite-port-80') }.to raise_error(Puppet::Error, %r{valid protocols 'http', 'https', 'net.tcp', 'net.pipe', 'netmsmq', 'msmq.formatname'}) }
+    it { expect { is_expected.to contain_exec('CreateBinding-myWebSite-port-80') }.to raise_error(Puppet::Error, %r{valid protocols 'http', 'https', 'net.tcp', 'net.pipe', 'netmsmq', 'msmq.formatname'}) }
   end
 
   describe 'when protocol is https' do
@@ -96,7 +96,7 @@ describe 'iis::manage_binding', type: :define do
       }
     end
 
-    it { expect { should contain_exec('Attach-Certificate-myWebSite-port-443') }.to raise_error(Puppet::Error, %r{certificate_thumbprint required for https bindings}) }
+    it { expect { is_expected.to contain_exec('Attach-Certificate-myWebSite-port-443') }.to raise_error(Puppet::Error, %r{certificate_thumbprint required for https bindings}) }
   end
 
   describe 'when protocol is https and ip address *' do
@@ -111,7 +111,7 @@ describe 'iis::manage_binding', type: :define do
       }
     end
 
-    it { should contain_exec('Attach-Certificate-myWebSite-port-443') }
+    it { is_expected.to contain_exec('Attach-Certificate-myWebSite-port-443') }
   end
 
   describe 'when protocol is https and ip address 0.0.0.0' do
@@ -126,7 +126,7 @@ describe 'iis::manage_binding', type: :define do
       }
     end
 
-    it { expect { should contain_exec('Attach-Certificate-myWebSite-port-443') }.to raise_error(Puppet::Error, %r{https bindings require a valid ip_address}) }
+    it { expect { is_expected.to contain_exec('Attach-Certificate-myWebSite-port-443') }.to raise_error(Puppet::Error, %r{https bindings require a valid ip_address}) }
   end
 
   describe 'when protocol is https and all required parameters exist' do
@@ -142,7 +142,7 @@ describe 'iis::manage_binding', type: :define do
     end
 
     it do
-      should contain_exec('Attach-Certificate-myWebSite-port-443').with(
+      is_expected.to contain_exec('Attach-Certificate-myWebSite-port-443').with(
         command: 'C:\\temp\\create-myWebSite-port-443.ps1',
         onlyif: 'C:\\temp\\inspect-myWebSite-port-443.ps1',
         provider: 'powershell'
@@ -163,7 +163,7 @@ describe 'iis::manage_binding', type: :define do
     end
 
     it do
-      should contain_exec('CreateBinding-myWebSite-port-80').with(
+      is_expected.to contain_exec('CreateBinding-myWebSite-port-80').with(
         command: 'Import-Module WebAdministration; New-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "*" -SslFlags "0"',
         onlyif: 'Import-Module WebAdministration; if (Get-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "*" | Where-Object {$_.bindingInformation -eq "*:80:myHost.example.com"}) { exit 1 } else { exit 0 }'
       )
@@ -183,7 +183,7 @@ describe 'iis::manage_binding', type: :define do
     end
 
     it do
-      should contain_exec('CreateBinding-myWebSite-port-80').with(
+      is_expected.to contain_exec('CreateBinding-myWebSite-port-80').with(
         command: 'Import-Module WebAdministration; New-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "*" -SslFlags "0"',
         onlyif: 'Import-Module WebAdministration; if (Get-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "*" | Where-Object {$_.bindingInformation -eq "*:80:myHost.example.com"}) { exit 1 } else { exit 0 }',
         require: 'Iis_site[myWebSite]'
@@ -204,13 +204,13 @@ describe 'iis::manage_binding', type: :define do
     end
 
     it do
-      should contain_exec('DeleteBinding-myWebSite-port-80').with(
+      is_expected.to contain_exec('DeleteBinding-myWebSite-port-80').with(
         command: 'Import-Module WebAdministration; Remove-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "*"',
         onlyif: 'Import-Module WebAdministration; if (!(Get-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "*" | Where-Object {$_.bindingInformation -eq "*:80:myHost.example.com"})) { exit 1 } else { exit 0 }'
       )
     end
 
-    it { should_not contain_exec('Attach-Certificate-myWebSite-port-80') }
+    it { is_expected.not_to contain_exec('Attach-Certificate-myWebSite-port-80') }
   end
 
   describe 'when managing an iis site binding and setting ensure to purged' do
@@ -226,13 +226,13 @@ describe 'iis::manage_binding', type: :define do
     end
 
     it do
-      should contain_exec('DeleteBinding-myWebSite-port-80').with(
+      is_expected.to contain_exec('DeleteBinding-myWebSite-port-80').with(
         command: 'Import-Module WebAdministration; Remove-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "*"',
         onlyif: 'Import-Module WebAdministration; if (!(Get-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "*" | Where-Object {$_.bindingInformation -eq "*:80:myHost.example.com"})) { exit 1 } else { exit 0 }'
       )
     end
 
-    it { should_not contain_exec('Attach-Certificate-myWebSite-port-80') }
+    it { is_expected.not_to contain_exec('Attach-Certificate-myWebSite-port-80') }
   end
 
   describe 'when managing an iis binding independently - with no managed site' do
@@ -248,7 +248,7 @@ describe 'iis::manage_binding', type: :define do
     end
 
     it do
-      should contain_exec('CreateBinding-myWebSite-port-80').with(
+      is_expected.to contain_exec('CreateBinding-myWebSite-port-80').with(
         command: 'Import-Module WebAdministration; New-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "*" -SslFlags "0"',
         onlyif: 'Import-Module WebAdministration; if (Get-WebBinding -Name "myWebSite" -Port 80 -Protocol "http" -HostHeader "myHost.example.com" -IPAddress "*" | Where-Object {$_.bindingInformation -eq "*:80:myHost.example.com"}) { exit 1 } else { exit 0 }',
         require: nil
