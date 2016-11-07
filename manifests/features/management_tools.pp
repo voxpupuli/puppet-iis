@@ -5,7 +5,7 @@ class iis::features::management_tools {
       ensure_resource('windowsfeature', 'IIS-WebServerManagementTools' )
       ensure_resource('windowsfeature', 'IIS-ManagementConsole' )
     }
-    '6.2','6.3': {
+    '6.2','6.3','10.0': {
       ensure_resource('windowsfeature', 'Web-Mgmt-Tools' )
       ensure_resource('windowsfeature', 'Web-Mgmt-Console' )
     }

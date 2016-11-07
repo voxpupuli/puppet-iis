@@ -4,7 +4,7 @@ class iis::features::security {
     '6.0','6.1': {
       ensure_resource('windowsfeature', 'IIS-RequestFiltering' )
     }
-    '6.2','6.3': {
+    '6.2','6.3','10.0': {
       ensure_resource('windowsfeature', 'Web-Filtering' )
     }
     default: {

@@ -6,7 +6,7 @@ class iis::features::common_http {
       ensure_resource('windowsfeature', 'IIS-HttpErrors' )
       ensure_resource('windowsfeature', 'IIS-DefaultDocument' )
     }
-    '6.2','6.3': {
+    '6.2','6.3','10.0': {
       ensure_resource('windowsfeature', 'Web-Static-Content' )
       ensure_resource('windowsfeature', 'Web-Http-Errors' )
       ensure_resource('windowsfeature', 'Web-Default-Doc' )

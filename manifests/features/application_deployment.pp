@@ -9,7 +9,7 @@ class iis::features::application_deployment {
       ensure_resource('windowsfeature', 'IIS-ISAPIExtentions' )
       ensure_resource('windowsfeature', 'IIS-ISAPIFilter' )
     }
-    '6.2','6.3': {
+    '6.2','6.3','10.0': {
       ensure_resource('windowsfeature', 'Web-Asp-Net' )
       ensure_resource('windowsfeature', 'Web-Net-Ext' )
       ensure_resource('windowsfeature', 'Web-ISAPI-Ext' )
