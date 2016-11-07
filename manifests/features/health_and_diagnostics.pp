@@ -5,7 +5,7 @@ class iis::features::health_and_diagnostics {
       ensure_resource('windowsfeature', 'IIS-HttpLogging' )
       ensure_resource('windowsfeature', 'IIS-RequestMonitor' )
     }
-    '6.2','6.3': {
+    '6.2','6.3','10.0': {
       ensure_resource('windowsfeature', 'Web-Http-Logging' )
       ensure_resource('windowsfeature', 'Web-Request-Monitor' )
     }
