@@ -5,7 +5,7 @@ class iis::features::performance {
       ensure_resource('windowsfeature', 'IIS-HttpCompressionStatic' )
       ensure_resource('windowsfeature', 'IIS-HttpCompressionDynamic' )
     }
-    '6.2','6.3': {
+    '6.2','6.3','10.0': {
       ensure_resource('windowsfeature', 'Web-Stat-Compression' )
       ensure_resource('windowsfeature', 'Web-Dyn-Compression' )
     }
