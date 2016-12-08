@@ -114,6 +114,27 @@ describe 'iis::manage_binding', type: :define do
     it { is_expected.to contain_exec('Attach-Certificate-myWebSite-port-443') }
   end
 
+  describe 'when protocol is https and ip address *' do
+    let(:title) { 'myWebSite-port-443' }
+    let(:params) do
+      {
+          site_name: 'myWebSite',
+          certificate_thumbprint: 'myCertificate',
+          protocol: 'https',
+          port: '443',
+          ip_address: '*'
+      }
+    end
+
+    it do
+      is_expected.to contain_exec('Attach-Certificate-myWebSite-port-443').with(
+          command: 'C:\\temp\\create-myWebSite-port-443.ps1',
+          onlyif: 'C:\\temp\\inspect-myWebSite-port-443.ps1',
+          provider: 'powershell'
+      )
+    end
+  end
+
   describe 'when protocol is https and ip address 0.0.0.0' do
     let(:title) { 'myWebSite-port-443' }
     let(:params) do
