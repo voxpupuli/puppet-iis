@@ -114,7 +114,7 @@ describe 'iis::manage_binding', type: :define do
     it { is_expected.to contain_exec('Attach-Certificate-myWebSite-port-443') }
   end
 
-  describe 'when protocol is https and ip address *' do
+  describe 'when protocol is https and ip address * second test' do
     let(:title) { 'myWebSite-port-443' }
     let(:params) do
       {
