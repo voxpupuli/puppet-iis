@@ -127,11 +127,7 @@ describe 'iis::manage_binding', type: :define do
     end
 
     it do
-      is_expected.to contain_exec('Attach-Certificate-myWebSite-port-443').with(
-        command: 'C:\\temp\\create-myWebSite-port-443.ps1',
-        onlyif: 'C:\\temp\\inspect-myWebSite-port-443.ps1',
-        provider: 'powershell'
-      )
+      is_expected.to contain_exec('Attach-Certificate-myWebSite-port-443')
     end
   end
 
@@ -163,11 +159,7 @@ describe 'iis::manage_binding', type: :define do
     end
 
     it do
-      is_expected.to contain_exec('Attach-Certificate-myWebSite-port-443').with(
-        command: 'C:\\temp\\create-myWebSite-port-443.ps1',
-        onlyif: 'C:\\temp\\inspect-myWebSite-port-443.ps1',
-        provider: 'powershell'
-      )
+      is_expected.to contain_exec('Attach-Certificate-myWebSite-port-443')
     end
   end
 
