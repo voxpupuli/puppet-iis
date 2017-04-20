@@ -23,7 +23,12 @@ Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iisp
 Import-Module WebAdministration;
 gci "IIS:\\sites" | %{ Get-ItemProperty $_.PSPath  | Select name, PhysicalPath, ApplicationPool, HostHeader, State, Bindings } | ConvertTo-Json -Depth 4 -Compress
 ps1
-    site_json = JSON.parse(run(inst_cmd))
+    sites_listed = run(inst_cmd)
+    site_json = if sites_listed == ''
+        []
+      else
+        JSON.parse(sites_listed)
+      end
     # The command returns a Hash if there is 1 site
     site_json = [site_json] if site_json.is_a?(Hash)
     site_json.map do |site|
