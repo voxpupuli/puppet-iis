@@ -37,6 +37,15 @@ describe Puppet::Type.type(:iis_pool) do
     it 'munges runtime' do
       expect(subject(params.merge(runtime: '4.0'))[:runtime]).to eq('v4.0')
     end
+    it 'accepts No Managed Code and munges it to the empty string' do
+      expect(subject(params.merge(runtime: 'No Managed Code'))[:runtime]).to eq('')
+    end
+    it 'accepts the empty string for No Managed Code' do 
+      expect(subject(params.merge(runtime: ''))[:runtime]).to eq('')
+    end
+    it 'accepts case-insensitive No Managed Code' do 
+      expect(subject(params.merge(runtime: 'no ManaGeD coDe'))[:runtime]).to eq('')
+    end
   end
 
   describe 'pipeline =>' do

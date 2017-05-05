@@ -39,11 +39,13 @@ Puppet::Type.newtype(:iis_pool) do
 
   newproperty(:runtime) do
     desc '.NET runtime version for the pool'
+    version_regex = %r{^v?\d+\.\d+$}
+    no_managed_code_regex = /^(no managed code|)$/i
     validate do |value|
-      raise("#{runtime} must be a float") unless value =~ %r{^v?\d+\.\d+$}
+      raise("#{runtime} must be a float") unless value =~ version_regex || value =~ no_managed_code_regex
     end
     munge do |value|
-      "v#{value.gsub(%r{^v}, '').to_f}"
+      value =~ version_regex ? "v#{value.gsub(%r{^v}, '').to_f}" : ''
     end
   end
 
