@@ -12,7 +12,8 @@ describe Puppet::Type.type(:iis_site) do
       protocol: 'http',
       ip: '*',
       port: '81',
-      ssl: false
+      ssl: false,
+      logfile: '%SystemDrive%\inetpub\logs\LogFiles'
     )
   end
 
@@ -50,5 +51,9 @@ describe Puppet::Type.type(:iis_site) do
 
   it 'accepts an ssl state' do
     expect(site[:ssl]).to eq(:false)
+  end
+
+  it 'accepts a log path' do
+    expect(site[:logfile]).to eq('%SystemDrive%\inetpub\logs\LogFiles')
   end
 end

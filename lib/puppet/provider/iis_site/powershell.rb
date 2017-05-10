@@ -21,7 +21,7 @@ Puppet::Type.type(:iis_site).provide(:powershell, parent: Puppet::Provider::Iisp
   def self.instances
     inst_cmd = <<-ps1
 Import-Module WebAdministration;
-gci "IIS:\\sites" | %{ Get-ItemProperty $_.PSPath  | Select name, PhysicalPath, ApplicationPool, HostHeader, State, Bindings } | ConvertTo-Json -Depth 4 -Compress
+gci "IIS:\\sites" | %{ (Get-ItemProperty $_.PSPath  | Select name, PhysicalPath, ApplicationPool, HostHeader, State, Bindings, @{name="LogFile";expression={$_.logfile.directory}})}| ConvertTo-Json -Depth 4 -Compress
 ps1
     site_json = JSON.parse(run(inst_cmd))
     # The command returns a Hash if there is 1 site
@@ -32,6 +32,8 @@ ps1
       site_hash[:name]        = site['name']
       site_hash[:path]        = site['physicalPath']
       site_hash[:app_pool]    = site['applicationPool']
+      #site_hash[:logfile]     = '@{directory="'+ site['LogFile'] + '"}'
+      site_hash[:logfile]     = site['LogFile']
       binding_collection      = site['bindings']['Collection']
       bindings                = binding_collection.first['bindingInformation']
       site_hash[:protocol]    = site['bindings']['Collection'].first['protocol']
@@ -55,6 +57,7 @@ ps1
         resources[site].provider = provider
       end
     end
+    Puppet.debug "Prefecth completed"
   end
 
   def exists?
@@ -86,7 +89,8 @@ ps1
     @property_hash[:host_header] = @resource[:host_header]
     @property_hash[:path]        = @resource[:path]
     @property_hash[:ssl]         = @resource[:ssl]
-
+    @property_hash[:logfile]     = @resource[:logfile]
+    
     exists? ? (return true) : (return false)
   end
 
@@ -155,6 +159,7 @@ ps1
     when 'Started'
       true
     else
+      Puppet.debug "Started? #{resp}"
       false
     end
   end
@@ -170,10 +175,17 @@ ps1
                   end
       state_cmd += " -Name \"#{@property_hash[:name]}\""
       command_array << state_cmd
+      Puppet.debug "Start or Stop Website"
     end
     @property_flush['itemproperty'].each do |iisname, value|
       command_array << "Set-ItemProperty -Path \"IIS:\\\\Sites\\#{@property_hash[:name]}\" -Name \"#{iisname}\" -Value \"#{value}\""
+      Puppet.debug "Command_array Set-ItemProperty #{command_array}"
     end
+
+    command_array << "Set-ItemProperty -Path \"IIS:\\\\Sites\\#{@property_hash[:name]}\" -Name logFile -Value @{directory=\"#{@resource[:logfile]}\"}"
+    Puppet.debug "Command_array resource logFile Set-ItemProperty #{@resource[:logfile]}"
+    Puppet.debug "Command_array property_hash logFile Set-ItemProperty #{@property_hash[:logfile]}"
+    Puppet.debug "Flush powershell response was #{command_array.join('; ')} "
     bhash = {}
     unless @property_flush['binders'].empty?
       Puppet::Type::Iis_site::ProviderPowershell.binders.each do |b|
@@ -188,9 +200,11 @@ ps1
       # Append sslFlags to args is enabled
       binder_cmd += '; sslFlags=0' if bhash['ssl'] && bhash['ssl'] != :false
       binder_cmd += '}'
+      Puppet.debug "Command_array Set-ItemProperty binders #{binder_cmd}"
       command_array << binder_cmd
     end
     resp = Puppet::Type::Iis_site::ProviderPowershell.run(command_array.join('; '))
+    Puppet.debug "Flush powershell response was #{resp.to_s} "
     raise(resp) unless resp.empty?
   end
 end

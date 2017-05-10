@@ -10,10 +10,12 @@ Puppet::Type.newtype(:iis_site) do
 
     newvalue(:started) do
       provider.start
+      provider.flush
     end
 
     newvalue(:present) do
       provider.create
+      provider.flush
     end
 
     newvalue(:absent) do
@@ -99,6 +101,14 @@ Puppet::Type.newtype(:iis_site) do
     desc 'If ssl is enabled for the site'
     newvalues(:false, :true)
     defaultto :false
+  end
+
+  newproperty(:logfile) do
+    desc 'Logfile path for the IIS web site'
+    #validate do |value|
+    #  #raise("File paths must be fully qualified, not '#{value}'") unless value =~ %r{.:(\/|\\)} || value =~ %r{\/\/[^\/]+\/[^\/]+}
+    #end
+    defaultto 'C:\\Default'
   end
 
   autorequire(:iis_pool) do

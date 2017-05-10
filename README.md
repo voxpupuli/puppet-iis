@@ -76,6 +76,9 @@ iis_site { 'Default Web Site':
 
 * `state` Whether the site should be `Started` or `Stopped`.  Default: `Started`
 
+* `logfile` The path used for IIS log files.
+
+
 #### Refresh event
 
 Sending a refresh event to an iis_site type will recycle the web site.
