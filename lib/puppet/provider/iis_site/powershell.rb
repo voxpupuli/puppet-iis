@@ -32,7 +32,7 @@ ps1
       site_hash[:name]        = site['name']
       site_hash[:path]        = site['physicalPath']
       site_hash[:app_pool]    = site['applicationPool']
-      #site_hash[:logfile]     = '@{directory="'+ site['LogFile'] + '"}'
+      # site_hash[:logfile]     = '@{directory="'+ site['LogFile'] + '"}'
       site_hash[:logfile]     = site['LogFile']
       binding_collection      = site['bindings']['Collection']
       bindings                = binding_collection.first['bindingInformation']
@@ -57,7 +57,7 @@ ps1
         resources[site].provider = provider
       end
     end
-    Puppet.debug "Prefecth completed"
+    Puppet.debug 'Prefecth completed'
   end
 
   def exists?
@@ -90,7 +90,7 @@ ps1
     @property_hash[:path]        = @resource[:path]
     @property_hash[:ssl]         = @resource[:ssl]
     @property_hash[:logfile]     = @resource[:logfile]
-    
+
     exists? ? (return true) : (return false)
   end
 
@@ -175,7 +175,7 @@ ps1
                   end
       state_cmd += " -Name \"#{@property_hash[:name]}\""
       command_array << state_cmd
-      Puppet.debug "Start or Stop Website"
+      Puppet.debug 'Start or Stop Website'
     end
     @property_flush['itemproperty'].each do |iisname, value|
       command_array << "Set-ItemProperty -Path \"IIS:\\\\Sites\\#{@property_hash[:name]}\" -Name \"#{iisname}\" -Value \"#{value}\""
@@ -204,7 +204,7 @@ ps1
       command_array << binder_cmd
     end
     resp = Puppet::Type::Iis_site::ProviderPowershell.run(command_array.join('; '))
-    Puppet.debug "Flush powershell response was #{resp.to_s} "
+    Puppet.debug "Flush powershell response was #{resp} "
     raise(resp) unless resp.empty?
   end
 end

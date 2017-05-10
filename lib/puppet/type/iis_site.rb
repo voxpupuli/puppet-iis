@@ -105,9 +105,9 @@ Puppet::Type.newtype(:iis_site) do
 
   newproperty(:logfile) do
     desc 'Logfile path for the IIS web site'
-    #validate do |value|
+    # validate do |value|
     #  #raise("File paths must be fully qualified, not '#{value}'") unless value =~ %r{.:(\/|\\)} || value =~ %r{\/\/[^\/]+\/[^\/]+}
-    #end
+    # end
     defaultto 'C:\\Default'
   end
 
