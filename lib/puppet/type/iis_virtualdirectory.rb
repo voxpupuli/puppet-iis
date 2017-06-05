@@ -16,11 +16,31 @@ Puppet::Type.newtype(:iis_virtualdirectory) do
     end
   end
 
-  newproperty(:site) do
+  newparam(:site, namevar: true) do
     desc 'The site in which this virtual directory exists'
     validate do |value|
       raise("#{site} is not a valid site name") unless value =~ %r{^[a-zA-Z0-9\-\_\/\s]+$}
     end
+  end
+
+  # Our title_patterns method for mapping titles to namevars for supporting
+  # composite namevars.
+  def self.title_patterns
+    [
+      [
+        /^([^:]+)$/m,
+        [
+          [ :name ]
+        ]
+      ],
+      [
+        /^(.*):(.*)$/,
+        [
+          [ :site ],
+          [ :name ]
+        ]
+      ]
+    ]
   end
 
   autorequire(:iis_site) do
