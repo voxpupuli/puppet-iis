@@ -28,16 +28,16 @@ Puppet::Type.newtype(:iis_virtualdirectory) do
   def self.title_patterns
     [
       [
-        /^([^:]+)$/m,
+        %r{^([^:]+)$},
         [
-          [ :name ]
+          [:name]
         ]
       ],
       [
-        /^(.*):(.*)$/,
+        %r{^(.*):(.*)$},
         [
-          [ :site ],
-          [ :name ]
+          [:site],
+          [:name]
         ]
       ]
     ]
