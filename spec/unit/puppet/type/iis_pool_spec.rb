@@ -40,7 +40,7 @@ describe Puppet::Type.type(:iis_pool) do
   end
 
   describe 'pipeline =>' do
-    %w(Integrated Classic).each do |pipeline|
+    %w[Integrated Classic].each do |pipeline|
       it "should accept #{pipeline}" do
         param = params.merge(pipeline: pipeline)
         expect(subject(param)[:pipeline]).to eq(pipeline)

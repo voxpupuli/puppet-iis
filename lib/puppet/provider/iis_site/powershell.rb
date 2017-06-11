@@ -58,7 +58,7 @@ ps1
   end
 
   def exists?
-    %w(stopped started).include?(@property_hash[:ensure])
+    %w[stopped started].include?(@property_hash[:ensure])
   end
 
   mk_resource_methods
@@ -108,13 +108,13 @@ ps1
 
   # These three properties have to be submitted together
   def self.binders
-    %w(
+    %w[
       protocol
       ip
       port
       host_header
       ssl
-    )
+    ]
   end
 
   binders.each do |property|

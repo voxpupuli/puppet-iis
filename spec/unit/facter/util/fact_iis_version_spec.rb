@@ -13,6 +13,7 @@ describe Facter::Util::Fact do
       Facter::Util::Registryiis.stubs(:iis_version_string_from_registry).returns('Version 8.5')
     end
     let(:facts) { { kernel: 'Windows' } }
+
     it do
       expect(Facter.value(:iis_version)).to eq('8.5')
     end
@@ -25,6 +26,7 @@ describe Facter::Util::Fact do
       Facter::Util::Registryiis.stubs(:iis_version_string_from_registry).returns(nil)
     end
     let(:facts) { { kernel: 'Windows' } }
+
     it do
       expect(Facter.value(:iis_version)).to eq(nil)
     end
