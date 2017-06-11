@@ -54,7 +54,7 @@ Puppet::Type.type(:iis_pool).provide(:powershell, parent: Puppet::Provider::Iisp
   end
 
   def exists?
-    %w(stopped started).include?(@property_hash[:ensure])
+    %w[stopped started].include?(@property_hash[:ensure])
   end
 
   mk_resource_methods
