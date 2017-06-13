@@ -1,5 +1,19 @@
 # Changelog
 
+# 2017-06-13 Release 3.1.0
+
+## Summary
+
+  Release designating the deprecation of puppet-iis for the migration to
+  puppetlabs-iis.  The puppetlabs-iis 4.0.0 series continues the functionality
+  present in the 3.x puppet-iis series along with lots of additional bugfixes,
+  expanded functionality, improved performance, and official support from
+  Puppet.
+
+### Improvements
+
+- Add notification and documentation for namespace migration.
+
 # 2017-02-11 Release 3.0.0
 
 ## Summary
@@ -181,6 +195,7 @@
 - removed validation around wildcard '*' for IP address binding
 
 ## 2013-08-22 - Release 0.0.1
- ### Summary
+
+### Summary
 
    Initial version
