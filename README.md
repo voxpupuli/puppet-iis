@@ -1,3 +1,9 @@
+# Deprecation notice
+
+This module has been moved to the care of Puppet, where it is now being maintained and updated. Find new versions at https://forge.puppet.com/puppetlabs/iis .
+
+Details for migrating can be found at: https://github.com/puppetlabs/puppetlabs-iis/blob/master/MIGRATION.md
+
 # IIS module for Puppet
 
 [![Build Status](https://travis-ci.org/voxpupuli/puppet-iis.png?branch=master)](https://travis-ci.org/voxpupuli/puppet-iis)
