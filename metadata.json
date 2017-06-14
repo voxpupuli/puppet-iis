@@ -1,6 +1,6 @@
 {
   "name": "puppet-iis",
-  "version": "3.1.0",
+  "version": "3.1.1-rc0",
   "author": "Vox Pupuli",
   "license": "MIT",
   "summary": "Module that will manage IIS for windows server 2008 and above. It will help maintain application pools, sites and virtual applications",
