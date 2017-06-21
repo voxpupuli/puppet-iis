@@ -19,12 +19,12 @@ virtual applications with IIS 7 and above.
 #### Table of Contents
 
 1. [Overview](#overview)
-1. [Requirements] (#requirements)
-1. [Types] (#types)
-  * [iis_site] (#iis_site)
-  * [iis_pool] (#iis_pool)
-  * [iis_virtualdirectory] (#iis_virtualdirectory)
-  * [iis_application] (#iis_application)
+1. [Requirements](#requirements)
+1. [Types](#types)
+  * [iis_site](#iis_site)
+  * [iis_pool](#iis_pool)
+  * [iis_virtualdirectory](#iis_virtualdirectory)
+  * [iis_application](#iis_application)
 
 ## Overview
 
