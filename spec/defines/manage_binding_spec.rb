@@ -1,6 +1,10 @@
 require 'spec_helper'
 
 describe 'iis::manage_binding', type: :define do
+  let(:pre_condition) do
+    "iis_site { 'myWebSite': }"
+  end
+
   describe 'when managing an iis site binding' do
     let(:title) { 'myWebSite-port-80' }
     let(:params) do
