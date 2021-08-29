@@ -8,6 +8,8 @@
 #    - puppetlabs-stdlib
 #    - puppetlabs-powershell
 #    - puppet-windowsfeature
+vpt:
+  enabled: false
 spec/acceptance/nodesets/docker/centos-5.yml:
   unmanaged: true
 spec/acceptance/nodesets/docker/centos-6.yml:
